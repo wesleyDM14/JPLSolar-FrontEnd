@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { connect } from 'react-redux';
 
-const AuthRoute = ({ children, authenticated }) => {
-    return authenticated ? children : <Navigate to='/login'/>
+const AuthRoute = ({ children, isAuthenticated }) => {
+    return isAuthenticated ? children : <Navigate to='/' />
 }
 
 const mapStateToProps = ({ session }) => ({
-    authenticated: session.authenticated
+    isAuthenticated: session.isAuthenticated,
 })
 
 export default connect(mapStateToProps)(AuthRoute);

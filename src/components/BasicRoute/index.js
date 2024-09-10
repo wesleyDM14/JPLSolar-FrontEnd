@@ -1,12 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { connect } from "react-redux";
 
-const BasicRoute = ({ children, authenticated }) => {
-    return !authenticated ? children : <Navigate to='/dashboard' />
+const BasicRoute = ({ children, isAuthenticated }) => {
+    return !isAuthenticated ? children : <Navigate to='/dashboard' />
 }
 
 const mapStateToProps = ({ session }) => ({
-    authenticated: session.authenticated
+    isAuthenticated: session.isAuthenticated
 });
 
 export default connect(mapStateToProps)(BasicRoute);
