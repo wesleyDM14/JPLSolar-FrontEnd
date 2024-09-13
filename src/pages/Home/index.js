@@ -31,6 +31,7 @@ const Home = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    
     return (
         <HomeContainer>
             {

@@ -6,11 +6,12 @@ import AuthRoute from './components/AuthRoute';
 
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import MainLayout from './layouts/MainLayout';
 
 
 export const AppRoutes = () => (
     <Routes>
         <Route path='/' element={<BasicRoute><Home /></BasicRoute>} />
-        <Route path='/dashboard' element={<AuthRoute><Dashboard /></AuthRoute>} />
+        <Route path='/dashboard' element={<AuthRoute><MainLayout><Dashboard /></MainLayout></AuthRoute>} />
     </Routes>
 );

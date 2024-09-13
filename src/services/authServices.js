@@ -2,7 +2,6 @@ import axios from "axios";
 import { logout, login } from "../actions/sessionActions";
 
 export const loginUser = async (credentials, navigate, setIsLoading, dispatch) => {
-    console.log('entrou');
     await axios.post(process.env.REACT_APP_BASE_URL + '/api/login', credentials,
         {
             headers: {
@@ -29,13 +28,11 @@ export const loginUser = async (credentials, navigate, setIsLoading, dispatch) =
     });
 }
 
-export const logoutUser = (navigate) => {
-    return (dispatch) => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+export const logoutUser = (navigate, dispatch) => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
 
-        dispatch(logout());
+    dispatch(logout());
 
-        navigate('/');
-    };
+    navigate('/');
 }
