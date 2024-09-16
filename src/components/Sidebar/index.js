@@ -20,7 +20,7 @@ const Sidebar = ({ sidebarOpen, closeSidebar, logoutUser, navigate, user, dispat
     return (
         <div className={sidebarOpen ? 'sidebar-responsive' : ''} id="sidebar">
             <TitleContainer>
-                <Avatar src={Logo} alt="Logo da Empresa" />
+                <Avatar src={Logo} alt="Logo da Empresa" onClick={() => navigate('/dashboard')} />
                 <Title>JPL Solar</Title>
                 <CloseContainer>
                     <FaTimes onClick={() => closeSidebar()} aria-hidden={true} />
@@ -28,32 +28,32 @@ const Sidebar = ({ sidebarOpen, closeSidebar, logoutUser, navigate, user, dispat
             </TitleContainer>
             <MenuContainer>
                 <MenuTitleSection>ADMINISTRATIVO</MenuTitleSection>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/clientes')}>
                     <FaUsers />
                     <MenuItemTitle>Clientes</MenuItemTitle>
                 </MenuItemContainer>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/contratos')}>
                     <FaFileAlt />
                     <MenuItemTitle>Contratos</MenuItemTitle>
                 </MenuItemContainer>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/financeiro')}>
                     <FaMoneyBill />
                     <MenuItemTitle>Financeiro</MenuItemTitle>
                 </MenuItemContainer>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/plantas-solares')}>
                     <TbSolarPanel2 />
                     <MenuItemTitle>Plantas Solares</MenuItemTitle>
                 </MenuItemContainer>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/relatorios')}>
                     <TbReportAnalytics />
                     <MenuItemTitle>Relatórios</MenuItemTitle>
                 </MenuItemContainer>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/tarefas')}>
                     <FaTasks />
                     <MenuItemTitle>Tarefas</MenuItemTitle>
                 </MenuItemContainer>
                 <MenuTitleSection>PESSOAL</MenuTitleSection>
-                <MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/perfil')}>
                     <FaUserAlt />
                     <MenuItemTitle>Perfil</MenuItemTitle>
                 </MenuItemContainer>

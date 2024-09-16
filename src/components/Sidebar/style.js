@@ -110,7 +110,7 @@ export const MenuItemTitle = styled(Link)`
 
 export const LogoutContainer = styled.div`
     display: flex;
-    margin-top: 20px;
+    margin-top: 10px;
     padding: 10px;
     color: ${colors.red};
     align-items: center;

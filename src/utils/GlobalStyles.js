@@ -73,7 +73,7 @@ const GlobalStyle = createGlobalStyle`
     #sidebar {
         background: ${colors.sidebar};
         grid-area: sidebar;
-        overflow-y: auto;
+        overflow-y: hidden;
         padding: 20px;
         -webkit-transition: all 0.5s;
         transition: all 0.5s;

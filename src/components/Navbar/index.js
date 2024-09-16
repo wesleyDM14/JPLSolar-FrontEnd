@@ -37,8 +37,8 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch }) => {
                 <FaBars />
             </NavbarShowIcon>
             <LeftContainer>
-                <NavbarLogo src={logo} alt='Logo da empresa' />
-                <NavbarItemLabel>JPL Solar</NavbarItemLabel>
+                <NavbarLogo src={logo} alt='Logo da empresa' onClick={() => navigate('/dashboard')} />
+                <NavbarItemLabel onClick={() => navigate('/dashboard')}>JPL Solar</NavbarItemLabel>
             </LeftContainer>
             <RightContainer>
                 <SearchIconContainer>
@@ -64,7 +64,7 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch }) => {
                         open && (
                             <DropDownMenu>
                                 <DropDownMenuIndicator />
-                                <DropDownMenuItem>Meu Perfil</DropDownMenuItem>
+                                <DropDownMenuItem onClick={() => navigate('/perfil')}>Meu Perfil</DropDownMenuItem>
                                 <DropDownMenuItem onClick={() => logoutUser(navigate, dispatch)} color={colors.red}> <FaPowerOff style={{ marginRight: '5px' }} /> Logout</DropDownMenuItem>
                             </DropDownMenu>
                         )
