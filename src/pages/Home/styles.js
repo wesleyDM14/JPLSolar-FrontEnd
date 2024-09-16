@@ -25,6 +25,11 @@ export const Content = styled.div`
     background-color: ${colors.background};
     height: 50%;
     border-radius: 15px;
+
+    @media only screen and (max-width: 978px){
+        display: flex;
+        flex-direction: column;
+    }
 `;
 
 export const FirstColumn = styled.div`
@@ -49,6 +54,10 @@ export const Logo = styled.img`
     width: 120px;
     height: auto;
     margin: 5px;
+
+    @media only screen and (max-width: 978px){
+        width: 85px;
+    }
 `;
 
 export const Title = styled.h2`
@@ -56,6 +65,10 @@ export const Title = styled.h2`
     color: ${props => props.color ? props.color : colors.title};
     font-weight: bold;
     text-transform: capitalize;
+
+    @media only screen and (max-width: 978px){
+        font-size: 18px;
+    }
 `;
 
 export const Description = styled.p`
@@ -63,6 +76,10 @@ export const Description = styled.p`
     font-weight: 300;
     color: ${colors.description};
     margin-top: ${props => props.$marginTop ? props.$marginTop : '0'};
+
+    @media only screen and (max-width: 978px){
+        font-size: 14px;
+    }
 `;
 
 export const Button = styled.button`
@@ -79,6 +96,10 @@ export const Button = styled.button`
 
     &:hover{
         background-color: ${colors.btnSecondary};
+    }
+
+    @media only screen and (max-width: 978px){
+        width: 80%;
     }
 `;
 
@@ -97,6 +118,10 @@ export const Icon = styled.a`
 
     &:hover{
         transform: scale(1.2);
+    }
+
+    @media only screen and (max-width: 978px){
+        font-size: 30px;
     }
 `;
 

@@ -39,6 +39,11 @@ const GlobalStyle = createGlobalStyle`
         font-family: 'Open Sans', sans-serif;
     }
 
+    main{
+        grid-area: main;
+        padding: 15px;
+    }
+
     .main-container {
         display: grid;
         height: 100vh;
