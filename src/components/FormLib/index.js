@@ -1,11 +1,13 @@
 import { useField } from "formik"
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 import {
     ErrorMsg,
+    FormTextInput,
     InputContainer,
     InputLabel,
     StyledIcon,
     StyledInput,
+    StyledMaskInput,
     StyledTextInput,
     StyledTextInputContainer,
     StyledTextInputLabel,
@@ -111,4 +113,50 @@ export const TextInput = ({ ...props }) => {
             }
         </StyledTextInputContainer>
     )
+}
+
+export const MaskedInputComponent = ({ mask, ...props }) => {
+    const [field, meta, helpers] = useField(props);
+
+    return (
+        <>
+            <StyledMaskInput
+                {...field}
+                {...props}
+                mask={mask}
+                onChange={(event) => {
+                    const rawValue = event.target.value.replace(/\D/g, '');  // Remove não dígitos
+                    helpers.setValue(rawValue);
+                }}
+                value={props.value}
+                placeholder={props.placeholder}
+            />
+            {meta.touched && meta.error ? (
+                <ErrorMsg>{meta.error}</ErrorMsg>
+            ) : (
+                <ErrorMsg style={{ visibility: 'hidden' }}>.</ErrorMsg>
+            )}
+        </>
+    );
+}
+
+export const FormInput = ({ ...props }) => {
+
+    const [field, meta] = useField(props);
+
+    return (
+        <>
+            <FormTextInput
+                {...field}
+                {...props}
+            />
+            {
+                meta.touched && meta.error ? (
+                    <ErrorMsg>{meta.error}</ErrorMsg>
+                ) : (
+                    <ErrorMsg style={{ visibility: 'hidden' }}>.</ErrorMsg>
+                )
+            }
+        </>
+    );
 }

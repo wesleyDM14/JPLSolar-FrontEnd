@@ -8,7 +8,6 @@ import {
     HomeContainer,
     Icon,
     IconsContainer,
-    LoadingContainer,
     Logo,
     SecondColumn,
     Title,
@@ -20,18 +19,17 @@ import { Form, Formik } from "formik";
 import * as Yup from 'yup';
 import { LoginInput } from "../../components/FormLib";
 import logo from '../../assets/logo.png';
-import { ThreeDots } from "react-loader-spinner";
-import { colors } from "../../utils/GlobalStyles";
 import { loginUser } from "../../services/authServices";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import Loading from "../../components/Loading";
 
 const Home = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    
+
     return (
         <HomeContainer>
             {
@@ -91,10 +89,7 @@ const Home = () => {
                         </SecondColumn>
                     </Content>
                 ) : (
-                    <LoadingContainer>
-                        <Logo src={logo} alt='Logo da Empresa' />
-                        <ThreeDots color={colors.icon} height={49} width={100} />
-                    </LoadingContainer>
+                    <Loading />
                 )
             }
         </HomeContainer>

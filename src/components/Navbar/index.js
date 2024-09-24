@@ -46,6 +46,7 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch }) => {
                 </SearchIconContainer>
                 <SearchBar
                     type="text"
+                    id='search-nav'
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar..."

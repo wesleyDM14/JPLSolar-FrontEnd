@@ -1,14 +1,5 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { colors } from "../../utils/GlobalStyles";
-
-const LoadingScreenAnimation = keyframes`
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-`;
 
 export const HomeContainer = styled.div`
     display: flex;
@@ -131,12 +122,4 @@ export const FormArea = styled.div`
     width: 100%;
     align-items: center;
     justify-content: center;
-`;
-
-export const LoadingContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: ${LoadingScreenAnimation} 1s;
 `;

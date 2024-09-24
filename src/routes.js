@@ -16,12 +16,15 @@ import Reports from './pages/Reports';
 import SolarPlants from './pages/SolarPlants';
 import Tasks from './pages/Tasks';
 
+import NewClient from './pages/Clients/newClient.js';
+
 
 export const AppRoutes = () => (
     <Routes>
         <Route path='/' element={<BasicRoute><Home /></BasicRoute>} />
         <Route path='/dashboard' element={<AuthRoute><MainLayout><Dashboard /></MainLayout></AuthRoute>} />
         <Route path='/clientes' element={<AuthRoute><MainLayout><Clients /></MainLayout></AuthRoute>} />
+        <Route path='/clientes/novo' element={<AuthRoute><MainLayout><NewClient /></MainLayout></AuthRoute>} />
         <Route path='/contratos' element={<AuthRoute><MainLayout><Contracts /></MainLayout></AuthRoute>} />
         <Route path='/financeiro' element={<AuthRoute><MainLayout><Financial /></MainLayout></AuthRoute>} />
         <Route path='/perfil' element={<AuthRoute><MainLayout><Profile /></MainLayout></AuthRoute>} />

@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { colors } from "../../utils/GlobalStyles";
+import MaskedInput from "react-text-mask";
 
 export const InputContainer = styled.div`
     position: relative;
@@ -62,7 +63,7 @@ export const ErrorMsg = styled.div`
 
 export const StyledTextInputContainer = styled.div`
     position: relative;
-    width: 100%;
+    width: 95%;
 `;
 
 export const StyledTextInput = styled.input`
@@ -88,5 +89,63 @@ export const StyledTextInputLabel = styled.label`
         content: "*";
         margin-left: 2px;
         color: ${colors.red};
+    }
+`;
+
+export const StyledMaskInput = styled(MaskedInput)`
+    width: 100%;
+    padding: 10px;
+    font-size: 17px;
+    letter-spacing: 1px;
+    color: ${colors.mainText};
+    background-color:${colors.background};
+    border-radius: 5px;
+    border: 0;
+    outline: 0;
+    display: block;
+    margin: 5px 0 10px 0;
+    transition: ease-in-out 0.3s;
+
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    @media only screen and (max-width: 978px){
+        margin: 5px 0;
+    }
+`;
+
+export const FormTextInput = styled.input`
+    width: 100%;
+    padding: 10px;
+    font-size: 17px;
+    letter-spacing: 1px;
+    color: ${colors.mainText};
+    background-color:${colors.background};
+    border-radius: 5px;
+    border: 0;
+    outline: 0;
+    display: block;
+    margin: 5px 0 10px 0;
+    transition: ease-in-out 0.3s;
+
+    &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    @media only screen and (max-width: 978px){
+        margin: 5px 0;
     }
 `;

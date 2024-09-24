@@ -4,11 +4,24 @@ import { colors } from "../../utils/GlobalStyles";
 export const ProfileContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    grid-area: main;
 
     @media only screen and (max-width: 978px){
         display: flex;
         flex-direction: column;
+        padding: 0 10px;
     }
+`;
+
+export const ProfileHeaderContainer = styled.div`
+    display: flex;
+    margin-bottom: 15px;
+`;
+
+export const ProfileHeaderTitle = styled.h2`
+    font-size: 25px;
+    font-weight: bold;
+    color: ${colors.title};
 `;
 
 export const LeftContainer = styled.div`

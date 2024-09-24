@@ -1,4 +1,5 @@
 import { createGlobalStyle } from "styled-components"
+import { isSmallScreen } from "../functions/layoutFuntions";
 
 export const colors = {
     title: '#F9A825',
@@ -18,12 +19,26 @@ export const colors = {
     navbar: '#1976D2'
 }
 
+export const ModalStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: isSmallScreen() ? '10%' : 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)',
+        overflowY: 'auto',
+        maxHeight: '600px',
+        padding: '0',
+        maxWidth: '90%'
+    }
+}
+
 const GlobalStyle = createGlobalStyle`
 
     * {
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
     }
 
     body {
@@ -73,6 +88,18 @@ const GlobalStyle = createGlobalStyle`
         overflow-y: auto;
         display: flex !important;
         flex-direction: column;
+    }
+
+    .label-responsive {
+        display: flex;
+
+        @media only screen and (max-width: 978px){
+            display: none;
+        }
+    }
+
+    .first-label {
+        margin-left: 5px;
     }
 
     #sidebar {
