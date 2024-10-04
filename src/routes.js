@@ -17,6 +17,7 @@ import SolarPlants from './pages/SolarPlants';
 import Tasks from './pages/Tasks';
 
 import NewClient from './pages/Clients/newClient.js';
+import NewContract from './pages/Contracts/newContract.js';
 
 
 export const AppRoutes = () => (
@@ -26,6 +27,7 @@ export const AppRoutes = () => (
         <Route path='/clientes' element={<AuthRoute><MainLayout><Clients /></MainLayout></AuthRoute>} />
         <Route path='/clientes/novo' element={<AuthRoute><MainLayout><NewClient /></MainLayout></AuthRoute>} />
         <Route path='/contratos' element={<AuthRoute><MainLayout><Contracts /></MainLayout></AuthRoute>} />
+        <Route path='/contratos/novo' element={<AuthRoute><MainLayout><NewContract /></MainLayout></AuthRoute>} />
         <Route path='/financeiro' element={<AuthRoute><MainLayout><Financial /></MainLayout></AuthRoute>} />
         <Route path='/perfil' element={<AuthRoute><MainLayout><Profile /></MainLayout></AuthRoute>} />
         <Route path='/relatorios' element={<AuthRoute><MainLayout><Reports /></MainLayout></AuthRoute>} />

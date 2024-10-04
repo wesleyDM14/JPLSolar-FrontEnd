@@ -1,5 +1,5 @@
 import { useField } from "formik"
-import { forwardRef, useState } from "react";
+import { useState } from "react";
 import {
     ErrorMsg,
     FormTextInput,
@@ -13,6 +13,11 @@ import {
     StyledTextInputLabel,
 } from "./styles";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import DatePicker, { registerLocale } from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker.css';
+import { ptBR } from "date-fns/locale";
+
+registerLocale('pt-BR', ptBR)
 
 export const LoginInput = ({ icon, ...props }) => {
     const [field, meta] = useField(props);
@@ -157,6 +162,22 @@ export const FormInput = ({ ...props }) => {
                     <ErrorMsg style={{ visibility: 'hidden' }}>.</ErrorMsg>
                 )
             }
+        </>
+    );
+}
+
+export const StyledDatePicker = ({ setFieldValue, ...props }) => {
+
+    return (
+        <>
+            <DatePicker
+                onChange={(date) => {
+                    setFieldValue(props.name, date);
+                }}
+                dateFormat="dd/MM/yyyy"
+                locale='pt-BR'
+                {...props}
+            />
         </>
     );
 }

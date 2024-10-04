@@ -48,12 +48,14 @@ const ClientList = ({ clients, navigate, search, page, setPage, itensPerPage, se
     const [modalDeleteIsOpen, setModalDeleteIsOpen] = useState(false);
 
     const openEditModal = () => setModalEditIsOpen(true);
+
     const closeEditModal = () => {
         setModalEditIsOpen(false);
         setSelectedClient({});
     };
 
     const openDeleteModal = () => setModalDeleteIsOpen(true);
+    
     const closeDeleteModal = () => {
         setModalDeleteIsOpen(false);
         setSelectedClient({});

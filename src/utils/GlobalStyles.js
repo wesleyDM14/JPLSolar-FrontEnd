@@ -115,6 +115,28 @@ const GlobalStyle = createGlobalStyle`
         }
     }
 
+    .react-datepicker-wrapper {
+        display: flex !important;
+    }
+    .react-datepicker__input-container {
+        display: flex !important;
+    }
+
+    .react-datepicker__input-container>input {
+        width: 100%;
+        padding: 10px 2px;
+        font-size: 17px;
+        letter-spacing: 1px;
+        color: ${colors.mainText};
+        background-color:${colors.background};
+        border-radius: 5px;
+        border: 0;
+        outline: 0;
+        margin: 0px 0 10px 0;
+        transition: ease-in-out 0.3s;
+        display: block;
+    }
+
     main {
         background-color: ${colors.background};
         grid-area: main;

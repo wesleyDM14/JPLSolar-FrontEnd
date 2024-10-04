@@ -94,7 +94,7 @@ export const StyledTextInputLabel = styled.label`
 
 export const StyledMaskInput = styled(MaskedInput)`
     width: 100%;
-    padding: 10px;
+    padding: 10px 2px;
     font-size: 17px;
     letter-spacing: 1px;
     color: ${colors.mainText};
@@ -123,7 +123,7 @@ export const StyledMaskInput = styled(MaskedInput)`
 
 export const FormTextInput = styled.input`
     width: 100%;
-    padding: 10px;
+    padding: 10px 2px;
     font-size: 17px;
     letter-spacing: 1px;
     color: ${colors.mainText};
