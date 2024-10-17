@@ -161,9 +161,9 @@ export const ContractListContainer = styled.div`
 export const ContractListHeader = styled.div`
     display: grid;
     grid-template-columns: 3fr 1fr 0.5fr;
-    width: 100%;
+    max-width: 100%;
     margin-top: 15px;
-    padding: 10px 0;
+    padding: 10px;
     background-color: ${colors.white};
     border-radius: 5px;
     border-bottom-left-radius: 0;
@@ -282,6 +282,7 @@ export const ButtonGroup = styled.div`
     flex-direction: row;
     justify-content: center;
     padding: 0px 35px;
+    min-width: 90%;
 
     @media only screen and (max-width: 978px){
         flex-direction: column;
@@ -337,9 +338,9 @@ export const SingleContract = styled.div`
     display: grid;
     grid-template-columns: 3fr 1fr 0.5fr;
     height: 50px;
-    width: 100%;
+    max-width: 100%;
     align-items: center;
-    padding: 5px 0;
+    padding: 10px;
     background-color: ${colors.white};
     cursor: pointer;
 
@@ -379,7 +380,6 @@ export const AdminContainer = styled.div`
     display: flex;
     align-items: center;
     flex-direction: row;
-    justify-content: space-around;
 
     @media only screen and (max-width: 978px){
        flex-direction: column;
@@ -387,7 +387,7 @@ export const AdminContainer = styled.div`
 `;
 
 export const EditIconContainer = styled.div`
-    //margin-right: 45%;
+    margin-right: 45%;
     font-size: 18px;
     color: ${colors.mainText};
 
@@ -547,5 +547,118 @@ export const FormSelect = styled.select`
 
     &::-ms-expand {
         display: none;
+    }
+`;
+
+export const DownloadArea = styled.div`
+    display: flex;
+    flex-direction: row;
+
+    @media only screen and (max-width: 978px){
+        justify-content: space-around;
+        align-items: center;
+        min-width: 100%;
+    }
+`;
+
+export const DownloadButton = styled.button`
+    display: flex;
+    width: 150px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    padding: 10px 25px;
+    background-color: ${colors.icon};
+    border: 1px solid green;
+    border-radius: 3px;
+    font-size: 14px;
+    color: ${colors.mainText};
+    margin-right: ${props => props.$left ? props.$left : 0};
+    cursor: pointer;
+
+    svg {
+        margin-right: 5px;
+    }
+
+    &:hover{
+        background-color: ${colors.hover};
+    }
+
+    @media only screen and (max-width: 978px){
+        padding: 5px 15px;
+        margin-right: 0;
+    }
+`;
+
+export const ContractDetailMainContainer = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    margin-top: 20px;
+
+    @media only screen and (max-width: 978px){
+        display: flex;
+        flex-direction: column;
+    }
+`;
+
+export const ContractDetailSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+
+    @media only screen and (max-width: 978px){
+        margin-bottom: 20px;
+    }
+`;
+
+export const ContractDetailSectionTitle = styled.h2`
+    color: ${colors.title};
+    display: flex;
+    align-items: center;
+
+    svg {
+        margin-right: 5px;
+        font-size: 22px;
+    }
+
+    @media only screen and (max-width: 978px){
+
+        font-size: 18px;
+
+        svg {
+            font-size: 18px;
+        }
+    }
+`;
+
+export const ContractDetailSectionSeparator = styled.hr`
+    border: none;
+    height: 2px;
+    background-color: ${colors.hover};
+    width: 80%;
+    margin-bottom: 20px;
+`;
+
+export const ContractDetailArea = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`;
+
+export const ContractDetailLabel = styled.p`
+    margin-right: 5px;
+    font-weight: bold;
+
+    @media only screen and (max-width: 978px){
+        font-size: 14px;
+    }
+`;
+
+export const ContractDetailValue = styled.p`
+    font-size: 16px;
+
+    @media only screen and (max-width: 978px){
+        font-size: 14px;
     }
 `;

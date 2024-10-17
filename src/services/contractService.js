@@ -1,4 +1,5 @@
 import axios from "axios";
+import { saveAs } from 'file-saver';
 
 export const createContract = async (contract, user, navigate, setSubmitting, setFieldError) => {
     await axios.post(process.env.REACT_APP_BASE_URL + '/api/contratos', contract, {
@@ -37,8 +38,21 @@ export const getContractsByUserId = async (user, setContratos, setLoading) => {
     });
 }
 
-export const getContractById = () => {
-
+export const getContractById = async (contractId, user, setContract, setLoading) => {
+    await axios.get(process.env.REACT_APP_BASE_URL + `/api/contratos/${contractId}`, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user.accessToken}`
+        }
+    }).then((response) => {
+        const { data } = response;
+        setContract(data);
+    }).catch((err) => {
+        console.error(err.response.data.message);
+        window.alert(err.response.data.message);
+    }).finally(() => {
+        setLoading(false);
+    });
 }
 
 export const updateContract = async (contract, user, setSubmitting, setFieldError, setLoading, closeEditModal) => {
@@ -76,5 +90,44 @@ export const deleteContract = async (contractId, user, setLoading, closeDeleteMo
     }).catch((err) => {
         console.error(err.response.data.message);
         window.alert(err.response.data.message);
+    });
+}
+
+export const downloadContractPdf = async (contractId, user, setDownloading) => {
+    await axios.get(process.env.REACT_APP_BASE_URL + `/api/contratos/${contractId}/pdf`, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${user.accessToken}`
+        },
+        responseType: 'arraybuffer'
+    }).then((response) => {
+        const { data } = response;
+        const blob = new Blob([data], { type: 'application/pdf' });
+        saveAs(blob, 'contrato.pdf');
+    }).catch((err) => {
+        console.error(err.response.data.message);
+        window.alert(err.response.data.message);
+    }).finally(() => {
+        setDownloading(false);
+    });
+}
+
+export const downloadPromissoriaPdf = async (contractId, user, setDownloading) => {
+    await axios.get(process.env.REACT_APP_BASE_URL + `/api/contratos/${contractId}/promissoria/pdf`, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${user.accessToken}`
+        },
+        responseType: 'arraybuffer'
+    }).then((response) => {
+        const { data } = response;
+        const blob = new Blob([data], { type: 'application/pdf' });
+        saveAs(blob, 'promissoria.pdf');
+    }).catch((err) => {
+        console.log(err);
+        console.error(err.response.data.message);
+        window.alert(err.response.data.message);
+    }).finally(() => {
+        setDownloading(false);
     });
 }

@@ -75,6 +75,7 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
         setModalDeleteIsOpen(false);
         setSelectedContract({});
     };
+
     const validationSchemaPersonal = Yup.object({
         nome: Yup.string().required('Nome é obrigatório'),
         email: Yup.string().email().required('Email é obrigatório'),
@@ -228,6 +229,7 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                 currentPageItems.map((contract) => (
                     <SingleContract
                         key={contract.id}
+                        onClick={() => navigate(`/contratos/${contract.id}`)}
                     >
                         <ContractValueContainer>
                             <ContractLabel><FaUser /></ContractLabel>
@@ -238,13 +240,15 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                             <ContractValue className="label-responsive">{new Date(contract.dataContrato).toLocaleDateString()}</ContractValue>
                         </ContractValueContainer>
                         <AdminContainer>
-                            <EditIconContainer onClick={() => {
+                            <EditIconContainer onClick={(event) => {
+                                event.stopPropagation();
                                 setSelectedContract(contract);
                                 openEditModal();
                             }}>
                                 <FaEdit />
                             </EditIconContainer>
-                            <DeleteIconContainer onClick={() => {
+                            <DeleteIconContainer onClick={(event) => {
+                                event.stopPropagation();
                                 setSelectedContract(contract);
                                 openDeleteModal();
                             }}>
@@ -779,6 +783,12 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                                         )
                                     }
                                     <ButtonGroup>
+                                        <BackButton
+                                            onClick={() => closeEditModal()}
+                                            type="button"
+                                        >
+                                            Cancelar
+                                        </BackButton>
                                         {
                                             step > 1 && (
                                                 <BackButton

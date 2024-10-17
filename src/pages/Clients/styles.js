@@ -161,9 +161,9 @@ export const ClientListContainer = styled.div`
 export const ClientListHeader = styled.div`
     display: grid;
     grid-template-columns: 3fr 1fr 1fr 0.5fr;
-    width: 100%;
+    max-width: 100%;
     margin-top: 15px;
-    padding: 10px 0;
+    padding: 10px;
     background-color: ${colors.white};
     border-radius: 5px;
     border-bottom-left-radius: 0;
@@ -303,9 +303,9 @@ export const SingleClient = styled.div`
     display: grid;
     grid-template-columns: 3fr 1fr 1fr 0.5fr;
     height: 50px;
-    width: 100%;
+    max-width: 100%;
     align-items: center;
-    padding: 5px 0;
+    padding: 10px;
     background-color: ${colors.white};
     cursor: pointer;
 

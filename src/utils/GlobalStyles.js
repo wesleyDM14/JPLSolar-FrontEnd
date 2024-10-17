@@ -137,6 +137,14 @@ const GlobalStyle = createGlobalStyle`
         display: block;
     }
 
+    .responsive-header {
+        @media only screen and (max-width: 978px){
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+    }
+
     main {
         background-color: ${colors.background};
         grid-area: main;
