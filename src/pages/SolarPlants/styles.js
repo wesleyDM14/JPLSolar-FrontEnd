@@ -166,28 +166,11 @@ export const SolarPlantListContainer = styled.div`
     @media only screen and (min-width: 1920px){
         grid-template-columns: 1fr 1fr 1fr;
     }
-`;
-
-export const SolarPlantListHeader = styled.div`
-    display: grid;
-    grid-template-columns: 3fr 1fr 0.5fr;
-    max-width: 100%;
-    margin-top: 15px;
-    padding: 10px;
-    background-color: ${colors.white};
-    border-radius: 5px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
 
     @media only screen and (max-width: 978px){
-        font-size: 80%;
-        grid-template-columns: 2fr 0.5fr;
-        padding: 5px 1px;
+        display: flex;
+        flex-direction: column;
     }
-`;
-
-export const SolarPlantListHeaderLabel = styled.h5`
-    font-size: 14px;
 `;
 
 export const StyledFormArea = styled.div`
@@ -277,16 +260,6 @@ export const SubItensContainer = styled.div`
     }
 `;
 
-export const SubItensContainerTriplo = styled.div`
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-
-    @media only screen and (max-width: 978px){
-        display: flex;
-        flex-direction: column;
-    }
-`;
-
 export const ButtonGroup = styled.div`
     display: flex;
     flex-direction: row;
@@ -346,20 +319,13 @@ export const BackButton = styled.button`
 
 export const SingleSolarPlant = styled.div`
     display: grid;
-    grid-template-columns: 3fr 6fr 1fr;
+    grid-template-columns: 1fr 6fr 1fr;
     margin-top: 20px;
-    padding: 15px;
+    padding: 25px;
     border-radius: 5px;
     background-color: ${colors.white};
     box-shadow: 5px 5px 13px #ededed, -5px -5px 13px #fff;
     cursor: pointer;
-    align-items: center;
-`;
-
-export const SolarPlantValueContainer = styled.div`
-    display: flex;
-    align-items: center;
-    flex-direction: row;
 `;
 
 export const SolarPlantValue = styled.a`
@@ -369,7 +335,7 @@ export const SolarPlantValue = styled.a`
     text-decoration: none;
 
     @media only screen and (max-width: 978px){
-       font-size: 12px;
+       font-size: 13px;
     }
 `;
 
@@ -379,18 +345,15 @@ export const SolarPlantLabel = styled.p`
     margin-right: 5px;
 
     @media only screen and (max-width: 978px){
-       font-size: 10px;
+       font-size: 14px;
     }
 `;
 
 export const AdminContainer = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-direction: row;
-
-    @media only screen and (max-width: 978px){
-       flex-direction: column;
-    }
 `;
 
 export const EditIconContainer = styled.div`
@@ -399,7 +362,6 @@ export const EditIconContainer = styled.div`
     color: ${colors.mainText};
 
     @media only screen and (max-width: 978px){
-       margin-right: 0;
        font-size: 14px;
     }
 `;
@@ -492,6 +454,36 @@ export const FormSelect = styled.select`
 
 export const IconSolarPlantContainer = styled.div`
     font-size: 80px;
-    align-self: center;
+    display: flex;
     color: ${colors.icon};
+    align-items: center;
+    justify-content: center;
+
+    @media only screen and (max-width: 978px){
+        font-size: 60px;
+    }
+`;
+
+export const SolarPlantsInfo = styled.div`
+    display: inline-block;
+    margin-left: 25px;
+
+    @media only screen and (max-width: 978px){
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+`;
+
+export const SolarPlantsOperations = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+`;
+
+export const IconOperation = styled.div`
+    color: ${props => props.$active === '1' ? colors.icon : props.$active === '0' ? colors.sidebar : colors.red};
+    margin-bottom: 25px;
+    font-size: 30px;
 `;
