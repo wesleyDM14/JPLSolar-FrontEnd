@@ -648,17 +648,10 @@ export const ContractDetailArea = styled.div`
 
 export const ContractDetailLabel = styled.p`
     margin-right: 5px;
+    font-size: 14px;
     font-weight: bold;
-
-    @media only screen and (max-width: 978px){
-        font-size: 14px;
-    }
 `;
 
 export const ContractDetailValue = styled.p`
-    font-size: 16px;
-
-    @media only screen and (max-width: 978px){
-        font-size: 14px;
-    }
+    font-size: 14px;
 `;

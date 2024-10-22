@@ -11,6 +11,10 @@ export const InputContainer = styled.div`
     }
 `;
 
+export const FormInputContainer = styled.div`
+    position: relative;
+`;
+
 export const InputLabel = styled.label`
     color: ${colors.title};
     
@@ -134,6 +138,7 @@ export const FormTextInput = styled.input`
     display: block;
     margin: 5px 0 10px 0;
     transition: ease-in-out 0.3s;
+    position: relative;
 
     &::-webkit-inner-spin-button {
         -webkit-appearance: none;

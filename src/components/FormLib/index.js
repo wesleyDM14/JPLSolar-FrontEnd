@@ -2,6 +2,7 @@ import { useField } from "formik"
 import { useState } from "react";
 import {
     ErrorMsg,
+    FormInputContainer,
     FormTextInput,
     InputContainer,
     InputLabel,
@@ -148,13 +149,35 @@ export const MaskedInputComponent = ({ mask, ...props }) => {
 export const FormInput = ({ ...props }) => {
 
     const [field, meta] = useField(props);
+    const [show, setShow] = useState(false);
 
     return (
-        <>
-            <FormTextInput
-                {...field}
-                {...props}
-            />
+        <FormInputContainer>
+            {
+                props.type !== 'password' && (
+                    <FormTextInput
+                        {...field}
+                        {...props}
+                    />
+                )
+            }
+            {
+                props.type === 'password' && (
+                    <FormTextInput
+                        {...field}
+                        {...props}
+                        type={show ? "text" : "password"}
+                    />
+                )
+            }
+            {
+                props.type === 'password' && (
+                    <StyledIcon onClick={() => setShow(!show)} $right style={{ cursor: 'pointer' }} className="eyeIcon">
+                        {show && <FiEye />}
+                        {!show && <FiEyeOff />}
+                    </StyledIcon>
+                )
+            }
             {
                 meta.touched && meta.error ? (
                     <ErrorMsg>{meta.error}</ErrorMsg>
@@ -162,7 +185,7 @@ export const FormInput = ({ ...props }) => {
                     <ErrorMsg style={{ visibility: 'hidden' }}>.</ErrorMsg>
                 )
             }
-        </>
+        </FormInputContainer>
     );
 }
 

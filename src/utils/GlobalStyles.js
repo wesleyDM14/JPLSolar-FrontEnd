@@ -145,6 +145,12 @@ const GlobalStyle = createGlobalStyle`
         }
     }
 
+    .eyeIcon {
+        top: 20% !important;
+        color: ${colors.mainText} !important;
+        font-size: 16px !important;
+    }
+
     main {
         background-color: ${colors.background};
         grid-area: main;

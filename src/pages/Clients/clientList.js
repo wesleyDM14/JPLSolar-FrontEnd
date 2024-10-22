@@ -82,7 +82,7 @@ const ClientList = ({ clients, navigate, search, page, setPage, itensPerPage, se
             </ClientListHeader>
             {
                 currentPageItens.map((cliente) => (
-                    <SingleClient key={cliente.id}>
+                    <SingleClient key={cliente.id} onClick={() => navigate(`/plantas-solares/cliente/${cliente.id}`)}>
                         <ClientValueContainer>
                             <ClientLabel><FaUser style={{ marginLeft: '5px' }} /></ClientLabel>
                             <ClientValue>{cliente.name}</ClientValue>
