@@ -4,6 +4,7 @@ import { colors } from "../../utils/GlobalStyles";
 export const SolarPlantsContainer = styled.div`
     grid-area: main;
     display: block;
+    padding: 0 25px;
 
     @media only screen and (max-width: 978px){
         padding: 0 10px;
@@ -19,7 +20,7 @@ export const SolarPlantHeader = styled.div`
     @media only screen and (max-width: 978px){
         padding: 0;
     }
-`
+`;
 
 export const SolarPlantTitle = styled.h1`
     display: flex;
@@ -486,4 +487,379 @@ export const IconOperation = styled.div`
     color: ${props => props.$active === '1' ? colors.icon : props.$active === '0' ? colors.sidebar : colors.red};
     margin-bottom: 25px;
     font-size: 30px;
+`;
+
+export const TitleDetailContainer = styled.div`
+    display: flex;
+    align-items: center;
+
+    @media only screen and (max-width: 978px){
+        margin-bottom: 15px;
+    }
+`;
+
+export const TitleIconContainer = styled.div`
+    font-size: 50px;
+    margin-right: 20px;
+    color: ${colors.icon};
+`;
+
+export const Greeting = styled.div`
+    display: block;
+`;
+
+export const TitleContent = styled.h1`
+    font-size: 24px;
+    color: ${colors.title};
+    margin-bottom: 5px;
+
+    @media only screen and (max-width: 978px){
+        font-size: 18px;
+    }
+`;
+
+export const TitleDescription = styled.p`
+    font-size: 14px;
+    font-weight: 700;
+    color: ${colors.description};
+
+    @media only screen and (max-width: 978px){
+        font-size: 12px;
+        font-weight: 500;
+    }
+`;
+
+export const InfoHome = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: auto;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: ${colors.white};
+    box-shadow: 5px 5px 13px #ededed, -5px -5px 13px ${colors.white};
+
+    @media only screen and (max-width: 978px){
+        width: 90%;
+    }
+`;
+
+export const InforHomeIconContainer = styled.div`
+    font-size: 30px;
+    margin-right: 15px;
+    color: ${colors.icon};
+
+    @media only screen and (min-width: 1920px){
+        font-size: 40px;
+    }
+`;
+
+export const InfoHomeCard = styled.div`
+    display: inline-block;
+    align-items: center;
+    justify-content: space-between;
+`;
+
+export const InfoHomeTitle = styled.h1`
+    font-size: 18px;
+    color: ${colors.title};
+
+    @media only screen and (min-width: 1920px){
+        font-size: 25px;
+    }
+`;
+
+export const InfoHomeDetail = styled.p`
+    font-size: 12px;
+    color: ${colors.mainText};
+    font-weight: 700;
+`;
+
+export const SolarPlantDetailHeader = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 35px;
+
+    @media only screen and (max-width: 978px){
+        flex-direction: column;
+        padding: 5px;
+    }
+`;
+
+export const MainCards = styled.div`
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin: 20px 0;
+
+    @media only screen and (max-width: 978px){
+        display: flex;
+        flex-direction: column;
+    }
+`;
+
+export const Card = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    height: 70px;
+    padding: 20px;
+    border-radius: 5px;
+    background-color: ${colors.white};
+    box-shadow: 5px 5px 13px #ededed, -5px -5px 13px ${colors.white};
+`;
+
+export const BoltIconContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    color: ${colors.greenNeutral};
+    font-size: 40px;
+    margin-right: 30px;
+`;
+
+export const CardInner = styled.div`
+    display: inline;
+    text-align: center;
+`;
+
+export const CardInnerTitle = styled.h1`
+    color: ${colors.mainText};
+`;
+
+export const CardInnerContentContainer = styled.div`
+    flex-direction: column;
+`;
+
+export const CardInnerContent = styled.span`
+    font-size: 18px;
+    margin-right: 5px;
+`;
+
+export const ChartsCards = styled.div`
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 50px;
+
+    @media only screen and (max-width: 978px) {
+        grid-template-columns: 1fr;
+    }
+
+    @media only screen and (min-width: 1920px){
+        grid-template-columns: repeat(2, 1fr);
+    }
+`;
+
+export const Chart = styled.div`
+    padding: 25px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 5px 5px 13px #ededed, -5px -5px 13px #fff;
+    max-height: 500px;
+    min-height: 500px;
+    overflow-y: scroll;
+
+    @media only screen and (max-width: 978px) {
+        min-height: 350px;
+        overflow-y: auto;
+    }
+`;
+
+export const ChartTitle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`;
+
+export const ChartTitleContainer = styled.div``;
+
+export const ChartTitleContent = styled.h1`
+    font-size: 24px;
+    color: ${colors.sidebar};
+    margin-bottom: 5px;
+`;
+
+export const ChartLeftIconContainer = styled.div`
+    color: ${colors.white};
+    font-size: 20px;
+    background: ${colors.icon};
+    border-radius: 200px 0px 200px 200px;
+    -moz-border-radius: 200px 0px 200px 200px;
+    -webkit-border-radius: 200px 0px 200px 200px;
+    padding: 15px;
+`;
+
+export const ChartRightIconContainer = styled.div`
+    color: ${colors.white};
+    font-size: 20px;
+    background: ${colors.red};
+    border-radius: 200px 0px 200px 200px;
+    -moz-border-radius: 200px 0px 200px 200px;
+    -webkit-border-radius: 200px 0px 200px 200px;
+    padding: 15px;
+`;
+
+export const Device = styled.div`
+    padding: 15px;
+    border-radius: 5px;
+    background: ${colors.white};
+    box-shadow: 5px 5px 13px #ededed, -5px -5px 13px ${colors.white};
+    margin-top: 20px;
+`;
+
+export const DeviceCards = styled.div`
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin: 10px;
+`;
+
+export const DeviceCardContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+export const DeviceCardContent = styled.h4`
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 5px;
+
+    @media only screen and (min-width: 1920px) {
+        font-size: 12px;
+    }
+`;
+
+export const DeviceCardIconContainer = styled.div`
+    font-size: 80px;
+    color: ${colors.icon};
+    text-align: center;
+`;
+
+export const InfoDeviceIconContainer = styled.div`
+    font-size: 12px;
+    color: ${colors.greenNeutral};
+    display: inline;
+    margin: 2px;
+    cursor: pointer;
+`;
+
+export const StyledThead = styled.thead`
+    display: table-header-group;
+    vertical-align: middle;
+    border-color: inherit;
+`;
+
+export const TableError = styled.table`
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    display: table;
+    box-sizing: border-box;
+    text-indent: initial;
+    margin-top: 15px;
+`;
+
+export const TableHeaderContainer = styled.tr`
+    height: 48px;
+    color: ${colors.white};
+    font-weight: bold;
+    background: ${colors.darkGray};
+    font-size: 13px;
+    display: table-row;
+    vertical-align: inherit;
+
+    @media only screen and (max-width: 978px) {
+        height: auto;
+        font-size: 10px;
+    }
+`;
+
+export const TableHeaderContent = styled.td`
+    display: table-cell;
+    vertical-align: inherit;
+    border: 1px solid #000;
+    padding: 2px 10px;
+`;
+
+export const TableBodyContainer = styled.tr`
+    height: 48px;
+    color: ${colors.mainText};
+    background: ${colors.white};
+    font-size: 11px;
+    border: 1px solid ${colors.mainText};
+    display: table-row;
+    vertical-align: inherit;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 10px;
+    }
+`;
+
+export const TableBodyContent = styled.td`
+    display: table-cell;
+    vertical-align: inherit;
+    border-bottom: 1px solid ${colors.darkGray};
+    padding: 2px 10px;
+`;
+
+export const LoadingchartContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 35%;
+
+    @media only screen and (max-width: 978px) {
+        height: auto;
+    }
+`;
+
+export const SelectedErrorDateContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+`;
+
+export const SelectedChartContainer = styled.div`
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+`;
+
+export const ChartSelectedDateContainer = styled.div`
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+
+export const ChartTypeSelectedContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    align-items: center;
+    justify-content: center;
+`;
+
+export const ChartTypeButton = styled.button`
+    background-color: ${colors.greenNeutral};
+    border: none;
+    color: ${colors.white};
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-left: 2px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    :hover {
+        background-color: ${colors.navbar};
+    }
 `;

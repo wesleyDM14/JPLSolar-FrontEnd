@@ -91,10 +91,9 @@ const GlobalStyle = createGlobalStyle`
     }
 
     .label-responsive {
-        display: flex;
-
+    
         @media only screen and (max-width: 978px){
-            display: none;
+            display: none !important;
         }
     }
 
@@ -118,11 +117,15 @@ const GlobalStyle = createGlobalStyle`
     .react-datepicker-wrapper {
         display: flex !important;
     }
+
     .react-datepicker__input-container {
         display: flex !important;
     }
 
     .react-datepicker__input-container>input {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
         padding: 10px 2px;
         font-size: 17px;
@@ -149,6 +152,56 @@ const GlobalStyle = createGlobalStyle`
         top: 20% !important;
         color: ${colors.mainText} !important;
         font-size: 16px !important;
+    }
+
+    .react-date-picker {
+        display: flex !important;
+        width: 90%;
+        background-color: #fff;
+        border-color: #dbdbdb;
+        border-radius: 4px;
+    }
+
+    .react-date-picker__inputGroup {
+        padding-bottom: calc(.5em - 1px) !important;
+        padding-left: calc(.75em - 1px) !important;
+        padding-right: calc(.75em - 1px) !important;
+        padding-top: calc(.5em - 1px) !important;
+    }
+
+    .react-calendar {
+        background: #fff;
+        border: 1px solid #a0a096;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 1.125em;
+        max-width: 100%;
+        width: 350px;
+    }
+
+    .react-calendar__navigation {
+        display: flex;
+        height: 44px;
+        margin-bottom: 1em;
+    }
+
+    .react-calendar__navigation > button {
+        background: none;
+        min-width: 44px;
+        border: 0 !important;
+    }
+
+    .react-calendar__tile {
+        background: none;
+        line-height: 16px;
+        max-width: 100%;
+        padding: 10px 6px;
+        text-align: center;
+        border: 0;
+    }
+
+    .react-calendar__tile--active {
+        background-color: ${colors.sidebar};
+        color: ${colors.white};
     }
 
     main {

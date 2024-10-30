@@ -84,7 +84,7 @@ const SolarPlantList = ({ solarPlants, navigate, search, page, setPage, itensPer
             <SolarPlantListContainer>
                 {
                     currentPageItens.map((solarPlant) => (
-                        <SingleSolarPlant key={solarPlant.id} onClick={() => navigate('')}>
+                        <SingleSolarPlant key={solarPlant.id} onClick={() => navigate(`/plantas-solares/${solarPlant.id}`)}>
                             <IconSolarPlantContainer>
                                 <FaSolarPanel />
                             </IconSolarPlantContainer>
