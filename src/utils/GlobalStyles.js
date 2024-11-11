@@ -204,6 +204,22 @@ const GlobalStyle = createGlobalStyle`
         color: ${colors.white};
     }
 
+    .label {
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .label-chart-responsive {
+        font-size: 12px;
+        @media only screen and (max-width: 978px){
+            font-size: 7px;
+        }
+    }
+
+    .detail-span {
+        font-size: 12px !important;
+    }
+
     main {
         background-color: ${colors.background};
         grid-area: main;

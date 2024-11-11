@@ -1,4 +1,5 @@
 import axios from "axios";
+import { saveAs } from 'file-saver';
 
 export const createSolarPlant = async (solarPlant, user, navigate, setSubmitting, setFieldError) => {
     await axios.post(process.env.REACT_APP_BASE_URL + `/api/plantasSolar`, solarPlant, {
@@ -149,5 +150,74 @@ export const getErrorListData = async (solarPlant, solarPlantParams, year, user,
         console.log(err.response.data.message);
     }).finally(() => {
         setLoadingErrorList(false);
+    });
+}
+
+export const getChartByType = async (solarPlant, chartDate, chartType, solarPlantParams, user, setPowerData, setLoadingChart) => {
+    if (chartType === 'year' || chartType === 'mouth') {
+        let temp = chartDate.getFullYear();
+        chartDate = temp;
+    } else if (chartType === 'day') {
+        let temp = chartDate.getFullYear() + '-' + (chartDate.getMonth() + 1);
+        chartDate = temp;
+    } else {
+        let temp = chartDate.toISOString().slice(0, 10);
+        chartDate = temp;
+    }
+
+    await axios.post(process.env.REACT_APP_BASE_URL + '/api/plantasSolar/getChartsByType', {
+        login: solarPlant.login,
+        password: solarPlant.password,
+        date: chartDate,
+        type: chartType,
+        plantId: solarPlantParams.plantData.id,
+        deviceTypeName: solarPlantParams.deviceSN.deviceTypeName,
+        deviceSN: solarPlantParams.deviceSN.alias,
+        inversor: solarPlant.inversor
+    }, {
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${user.accessToken}`
+        }
+    }).then((response) => {
+        if (chartType === 'time') {
+            if (solarPlantParams.deviceSN.deviceTypeName === 'max') {
+                setPowerData(response.data.chart.pac);
+            } else if (solarPlantParams.deviceSN.deviceTypeName === 'tlx') {
+                setPowerData(response.data.chart.charts.ppv);
+            }
+        } else {
+            if (solarPlantParams.deviceSN.deviceTypeName === 'max') {
+                setPowerData(response.data.chart.energy);
+            } else if (solarPlantParams.deviceSN.deviceTypeName === 'tlx') {
+                setPowerData(response.data.chart.charts.energy);
+            }
+        }
+    }).catch((err) => {
+        window.alert(err.response.data.message);
+        console.log(err.response.data.message);
+    }).finally(() => {
+        setLoadingChart(false);
+    });
+}
+
+export const getReportByPlantId = async (solarPlantId, user, year, setDownloading) => {
+    await axios.post(process.env.REACT_APP_BASE_URL + `/api/plantaSolar/${solarPlantId}/pdf`, {
+        year: year,
+    }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.accessToken}`
+        },
+        responseType: 'arraybuffer'
+    }).then((response) => {
+        const { data } = response;
+        const blob = new Blob([data], { type: 'application/pdf' });
+        saveAs(blob, 'relatório.pdf');
+    }).catch((err) => {
+        console.error(err);
+        window.alert(err.response.data.message);
+    }).finally(() => {
+        setDownloading(false);
     });
 }

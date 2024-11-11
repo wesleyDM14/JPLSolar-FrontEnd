@@ -594,8 +594,7 @@ export const MainCards = styled.div`
     margin: 20px 0;
 
     @media only screen and (max-width: 978px){
-        display: flex;
-        flex-direction: column;
+        gap: 5px;
     }
 `;
 
@@ -609,6 +608,11 @@ export const Card = styled.div`
     border-radius: 5px;
     background-color: ${colors.white};
     box-shadow: 5px 5px 13px #ededed, -5px -5px 13px ${colors.white};
+
+    @media only screen and (max-width: 978px) {
+        height: 50px;
+        padding: 5px;
+    }
 `;
 
 export const BoltIconContainer = styled.div`
@@ -618,7 +622,12 @@ export const BoltIconContainer = styled.div`
     margin-bottom: 5px;
     color: ${colors.greenNeutral};
     font-size: 40px;
-    margin-right: 30px;
+    //margin-right: 15px;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 20px;
+        margin-right: 2px;
+    }
 `;
 
 export const CardInner = styled.div`
@@ -628,15 +637,26 @@ export const CardInner = styled.div`
 
 export const CardInnerTitle = styled.h1`
     color: ${colors.mainText};
+
+    @media only screen and (max-width: 978px) {
+        font-size: 18px;
+    }
 `;
 
 export const CardInnerContentContainer = styled.div`
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 `;
 
 export const CardInnerContent = styled.span`
     font-size: 18px;
     margin-right: 5px;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 15px;
+    }
 `;
 
 export const ChartsCards = styled.div`
@@ -647,6 +667,7 @@ export const ChartsCards = styled.div`
 
     @media only screen and (max-width: 978px) {
         grid-template-columns: 1fr;
+        margin-top: 30px;
     }
 
     @media only screen and (min-width: 1920px){
@@ -673,6 +694,7 @@ export const ChartTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 10px;
 `;
 
 export const ChartTitleContainer = styled.div``;
@@ -681,6 +703,10 @@ export const ChartTitleContent = styled.h1`
     font-size: 24px;
     color: ${colors.sidebar};
     margin-bottom: 5px;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 20px;
+    }
 `;
 
 export const ChartLeftIconContainer = styled.div`
@@ -691,6 +717,11 @@ export const ChartLeftIconContainer = styled.div`
     -moz-border-radius: 200px 0px 200px 200px;
     -webkit-border-radius: 200px 0px 200px 200px;
     padding: 15px;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 15px;
+        padding: 8px;
+    }
 `;
 
 export const ChartRightIconContainer = styled.div`
@@ -701,6 +732,11 @@ export const ChartRightIconContainer = styled.div`
     -moz-border-radius: 200px 0px 200px 200px;
     -webkit-border-radius: 200px 0px 200px 200px;
     padding: 15px;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 15px;
+        padding: 8px;
+    }
 `;
 
 export const Device = styled.div`
@@ -715,11 +751,20 @@ export const DeviceCards = styled.div`
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     margin: 10px;
+
+    @media only screen and (max-width: 978px) {
+        display: flex;
+        flex-direction: column;
+    }
 `;
 
 export const DeviceCardContainer = styled.div`
     display: flex;
     flex-direction: column;
+
+    @media only screen and (max-width: 978px) {
+        justify-content: center;
+    }
 `;
 
 export const DeviceCardContent = styled.h4`
@@ -811,7 +856,7 @@ export const LoadingchartContainer = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 35%;
+    margin-top: 25%;
 
     @media only screen and (max-width: 978px) {
         height: auto;
@@ -829,6 +874,10 @@ export const SelectedChartContainer = styled.div`
     display: flex;
     width: 100%;
     flex-direction: row;
+
+    @media only screen and (max-width: 978px) {
+        flex-direction: column;
+    }
 `;
 
 export const ChartSelectedDateContainer = styled.div`
@@ -836,6 +885,10 @@ export const ChartSelectedDateContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
+
+    @media only screen and (max-width: 978px) {
+        width: 100%;
+    }
 `;
 
 export const ChartTypeSelectedContainer = styled.div`
@@ -844,10 +897,15 @@ export const ChartTypeSelectedContainer = styled.div`
     width: 50%;
     align-items: center;
     justify-content: center;
+
+    @media only screen and (max-width: 978px) {
+        width: 100%;
+        margin-top: 15px;
+    }
 `;
 
 export const ChartTypeButton = styled.button`
-    background-color: ${colors.greenNeutral};
+    background-color: ${props => props.$active ? colors.hover : colors.greenNeutral};
     border: none;
     color: ${colors.white};
     padding: 10px;
@@ -859,7 +917,102 @@ export const ChartTypeButton = styled.button`
     border-radius: 5px;
     cursor: pointer;
 
+    &:disabled {
+        cursor: not-allowed !important;
+    }
+
     :hover {
         background-color: ${colors.navbar};
+    }
+`;
+
+export const GenerateReportContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+`;
+
+export const GenerateReportIconContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+        color: ${colors.icon};
+        font-size: 45px;
+    }
+
+    @media only screen and (max-width: 978px) {
+        svg {
+            margin-top: 25px;
+        }
+    }
+`;
+
+export const GenerateReportTitle = styled.span`
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 5px;
+    text-align: center;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 12px;
+    }
+`;
+
+export const ModalOverlay = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+`;
+
+export const ModalContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    text-align: left;
+`;
+
+export const ModalTitle = styled.h3`
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: ${colors.title};
+    text-align: center;
+`;
+
+export const ModalLabel = styled.p`
+    font-size: 14px;
+    color: ${colors.mainText};
+`;
+
+export const ModalButton = styled.button`
+    background-color: ${colors.btnPrimary};
+    align-self: center;
+    border: none;
+    color: ${colors.white};
+    padding: 7px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin-left: 2px;
+    margin-top: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+
+    :hover {
+        background-color: ${colors.hover};
     }
 `;

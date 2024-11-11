@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getErrorListData, getSolarPlantById, getSolarPlantParams } from "../../services/solarPlantServices";
+import { getChartByType, getErrorListData, getReportByPlantId, getSolarPlantById, getSolarPlantParams } from "../../services/solarPlantServices";
 import Loading from "../../components/Loading";
 import {
+    BackButton,
     BoltIconContainer,
+    ButtonGroup,
     Card,
     CardInner,
     CardInnerContent,
@@ -24,6 +26,9 @@ import {
     DeviceCardContent,
     DeviceCardIconContainer,
     DeviceCards,
+    GenerateReportContainer,
+    GenerateReportIconContainer,
+    GenerateReportTitle,
     Greeting,
     InfoDeviceIconContainer,
     InfoHome,
@@ -33,11 +38,17 @@ import {
     InforHomeIconContainer,
     LoadingchartContainer,
     MainCards,
+    ModalButton,
+    ModalContent,
+    ModalLabel,
+    ModalOverlay,
+    ModalTitle,
     SelectedChartContainer,
     SelectedErrorDateContainer,
     SolarPlantDetailHeader,
     SolarPlantsContainer,
     StyledThead,
+    SubmitButton,
     TableBodyContainer,
     TableBodyContent,
     TableError,
@@ -48,7 +59,7 @@ import {
     TitleDetailContainer,
     TitleIconContainer,
 } from "./styles";
-import { FaAddressBook, FaBolt, FaBug, FaHome, FaPager, FaQuestion } from "react-icons/fa";
+import { FaAddressBook, FaBolt, FaBug, FaFilePdf, FaHome, FaPager, FaQuestion } from "react-icons/fa";
 import Pagination from "../../components/Pagination";
 import { ThreeDots } from "react-loader-spinner";
 import { colors } from "../../utils/GlobalStyles";
@@ -69,12 +80,24 @@ const SolarPlantDetail = ({ user, navigate }) => {
     const [loadingParams, setLoadingParams] = useState(true);
     const [loadingChart, setLoadingChart] = useState(false);
     const [loadingErrorList, setLoadingErrorList] = useState(false);
+    const [downloading, setDownloading] = useState(false);
 
     const [errorDate, setErrorDate] = useState(new Date());
     const [chartDate, setChartDate] = useState(new Date());
     const [chartType, setChartType] = useState('time');
 
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [isModalDatalogOpen, setModalDatalogOpen] = useState(false);
+    const [isModalDownloadOpen, setModalDownloadOpen] = useState(false);
+
     const [page, setPage] = useState(1);
+
+    const handleModalOpen = () => setModalOpen(true);
+    const handleModalClose = () => setModalOpen(false);
+    const handleModalDatalogOpen = () => setModalDatalogOpen(true);
+    const handleModalDatalogClose = () => setModalDatalogOpen(false);
+    const handleModalDownloadOpen = () => setModalDownloadOpen(true);
+    const handleModalDownloadClose = () => setModalDownloadOpen(false);
 
     useEffect(() => {
         if (loading) {
@@ -94,10 +117,87 @@ const SolarPlantDetail = ({ user, navigate }) => {
         }
     }, [loadingErrorList, solarPlant, solarPlantParams, errorDate, user]);
 
+    useEffect(() => {
+        if (loadingChart) {
+            getChartByType(solarPlant, chartDate, chartType, solarPlantParams, user, setPowerData, setLoadingChart);
+        }
+    }, [chartDate, chartType, loadingChart, solarPlant, solarPlantParams, user]);
+
     const itensPerPage = 5;
 
     const totalPages = Math.ceil(errorList.length / itensPerPage);
     const currentPageItens = errorList.slice((page - 1) * itensPerPage, page * itensPerPage);
+
+    const DeviceInfoModal = ({ onClose, isOpen, deviceInfo }) => {
+        if (!isOpen) return null;
+
+        return (
+            <ModalOverlay onClick={onClose}>
+                <ModalContent onClick={(e) => e.stopPropagation()}>
+                    <ModalTitle>Informações do Dispositivo</ModalTitle>
+                    <ModalLabel><strong>Mode:</strong> {deviceInfo.modelText}</ModalLabel>
+                    <ModalLabel><strong>Version:</strong> {deviceInfo.innerVersion}</ModalLabel>
+                    <ModalLabel><strong>Communication version number:</strong> {deviceInfo.communicationVersion}</ModalLabel>
+                    <ModalLabel><strong>Build number:</strong> {deviceInfo.fwVersion}</ModalLabel>
+                    <ModalLabel><strong>Device Model:</strong> {deviceInfo.deviceModel}</ModalLabel>
+                    <ModalButton onClick={onClose}>Fechar</ModalButton>
+                </ModalContent>
+            </ModalOverlay>
+        );
+    };
+
+    const DatalogInfoModal = ({ onClose, isOpen, deviceInfo }) => {
+        if (!isOpen) return null;
+
+        return (
+            <ModalOverlay onClick={onClose}>
+                <ModalContent onClick={(e) => e.stopPropagation()}>
+                    <ModalTitle>Informações do Dispositivo</ModalTitle>
+                    <ModalLabel><strong>Signal:</strong> {deviceInfo.simSignal}</ModalLabel>
+                    <ModalLabel><strong>Collector model:</strong> {deviceInfo.deviceType}</ModalLabel>
+                    <ModalLabel><strong>Firmware Version:</strong> {deviceInfo.firmwareVersion}</ModalLabel>
+                    <ModalLabel><strong>Ip & Port:</strong> {deviceInfo.ipAndPort}</ModalLabel>
+                    <ModalLabel><strong>Data Update Interval:</strong> {deviceInfo.interval} minutes</ModalLabel>
+                    <ModalButton onClick={onClose}>Fechar</ModalButton>
+                </ModalContent>
+            </ModalOverlay>
+        );
+    };
+
+    const DownloadReportModal = ({ isOpen, onClose }) => {
+        const [year, setYear] = useState(new Date().getFullYear());
+
+        const handleYearChange = (e) => {
+            setYear(e.target.value);
+        }
+
+        const handleConfirm = () => {
+            getReportByPlantId(solarPlant.id, user, year, setDownloading);
+            onClose();
+        }
+
+        if (!isOpen) return null;
+
+        return (
+            <ModalOverlay onClick={onClose}>
+                <ModalContent onClick={(e) => e.stopPropagation()}>
+                    <ModalTitle>Insira o Ano para geração do relatório</ModalTitle>
+                    <input
+                        type='number'
+                        value={year}
+                        onChange={handleYearChange}
+                        min='2000'
+                        max={new Date().getFullYear()}
+                        style={{ padding: '5px', margin: '10px 0', width: '100%' }}
+                    />
+                    <ButtonGroup>
+                        <SubmitButton onClick={handleConfirm}>Gerar</SubmitButton>
+                        <BackButton onClick={onClose}>Cancelar</BackButton>
+                    </ButtonGroup>
+                </ModalContent>
+            </ModalOverlay>
+        )
+    }
 
     return (
         <>
@@ -148,11 +248,12 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                     <FaBolt />
                                 </BoltIconContainer>
                                 <CardInner>
-                                    <CardInnerTitle>{parseFloat(solarPlantParams.totalData.eToday) < 1000 ? (parseFloat(solarPlantParams.totalData.eToday)).toFixed(2) : (solarPlantParams.totalData.eToday / 1000).toFixed(2)}</CardInnerTitle>
+                                    <CardInnerTitle>{(parseFloat(solarPlantParams.totalData.eToday)).toFixed(2)}</CardInnerTitle>
                                     <CardInnerContentContainer>
-                                        <CardInnerContent>{solarPlantParams.totalData.eToday < 1000 ? 'kWh' : 'MWh'}</CardInnerContent>
+                                        <CardInnerContent>kWh</CardInnerContent>
                                         <CardInnerContent>hoje</CardInnerContent>
                                     </CardInnerContentContainer>
+                                    <CardInnerContent className="detail-span label-responsive"><i>estimado: {(solarPlant.estimatedGeneration / 30).toFixed(2)} kWh/dia</i></CardInnerContent>
                                 </CardInner>
                             </Card>
                             <Card>
@@ -160,11 +261,12 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                     <FaBolt />
                                 </BoltIconContainer>
                                 <CardInner>
-                                    <CardInnerTitle>{solarPlantParams.totalData.eMonth < 1000 ? (parseFloat(solarPlantParams.totalData.eMonth)).toFixed(2) : (solarPlantParams.totalData.eMonth / 1000).toFixed(2)}</CardInnerTitle>
+                                    <CardInnerTitle>{(parseFloat(solarPlantParams.totalData.eMonth)).toFixed(2)}</CardInnerTitle>
                                     <CardInnerContentContainer>
-                                        <CardInnerContent>{solarPlantParams.totalData.eMonth < 1000 ? 'kWh' : 'MWh'}</CardInnerContent>
+                                        <CardInnerContent>kWh</CardInnerContent>
                                         <CardInnerContent>Mês</CardInnerContent>
                                     </CardInnerContentContainer>
+                                    <CardInnerContent className="detail-span label-responsive"><i>estimado: {(solarPlant.estimatedGeneration).toFixed(2)} kWh/mês</i></CardInnerContent>
                                 </CardInner>
                             </Card>
                             <Card>
@@ -204,25 +306,25 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                         />
                                     </ChartSelectedDateContainer>
                                     <ChartTypeSelectedContainer>
-                                        <ChartTypeButton onClick={() => {
+                                        <ChartTypeButton $active={chartType === 'time'} disabled={chartType === 'time'} onClick={() => {
                                             setChartType('time');
                                             setLoadingChart(true);
                                         }}>
                                             Time
                                         </ChartTypeButton>
-                                        <ChartTypeButton onClick={() => {
+                                        <ChartTypeButton $active={chartType === 'day'} disabled={chartType === 'day'} onClick={() => {
                                             setChartType('day');
                                             setLoadingChart(true);
                                         }}>
                                             Day
                                         </ChartTypeButton>
-                                        <ChartTypeButton onClick={() => {
+                                        <ChartTypeButton $active={chartType === 'mouth'} disabled={chartType === 'mouth'} onClick={() => {
                                             setChartType('mouth');
                                             setLoadingChart(true);
                                         }}>
                                             Mouth
                                         </ChartTypeButton>
-                                        <ChartTypeButton onClick={() => {
+                                        <ChartTypeButton $active={chartType === 'year'} disabled={chartType === 'year'} onClick={() => {
                                             setChartType('year');
                                             setLoadingChart(true);
                                         }}>
@@ -235,7 +337,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                         <LoadingchartContainer>
                                             <ThreeDots
                                                 color={colors.icon}
-                                                width={350}
+                                                width={200}
                                             />
                                         </LoadingchartContainer>
                                     ) : (
@@ -268,7 +370,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                 {
                                     loadingErrorList ? (
                                         <LoadingchartContainer>
-                                            <ThreeDots color={colors.icon} width={100} />
+                                            <ThreeDots color={colors.icon} width={200} />
                                         </LoadingchartContainer>
                                     ) : (
                                         <>
@@ -312,7 +414,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                 <DeviceCardContainer>
                                     <DeviceCardContent>
                                         Device serial Number: {solarPlantParams.deviceSN.alias}
-                                        <InfoDeviceIconContainer>
+                                        <InfoDeviceIconContainer onClick={handleModalOpen}>
                                             <FaQuestion />
                                         </InfoDeviceIconContainer>
                                     </DeviceCardContent>
@@ -327,7 +429,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                     <DeviceCardContent>Update Time: {solarPlantParams.deviceSN.lastUpdateTime}</DeviceCardContent>
                                     <DeviceCardContent>
                                         Data Logger: {solarPlantParams.deviceSN.datalogSn}
-                                        <InfoDeviceIconContainer>
+                                        <InfoDeviceIconContainer onClick={handleModalDatalogOpen}>
                                             <FaQuestion />
                                         </InfoDeviceIconContainer>
                                     </DeviceCardContent>
@@ -336,9 +438,34 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                     <DeviceCardContent>Rated Power: {solarPlant.inversor === 'GROWATT' ? (parseFloat(solarPlantParams.deviceSN.nominalPower) / 1000).toFixed(2) : solarPlantParams.deviceSN.nominalPower} kWp</DeviceCardContent>
                                     <DeviceCardContent>Current Power: {(parseFloat(solarPlantParams.deviceSN.pac) / 1000).toFixed(2)} kWp</DeviceCardContent>
                                 </DeviceCardContainer>
+                                <DeviceCardContainer>
+                                    {
+                                        downloading ? (
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <ThreeDots color={colors.icon} width={80} />
+                                            </div>
+
+                                        ) : (
+                                            <GenerateReportContainer onClick={
+                                                () => {
+                                                    setDownloading(true);
+                                                    handleModalDownloadOpen();
+                                                }
+                                            }>
+                                                <GenerateReportIconContainer>
+                                                    <FaFilePdf />
+                                                </GenerateReportIconContainer>
+                                                <GenerateReportTitle>Download Relatório da Planta Solar</GenerateReportTitle>
+                                            </GenerateReportContainer>
+                                        )
+                                    }
+                                </DeviceCardContainer>
                             </DeviceCards>
-                        </Device>
-                    </SolarPlantsContainer>
+                        </Device >
+                        <DeviceInfoModal onClose={handleModalClose} isOpen={isModalOpen} deviceInfo={solarPlantParams.deviceSNInfo} />
+                        <DownloadReportModal onClose={handleModalDownloadClose} isOpen={isModalDownloadOpen} />
+                        <DatalogInfoModal onClose={handleModalDatalogClose} isOpen={isModalDatalogOpen} deviceInfo={solarPlantParams.datalogSNInfo} />
+                    </SolarPlantsContainer >
                 )
             }
         </>
