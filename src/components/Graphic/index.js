@@ -24,14 +24,14 @@ const Graphic = ({ powerData, type, inverter, estimated }) => {
                 if (option.y !== undefined) {
                     let xAxisTemp = new Date(new Date(option.x));
                     xTemp = xAxisTemp.getHours() + ':' + xAxisTemp.getMinutes();
-                    temp = { x: xTemp, y: option.y }
+                    temp = { x: xTemp, y: option.y > 0 ? option.y : 0 }
                     data.push(temp);
                 }
             } else {
                 if (timeTemp.getHours() < now.getHours() || (timeTemp.getHours() === now.getHours() && timeTemp.getMinutes() <= now.getMinutes())) {
                     xTemp = timeTemp.getHours() + ':' + timeTemp.getMinutes();
                     timeTemp.setMinutes(timeTemp.getMinutes() + 5);
-                    temp = { x: xTemp, y: option !== null ? option : 0 }
+                    temp = { x: xTemp, y: (option !== null && option > 0) ? option : 0 }
                     data.push(temp);
                 }
             }
@@ -63,7 +63,7 @@ const Graphic = ({ powerData, type, inverter, estimated }) => {
                     }}
                 >
                     <YAxis hide={true} />
-                    <XAxis dataKey='x' className={'label-chart-responsive'}/>
+                    <XAxis dataKey='x' className={'label-chart-responsive'} />
                     <CartesianGrid strokeDasharray="3 3" />
                     <Tooltip content={<CustomTooltip />} />
                     <Area type='monotone' dataKey='y' stroke='#00ff44' fill='#00ff4488' />
@@ -186,7 +186,7 @@ const Graphic = ({ powerData, type, inverter, estimated }) => {
                     }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="x" interval={0} className={'label-chart-responsive'}/>
+                    <XAxis dataKey="x" interval={0} className={'label-chart-responsive'} />
                     <YAxis domain={[0, maxValue + 2]} hide={true} />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="y" fill="#00ff44" />
