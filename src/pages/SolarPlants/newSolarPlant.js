@@ -137,7 +137,6 @@ const NewSolarPlant = ({ navigate, user }) => {
                                                     <Field as={FormSelect} name='inverter'>
                                                         <option value=''>Selecione o Inversor</option>
                                                         <option value='ABB'>ABB</option>
-                                                        <option value='CANADIAN'>Canadian</option>
                                                         <option value='DEYE'>DEYE</option>
                                                         <option value='GROWATT'>Growatt</option>
                                                     </Field>

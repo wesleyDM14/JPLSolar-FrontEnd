@@ -61,7 +61,7 @@ export const getSolarPlantParams = async (solarPlant, user, setSolarPlantParams,
     });
 }
 
-export const getSolarPlantsByUserLoggedIn = async (user, setSolarPlants, setLoading) => {
+export const getSolarPlantsByUserLoggedIn = async (user, setSolarPlants, setUserInfo, setLoading) => {
     await axios.get(process.env.REACT_APP_BASE_URL + `/api/mySolarPlants`, {
         headers: {
             "Content-Type": "application/json",
@@ -69,7 +69,8 @@ export const getSolarPlantsByUserLoggedIn = async (user, setSolarPlants, setLoad
         }
     }).then((response) => {
         const { data } = response;
-        setSolarPlants(data);
+        setUserInfo(data.userInfo);
+        setSolarPlants(data.solarPlants);
     }).catch((err) => {
         console.error(err.response.data.message);
         window.alert(err.response.data.message);
@@ -78,7 +79,7 @@ export const getSolarPlantsByUserLoggedIn = async (user, setSolarPlants, setLoad
     });
 }
 
-export const getSolarPlantsByClientId = async (clientId, user, setSolarPlants, setLoading) => {
+export const getSolarPlantsByClientId = async (clientId, user, setSolarPlants, setClient, setLoading) => {
     await axios.get(process.env.REACT_APP_BASE_URL + `/api/clients/${clientId}/solarPlants`, {
         headers: {
             "Content-Type": "application/json",
@@ -86,7 +87,8 @@ export const getSolarPlantsByClientId = async (clientId, user, setSolarPlants, s
         }
     }).then((response) => {
         const { data } = response;
-        setSolarPlants(data);
+        setClient(data.client);
+        setSolarPlants(data.solarPlants);
     }).catch((err) => {
         console.error(err.response.data.message);
         window.alert(err.response.data.message);

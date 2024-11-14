@@ -25,6 +25,7 @@ const SolarPlantsClient = ({ navigate, user }) => {
 
     const { clientId } = useParams();
     const [solarPlants, setSolarPlants] = useState([]);
+    const [client, setClient] = useState({});
     const [loading, setLoading] = useState(true);
 
     const [search, setSearch] = useState('');
@@ -33,7 +34,7 @@ const SolarPlantsClient = ({ navigate, user }) => {
 
     useEffect(() => {
         if (loading) {
-            getSolarPlantsByClientId(clientId, user, setSolarPlants, setLoading);
+            getSolarPlantsByClientId(clientId, user, setSolarPlants, setClient, setLoading);
         }
     }, [user, loading, clientId]);
 
@@ -45,7 +46,7 @@ const SolarPlantsClient = ({ navigate, user }) => {
                 ) : (
                     <>
                         <SolarPlantHeader>
-                            <SolarPlantTitle><FaSolarPanel />Plantas Solares</SolarPlantTitle>
+                            <SolarPlantTitle><FaSolarPanel />Plantas Solares de {client.name}</SolarPlantTitle>
                             <AddSolarPlantContainer onClick={() => navigate(`/plantas-solares/cliente/${clientId}/nova`)}>
                                 <AddIcon>
                                     <FaPlusCircle />
