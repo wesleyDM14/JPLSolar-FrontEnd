@@ -137,6 +137,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                                     <Field as={FormSelect} name='inverter'>
                                                         <option value=''>Selecione o Inversor</option>
                                                         <option value='ABB'>ABB</option>
+                                                        <option value='CANADIAN'>CANADIAN</option>
                                                         <option value='DEYE'>DEYE</option>
                                                         <option value='GROWATT'>Growatt</option>
                                                     </Field>
@@ -158,7 +159,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                                 </FormInputArea>
                                             </Limitador>
                                             <FormInputArea>
-                                                <FormInputLabelRequired><SlEnergy />Potência do Painel Solar (W)</FormInputLabelRequired>
+                                                <FormInputLabelRequired><SlEnergy />Pot. do Painel Solar (W)</FormInputLabelRequired>
                                                 <FormInput
                                                     type='number'
                                                     name='panelPower'
@@ -172,7 +173,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                         <SubItensContainer>
                                             <FormInputArea>
                                                 <Limitador>
-                                                    <FormInputLabelRequired><SlEnergy />Potência do Inversor (kWp)</FormInputLabelRequired>
+                                                    <FormInputLabelRequired><SlEnergy />Pot. do Inversor (kWp)</FormInputLabelRequired>
                                                     <FormInput
                                                         type='number'
                                                         name='inverterPot'

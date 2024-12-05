@@ -9,11 +9,11 @@ export const loginUser = async (credentials, navigate, setIsLoading, dispatch) =
             }
         }
     ).then((response) => {
-        const { accessToken, isAdmin } = response.data.accessToken;
+        const { accessToken, userRole } = response.data.accessToken;
         const loginTime = new Date().getTime();
         const userData = {
             accessToken,
-            isAdmin,
+            userRole,
             loginTime
         };
 

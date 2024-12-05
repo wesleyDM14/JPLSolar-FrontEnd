@@ -11,10 +11,9 @@ import {
     TitleContainer,
 } from "./style";
 import { FaFileAlt, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaUserAlt, FaUsers } from "react-icons/fa";
-
 import Logo from '../../assets/logo.png';
 import { TbReportAnalytics, TbSolarPanel2 } from "react-icons/tb";
-
+import { GrUserWorker } from "react-icons/gr";
 
 const Sidebar = ({ sidebarOpen, closeSidebar, logoutUser, navigate, user, dispatch }) => {
     return (
@@ -39,6 +38,10 @@ const Sidebar = ({ sidebarOpen, closeSidebar, logoutUser, navigate, user, dispat
                 <MenuItemContainer onClick={() => navigate('/financeiro')}>
                     <FaMoneyBill />
                     <MenuItemTitle>Financeiro</MenuItemTitle>
+                </MenuItemContainer>
+                <MenuItemContainer onClick={() => navigate('/parceiros')}>
+                    <GrUserWorker />
+                    <MenuItemTitle>Parceiros</MenuItemTitle>
                 </MenuItemContainer>
                 <MenuItemContainer onClick={() => navigate('/plantas-solares')}>
                     <TbSolarPanel2 />
