@@ -81,7 +81,7 @@ const PartnerList = ({ partners, navigate, search, page, setPage, itensPerPage, 
             </PartnerListHeader>
             {
                 currentPageItens.map((partner) => (
-                    <SinglePartner key={partner.id}>
+                    <SinglePartner key={partner.id} onClick={() => navigate(`/parceiros/${partner.id}`)}>
                         <PartnerValueContainer>
                             <PartnerLabel><FaUser style={{ marginLeft: '5px' }} /></PartnerLabel>
                             <PartnerValue>{partner.name}</PartnerValue>

@@ -36,7 +36,7 @@ export const getPartnersByUserLoggedIn = async (user, setPartners, setLoading) =
     });
 }
 
-export const getPartnerById = async (partnerId, user, setPartner, setLoading) => {
+export const getPartnerById = async (partnerId, user, setPartner, setLoading, setReceita) => {
     await axios.get(process.env.REACT_APP_BASE_URL + `/api/parceiros/${partnerId}`, {
         headers: {
             "Content-Type": "application/json",
@@ -44,6 +44,13 @@ export const getPartnerById = async (partnerId, user, setPartner, setLoading) =>
         }
     }).then((response) => {
         const { data } = response;
+        let contractsPartners = data.contracts;
+        let totalReceita = 0;
+        for (let index = 0; index < contractsPartners.length; index++) {
+            const contract = contractsPartners[index];
+            totalReceita += contract.priceTotal;
+        }
+        setReceita(totalReceita);
         setPartner(data);
     }).catch((err) => {
         console.error(err.response.data.message);

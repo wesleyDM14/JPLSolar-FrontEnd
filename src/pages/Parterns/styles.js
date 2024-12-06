@@ -399,3 +399,69 @@ export const DeleteButtonContainer = styled.div`
         flex-direction: column;
     }
 `;
+
+export const PartnerDetailMainContainer = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    margin-top: 20px;
+
+    @media only screen and (max-width: 978px){
+        display: flex;
+        flex-direction: column;
+    }
+`;
+
+export const PartnerDetailSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 30px;
+
+    @media only screen and (max-width: 978px){
+        margin-bottom: 20px;
+    }
+`;
+
+export const PartnerDetailSectionTitle = styled.h2`
+    color: ${colors.title};
+    display: flex;
+    align-items: center;
+
+    svg {
+        margin-right: 5px;
+        font-size: 22px;
+    }
+
+    @media only screen and (max-width: 978px){
+
+        font-size: 18px;
+
+        svg {
+            font-size: 18px;
+        }
+    }
+`;
+
+export const PartnerDetailSectionSeparator = styled.hr`
+    border: none;
+    height: 2px;
+    background-color: ${colors.hover};
+    width: 80%;
+    margin-bottom: 20px;
+`;
+
+export const PartnerDetailArea = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+`;
+
+export const PartnerDetailLabel = styled.p`
+    margin-right: 5px;
+    font-size: 14px;
+    font-weight: bold;
+`;
+
+export const PartnerDetailValue = styled.p`
+    font-size: 14px;
+`;
