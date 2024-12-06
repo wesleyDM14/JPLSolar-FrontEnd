@@ -17,6 +17,8 @@ import {
 import Loading from "../../components/Loading";
 import { GrUserWorker } from "react-icons/gr";
 import { FaWhatsapp } from "react-icons/fa";
+import ContractList from "../Contracts/contractList";
+import SearchBar from "../../components/SearchBar";
 
 const PartnerInfo = ({ navigate, user }) => {
 
@@ -25,6 +27,11 @@ const PartnerInfo = ({ navigate, user }) => {
     const [partner, setPartner] = useState({});
     const [loading, setLoading] = useState(true);
     const [receita, setReceita] = useState(0);
+
+    const [search, setSearch] = useState('')
+    const [page, setPage] = useState(1);
+
+    const itemsPerPage = 10;
 
     useEffect(() => {
         if (loading) {
@@ -70,6 +77,17 @@ const PartnerInfo = ({ navigate, user }) => {
                                     </PartnerDetailArea>
                                 </PartnerDetailSection>
                             </PartnerDetailMainContainer>
+                            <SearchBar search={search} setSearch={setSearch} />
+                            <ContractList
+                                contracts={partner.contracts}
+                                itensPerPage={itemsPerPage}
+                                navigate={navigate}
+                                page={page}
+                                setPage={setPage}
+                                search={search}
+                                setLoading={setLoading}
+                                user={user}
+                            />
                             <ButtonGroup onClick={() => {
                                 navigate('/parceiros');
                             }}>

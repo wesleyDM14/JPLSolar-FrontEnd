@@ -213,7 +213,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                 </TitleIconContainer>
                                 <Greeting>
                                     <TitleContent>{solarPlant.client.name}</TitleContent>
-                                    <TitleDescription>Planta solar instalada por: {solarPlant.user.name}</TitleDescription>
+                                    <TitleDescription>Planta solar instalada por: {solarPlant.montador.name}</TitleDescription>
                                 </Greeting>
                             </TitleDetailContainer>
                             <InfoHome>
@@ -310,25 +310,25 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                             setChartType('time');
                                             setLoadingChart(true);
                                         }}>
-                                            Time
+                                            Hora
                                         </ChartTypeButton>
                                         <ChartTypeButton $active={chartType === 'day'} disabled={chartType === 'day'} onClick={() => {
                                             setChartType('day');
                                             setLoadingChart(true);
                                         }}>
-                                            Day
+                                            Dia
                                         </ChartTypeButton>
                                         <ChartTypeButton $active={chartType === 'mouth'} disabled={chartType === 'mouth'} onClick={() => {
                                             setChartType('mouth');
                                             setLoadingChart(true);
                                         }}>
-                                            Mouth
+                                            Mês
                                         </ChartTypeButton>
                                         <ChartTypeButton $active={chartType === 'year'} disabled={chartType === 'year'} onClick={() => {
                                             setChartType('year');
                                             setLoadingChart(true);
                                         }}>
-                                            Year
+                                            Ano
                                         </ChartTypeButton>
                                     </ChartTypeSelectedContainer>
                                 </SelectedChartContainer>
