@@ -133,7 +133,7 @@ export const AddPartnerButton = styled.button`
     justify-content: center;
     margin-top: 15px;
     padding: 10px 25px;
-    background-color: ${colors.btnPrimary};
+    background-color: ${colors.btnSecondary};
     border: 1px solid green;
     border-radius: 3px;
     font-size: 14px;
@@ -142,10 +142,11 @@ export const AddPartnerButton = styled.button`
 
     svg {
         margin-right: 15px;
+        color: ${colors.white} !important;
     }
 
     &:hover{
-        background-color: ${colors.greenNeutral};
+        background-color: ${colors.hover};
     }
 
     @media only screen and (max-width: 978px){
@@ -285,7 +286,7 @@ export const BackButton = styled.button`
     min-height: 40px;
     min-width: 100px;
     transition: all .2s ease-out;
-    background-color: ${colors.btnSecondary};
+    background-color: ${colors.white};
     color: ${colors.mainText};
 
     &:hover{

@@ -81,12 +81,14 @@ export const Button = styled.button`
     padding: 20px;
     width: 30%;
     transition: all .2s ease-out;
-    background-color: ${colors.btnPrimary};
-    color: ${colors.title};
+    background-color: ${colors.white};
+    color: ${colors.mainText};
     margin-top: 15px;
 
     &:hover{
         background-color: ${colors.btnSecondary};
+        color: ${colors.white};
+        border: 1px solid ${colors.white};
     }
 
     @media only screen and (max-width: 978px){

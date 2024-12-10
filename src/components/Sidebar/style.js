@@ -9,7 +9,7 @@ export const TitleContainer = styled.div`
     align-items: center;
     margin-bottom: 30px;
     border-radius: 25px;
-    background-color: rgba(0, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2);
 `;
 
 export const Avatar = styled.img`
@@ -57,7 +57,7 @@ export const CloseContainer = styled.div`
 `;
 
 export const MenuTitleSection = styled.h2`
-    color: ${colors.greenNeutral};
+    color: ${colors.white};
     font-size: 20px;
     margin-top: 15px;
     margin-bottom: 5px;
@@ -81,7 +81,7 @@ export const MenuItemContainer = styled.div`
     cursor: pointer;
 
     &:hover{
-        background: rgba(62, 161, 117, 0.3);
+        background: rgba(255, 161, 117, 0.3);
         border-radius: 3px;
     }
 

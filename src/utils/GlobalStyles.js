@@ -2,21 +2,21 @@ import { createGlobalStyle } from "styled-components"
 import { isSmallScreen } from "../functions/layoutFuntions";
 
 export const colors = {
-    title: '#F9A825',
-    background: '#E3F2FD',
-    sidebar: '#0D47A1',
-    mainText: '#263238',
+    title: '#D32F2F',
+    background: '#F5F5F5',
+    sidebar: '#212121',
+    mainText: '#424242',
     description: '#757575',
-    icon: '#FFB300',
-    hover: '#C0CA33',
-    btnPrimary: '#00897B',
-    btnSecondary: '#039BE5',
-    white: '#ffffff',
-    red: '#FF4D4D',
+    icon: '#D32F2F',
+    hover: '#B71C1C',
+    btnPrimary: '#424242',
+    btnSecondary: '#D32F2F',
+    white: '#FFFFFF',
+    red: '#D32F2F',
     greenNeutral: '#4CAF50',
-    darkGray: '#888888',
+    darkGray: '#616161',
     slimGray: '#E0E0E0',
-    navbar: '#1976D2'
+    navbar: '#212121'
 }
 
 export const ModalStyles = {

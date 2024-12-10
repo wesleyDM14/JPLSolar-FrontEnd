@@ -133,7 +133,7 @@ export const AddContractButton = styled.button`
     justify-content: center;
     margin-top: 15px;
     padding: 10px 25px;
-    background-color: ${colors.btnPrimary};
+    background-color: ${colors.btnSecondary};
     border: 1px solid green;
     border-radius: 3px;
     font-size: 14px;
@@ -298,7 +298,7 @@ export const SubmitButton = styled.button`
     min-height: 40px;
     min-width: 100px;
     transition: all .2s ease-out;
-    background-color: ${colors.btnPrimary};
+    background-color: ${colors.greenNeutral};
     color: ${colors.white};
 
     &:hover{
@@ -320,7 +320,7 @@ export const BackButton = styled.button`
     min-height: 40px;
     min-width: 100px;
     transition: all .2s ease-out;
-    background-color: ${colors.btnSecondary};
+    background-color: ${colors.white};
     color: ${colors.mainText};
 
     &:hover{
@@ -501,6 +501,7 @@ export const NextButton = styled.button`
 
     &:hover{
         background-color: ${colors.background};
+        color: ${colors.darkGray};
     }
 
     @media only screen and (max-width: 978px){
@@ -572,7 +573,7 @@ export const DownloadButton = styled.button`
     border: 1px solid green;
     border-radius: 3px;
     font-size: 14px;
-    color: ${colors.mainText};
+    color: ${colors.white};
     margin-right: ${props => props.$left ? props.$left : 0};
     cursor: pointer;
 

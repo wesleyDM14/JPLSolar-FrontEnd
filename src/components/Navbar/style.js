@@ -144,7 +144,7 @@ export const NotificationBadge = styled.div`
     top: -8px;
     right: -8px;
     background-color: ${colors.red}; // Cor vermelha para indicar notificações
-    color: ${colors.icon};
+    color: ${colors.white};
     border-radius: 50%;
     width: 20px;
     height: 20px;
