@@ -19,7 +19,7 @@ import * as Yup from 'yup';
 import { TextInput } from "../../components/FormLib";
 import { ThreeDots } from "react-loader-spinner";
 import { colors } from "../../utils/GlobalStyles";
-import { getLoggedUserInfo } from "../../services/userServices";
+import { getLoggedUserInfo, updatedLoggedUser } from "../../services/userServices";
 import Loading from "../../components/Loading";
 import { FaUser } from "react-icons/fa";
 
@@ -83,7 +83,7 @@ const Profile = ({ navigate, user }) => {
                                         }
 
                                         onSubmit={(values, { setSubmitting, setFieldError }) => {
-
+                                            updatedLoggedUser(values, userInfo.id, user, setIsLoading, setSubmitting, setFieldError);
                                         }}
                                     >
                                         {

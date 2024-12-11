@@ -17,6 +17,21 @@ export const getLoggedUserInfo = async (user, setIsLoading, setUserData) => {
     });
 }
 
-export const updatedLoggedUser = (user, setIsLoading, setSubmitting, setFieldError) => {
-
+export const updatedLoggedUser = async (values, userId, user, setIsLoading, setSubmitting, setFieldError) => {
+    await axios.put(process.env.REACT_APP_BASE_URL + `/api/usuarios/${userId}`, values, {
+        headers: {
+            "Content-Type": 'application/json',
+            "Authorization": `Bearer ${user.accessToken}`
+        }
+    }).then((response) => {
+        const { data } = response;
+        console.log(data.message);
+        window.alert(data.message);
+        setIsLoading(true);
+    }).catch((err) => {
+        console.error(err);
+        setFieldError('nome', err.response.data.message);
+    }).finally(() => {
+        setSubmitting(false);
+    });
 }
