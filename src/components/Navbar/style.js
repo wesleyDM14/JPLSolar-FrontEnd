@@ -10,7 +10,7 @@ export const NavbarContainer = styled.nav`
     align-items: center;
     justify-content: space-between;
     padding: 0 30px;
-    border-bottom: 1px solid ${colors.sidebar};
+    border-bottom: 3px solid ${colors.hover};
 `;
 
 export const LeftContainer = styled.div`

@@ -223,6 +223,7 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
             <ContractListHeader>
                 <ContractListHeaderLabel>Nome</ContractListHeaderLabel>
                 <ContractListHeaderLabel className="label-responsive">Data</ContractListHeaderLabel>
+                <ContractListHeaderLabel className="label-responsive">Responsável</ContractListHeaderLabel>
                 <ContractListHeaderLabel>Opções</ContractListHeaderLabel>
             </ContractListHeader>
             {
@@ -238,6 +239,10 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                         <ContractValueContainer className="label-responsive">
                             <ContractLabel className="label-responsive"><CiCalendarDate className="label-responsive" /></ContractLabel>
                             <ContractValue className="label-responsive">{new Date(contract.dataContrato).toLocaleDateString()}</ContractValue>
+                        </ContractValueContainer>
+                        <ContractValueContainer className="label-responsive">
+                            <ContractLabel className="label-responsive"><GrUserWorker className="label-responsive" /></ContractLabel>
+                            <ContractValue className="label-responsive">{contract.User.name}</ContractValue>
                         </ContractValueContainer>
                         <AdminContainer>
                             <EditIconContainer onClick={(event) => {

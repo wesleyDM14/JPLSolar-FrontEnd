@@ -160,7 +160,7 @@ export const ContractListContainer = styled.div`
 
 export const ContractListHeader = styled.div`
     display: grid;
-    grid-template-columns: 3fr 1fr 0.5fr;
+    grid-template-columns: 2fr 1fr 1fr 0.5fr;
     max-width: 100%;
     margin-top: 15px;
     padding: 10px;
@@ -336,7 +336,7 @@ export const BackButton = styled.button`
 
 export const SingleContract = styled.div`
     display: grid;
-    grid-template-columns: 3fr 1fr 0.5fr;
+    grid-template-columns: 2fr 1fr 1fr 0.5fr;
     height: 50px;
     max-width: 100%;
     align-items: center;

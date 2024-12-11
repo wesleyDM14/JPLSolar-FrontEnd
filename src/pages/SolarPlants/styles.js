@@ -906,9 +906,9 @@ export const ChartTypeSelectedContainer = styled.div`
 `;
 
 export const ChartTypeButton = styled.button`
-    background-color: ${props => props.$active ? colors.hover : colors.greenNeutral};
+    background-color: ${props => props.$active ? colors.btnSecondary : colors.background};
     border: none;
-    color: ${colors.white};
+    color: ${props => props.$active ? colors.white : colors.mainText};
     padding: 10px;
     text-align: center;
     text-decoration: none;
@@ -922,8 +922,9 @@ export const ChartTypeButton = styled.button`
         cursor: not-allowed !important;
     }
 
-    :hover {
+    &:not(:disabled):hover {
         background-color: ${colors.navbar};
+        color: ${colors.white};
     }
 `;
 

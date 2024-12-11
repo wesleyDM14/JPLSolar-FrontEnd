@@ -68,6 +68,7 @@ const Profile = ({ navigate, user }) => {
                                     <Formik
                                         initialValues={{
                                             nome: userInfo.name,
+                                            login: userInfo.login,
                                             newPassword: '',
                                             confirmPassword: ''
                                         }}
@@ -75,6 +76,7 @@ const Profile = ({ navigate, user }) => {
                                         validationSchema={
                                             Yup.object({
                                                 nome: Yup.string(),
+                                                login: Yup.string(),
                                                 newPassword: Yup.string().min(8, 'Senha deve ter pelo menos 8 caracteres').required('Senha é obrigatório'),
                                                 confirmPassword: Yup.string().oneOf([Yup.ref('newPassword'), null], 'As senhas devem coincidir').required('Confirmação de senha é obrigatório'),
                                             })
@@ -90,6 +92,11 @@ const Profile = ({ navigate, user }) => {
                                                     <TextInput
                                                         name='nome'
                                                         label='Nome'
+                                                        type='text'
+                                                    />
+                                                    <TextInput
+                                                        name='login'
+                                                        label='login'
                                                         type='text'
                                                     />
                                                     <TextInput

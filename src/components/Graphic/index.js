@@ -12,27 +12,36 @@ import {
     ResponsiveContainer
 } from 'recharts';
 
-const Graphic = ({ powerData, type, inverter, estimated }) => {
+const Graphic = ({ powerData, type, inverter, estimated, chartDate }) => {
     if (type === 'time') {
         const data = [];
-        let timeTemp = new Date('Deceember 17, 1995 00:00:00');
-        let now = new Date();
+        const baseDate = new Date(chartDate).setHours(0, 0, 0, 0);
+        const now = new Date(); // Data e hora atuais
+        const isToday = new Date(chartDate).toDateString() === now.toDateString();
+        let timeTemp = new Date(baseDate);
+
         powerData.forEach(option => {
-            var xTemp = {};
-            var temp = {};
+            let xTemp = {};
+            let temp = {};
+
             if (option !== null && typeof option === 'object') {
+                // Dados fornecidos por powerData
                 if (option.y !== undefined) {
-                    let xAxisTemp = new Date(new Date(option.x));
-                    xTemp = xAxisTemp.getHours() + ':' + xAxisTemp.getMinutes();
-                    temp = { x: xTemp, y: option.y > 0 ? option.y : 0 }
+                    const xAxisTemp = new Date(option.x);
+                    xTemp = `${xAxisTemp.getHours().toString().padStart(2, '0')}:${xAxisTemp.getMinutes().toString().padStart(2, '0')}`;
+                    temp = { x: xTemp, y: option.y > 0 ? option.y : 0 };
                     data.push(temp);
                 }
             } else {
-                if (timeTemp.getHours() < now.getHours() || (timeTemp.getHours() === now.getHours() && timeTemp.getMinutes() <= now.getMinutes())) {
-                    xTemp = timeTemp.getHours() + ':' + timeTemp.getMinutes();
-                    timeTemp.setMinutes(timeTemp.getMinutes() + 5);
-                    temp = { x: xTemp, y: (option !== null && option > 0) ? option : 0 }
+                // Dados gerados dinamicamente
+                if (
+                    !isToday || // Não é hoje: preenche todos os horários
+                    (timeTemp.getHours() < now.getHours() || (timeTemp.getHours() === now.getHours() && timeTemp.getMinutes() <= now.getMinutes()))
+                ) {
+                    xTemp = `${timeTemp.getHours().toString().padStart(2, '0')}:${timeTemp.getMinutes().toString().padStart(2, '0')}`;
+                    temp = { x: xTemp, y: (option !== null && option > 0) ? option : 0 };
                     data.push(temp);
+                    timeTemp.setMinutes(timeTemp.getMinutes() + 5); // Incrementa 5 minutos
                 }
             }
         });

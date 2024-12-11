@@ -22,7 +22,6 @@ import { getClientsByUserLoggedIn } from "../../services/clientServices";
 import Loading from "../../components/Loading";
 
 const Clients = ({ navigate, user }) => {
-
     const [clients, setClients] = useState([]);
 
     const [loading, setLoading] = useState(true);

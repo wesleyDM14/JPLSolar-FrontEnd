@@ -25,6 +25,7 @@ import SolarPlantDetail from './pages/SolarPlants/solarPlantDetail.js';
 import Partners from './pages/Parterns/index.js';
 import NewPartner from './pages/Parterns/newPartner.js';
 import PartnerInfo from './pages/Parterns/partnerInfo.js';
+import NotAuthorized from './pages/NotAuthorized/index.js';
 
 export const AppRoutes = () => (
     <Routes>
@@ -46,5 +47,6 @@ export const AppRoutes = () => (
         <Route path='/plantas-solares/cliente/:clientId' element={<AuthRoute><MainLayout><SolarPlantsClient /></MainLayout></AuthRoute>} />
         <Route path='/plantas-solares/cliente/:clientId/nova' element={<AuthRoute><MainLayout><NewSolarPlant /></MainLayout></AuthRoute>} />
         <Route path='/tarefas' element={<AuthRoute><MainLayout><Tasks /></MainLayout></AuthRoute>} />
+        <Route path='/not-authorized' element={<NotAuthorized />} />
     </Routes>
 );

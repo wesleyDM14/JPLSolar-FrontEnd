@@ -17,6 +17,6 @@ export const getLoggedUserInfo = async (user, setIsLoading, setUserData) => {
     });
 }
 
-export const updatedLoggedUser = () => {
+export const updatedLoggedUser = (user, setIsLoading, setSubmitting, setFieldError) => {
 
 }

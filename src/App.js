@@ -12,12 +12,12 @@ const App = () => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      const { loginTime, accessToken } = JSON.parse(storedUser);
+      const { loginTime, accessToken, userRole } = JSON.parse(storedUser);
       const currentTime = new Date().getTime();
       const timeout = 30 * 24 * 60 * 60 * 1000; // 30 dias
 
       if (currentTime - loginTime <= timeout) {
-        dispatch(login({ accessToken, loginTime })); // Dispatch the login action with user data
+        dispatch(login({ accessToken, loginTime, userRole })); // Dispatch the login action with user data
       } else {
         dispatch(logout());
       }

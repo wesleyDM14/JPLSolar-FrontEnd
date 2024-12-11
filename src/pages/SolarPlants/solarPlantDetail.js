@@ -341,7 +341,7 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                             />
                                         </LoadingchartContainer>
                                     ) : (
-                                        <Graphic powerData={powerData} type={chartType} inverter={solarPlant.inversor} estimated={solarPlant.estimatedGeneration} />
+                                        <Graphic powerData={powerData} type={chartType} inverter={solarPlant.inversor} estimated={solarPlant.estimatedGeneration} chartDate={chartDate} />
                                     )
                                 }
                             </Chart>
