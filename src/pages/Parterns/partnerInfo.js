@@ -19,6 +19,7 @@ import { GrUserWorker } from "react-icons/gr";
 import { FaWhatsapp } from "react-icons/fa";
 import ContractList from "../Contracts/contractList";
 import SearchBar from "../../components/SearchBar";
+import { formatCurrencyBRL } from "../../utils/formatString";
 
 const PartnerInfo = ({ navigate, user }) => {
 
@@ -73,7 +74,7 @@ const PartnerInfo = ({ navigate, user }) => {
                                     </PartnerDetailArea>
                                     <PartnerDetailArea>
                                         <PartnerDetailLabel>Receita Gerada: </PartnerDetailLabel>
-                                        <PartnerDetailValue>R$ {receita.toFixed(2)}</PartnerDetailValue>
+                                        <PartnerDetailValue>{formatCurrencyBRL(receita)}</PartnerDetailValue>
                                     </PartnerDetailArea>
                                 </PartnerDetailSection>
                             </PartnerDetailMainContainer>
@@ -89,7 +90,7 @@ const PartnerInfo = ({ navigate, user }) => {
                                 user={user}
                             />
                             <ButtonGroup onClick={() => {
-                                navigate('/parceiros');
+                                navigate(-1);
                             }}>
                                 <BackButton>Voltar</BackButton>
                             </ButtonGroup>

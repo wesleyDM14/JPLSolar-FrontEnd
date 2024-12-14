@@ -46,9 +46,12 @@ import { RiLockPasswordFill } from 'react-icons/ri';
 import { CgSelectR } from 'react-icons/cg';
 import { SlEnergy } from 'react-icons/sl';
 import { MdEnergySavingsLeaf } from 'react-icons/md';
+import { hasActionPermission } from '../../utils/permissions';
 
 const SolarPlantList = ({ solarPlants, navigate, search, page, setPage, itensPerPage, setLoading, user }) => {
     Modal.setAppElement(document.getElementById('root'));
+
+    const userRole = user?.userRole || 'CLIENTE';
 
     const [selectedSolarPlant, setSelectedSolarPlant] = useState({});
 
@@ -106,22 +109,26 @@ const SolarPlantList = ({ solarPlants, navigate, search, page, setPage, itensPer
                                         )
                                     }
                                 </IconOperation>
-                                <AdminContainer>
-                                    <EditIconContainer onClick={(event) => {
-                                        event.stopPropagation();
-                                        setSelectedSolarPlant(solarPlant);
-                                        openEditModal();
-                                    }}>
-                                        <FaEdit />
-                                    </EditIconContainer>
-                                    <DeleteIconContainer onClick={(event) => {
-                                        event.stopPropagation();
-                                        setSelectedSolarPlant(solarPlant);
-                                        openDeleteModal();
-                                    }}>
-                                        <FaTrashAlt />
-                                    </DeleteIconContainer>
-                                </AdminContainer>
+                                {
+                                    hasActionPermission(userRole, 'edit-solarPlant') && (
+                                        <AdminContainer>
+                                            <EditIconContainer onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSelectedSolarPlant(solarPlant);
+                                                openEditModal();
+                                            }}>
+                                                <FaEdit />
+                                            </EditIconContainer>
+                                            <DeleteIconContainer onClick={(event) => {
+                                                event.stopPropagation();
+                                                setSelectedSolarPlant(solarPlant);
+                                                openDeleteModal();
+                                            }}>
+                                                <FaTrashAlt />
+                                            </DeleteIconContainer>
+                                        </AdminContainer>
+                                    )
+                                }
                             </SolarPlantsOperations>
                         </SingleSolarPlant>
                     ))

@@ -309,6 +309,7 @@ export const SingleClient = styled.div`
     padding: 10px;
     background-color: ${colors.white};
     cursor: pointer;
+    overflow: hidden;
 
     @media only screen and (max-width: 978px){
         grid-template-columns: 2fr 1fr 0.5fr;
@@ -319,6 +320,12 @@ export const ClientValueContainer = styled.div`
     display: flex;
     align-items: center;
     flex-direction: row;
+    overflow: hidden; /* Impede que o conteúdo ultrapasse o limite do container */
+    text-overflow: ellipsis; /* Adiciona "..." ao final do texto muito grande */
+    white-space: nowrap; /* Impede a quebra de linha dentro de cada container */
+
+    /* Se você quiser que o conteúdo quebre dentro do container sem afetar o grid */
+    max-width: 95%; /* Impede que o conteúdo ultrapasse a largura do container */
 `;
 
 export const ClientValue = styled.a`
@@ -326,6 +333,7 @@ export const ClientValue = styled.a`
     font-weight: bold;
     color: ${colors.mainText};
     text-decoration: none;
+   
 
     @media only screen and (max-width: 978px){
        font-size: 12px;

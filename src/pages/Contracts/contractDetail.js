@@ -163,7 +163,7 @@ const ContractDetail = ({ navigate, user }) => {
                                 </ContractDetailSection>
                             </ContractDetailMainContainer>
                             <ButtonGroup onClick={() => {
-                                navigate('/contratos');
+                                navigate(-1);
                             }}>
                                 <BackButton>Voltar</BackButton>
                             </ButtonGroup>

@@ -84,7 +84,7 @@ const NewClient = ({ navigate, user }) => {
                                         </FormInputArea>
                                     </SubItensContainer>
                                     <ButtonGroup>
-                                        <BackButton type="button" onClick={() => navigate('/clientes')}>Voltar</BackButton>
+                                        <BackButton type="button" onClick={() => navigate(-1)}>Voltar</BackButton>
                                         {
                                             !isSubmitting && (
                                                 <SubmitButton type="submit">Cadastrar</SubmitButton>

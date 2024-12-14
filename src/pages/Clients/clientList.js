@@ -63,9 +63,9 @@ const ClientList = ({ clients, navigate, search, page, setPage, itensPerPage, se
 
     const filteredClients = useMemo(() =>
         clients.filter(client =>
-            client.name.toLowerCase().includes(search.toLowerCase()) ||
-            client.phone.toLowerCase().includes(search.toLowerCase()) ||
-            client.address.toLowerCase().includes(search.toLowerCase())
+            client.name?.toLowerCase().includes(search.toLowerCase()) ||
+            client.phone?.toLowerCase().includes(search.toLowerCase()) ||
+            client.address?.toLowerCase().includes(search.toLowerCase())
         ), [clients, search]
     );
 

@@ -66,6 +66,7 @@ import { colors } from "../../utils/GlobalStyles";
 import DatePicker from "react-date-picker";
 import 'react-date-picker/dist/DatePicker.css';
 import Graphic from "../../components/Graphic";
+import { hasActionPermission } from "../../utils/permissions";
 
 const SolarPlantDetail = ({ user, navigate }) => {
     const { solarPlantId } = useParams();
@@ -438,28 +439,32 @@ const SolarPlantDetail = ({ user, navigate }) => {
                                     <DeviceCardContent>Rated Power: {solarPlant.inversor === 'GROWATT' ? (parseFloat(solarPlantParams.deviceSN.nominalPower) / 1000).toFixed(2) : solarPlantParams.deviceSN.nominalPower} kWp</DeviceCardContent>
                                     <DeviceCardContent>Current Power: {(parseFloat(solarPlantParams.deviceSN.pac) / 1000).toFixed(2)} kWp</DeviceCardContent>
                                 </DeviceCardContainer>
-                                <DeviceCardContainer>
-                                    {
-                                        downloading ? (
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                <ThreeDots color={colors.icon} width={80} />
-                                            </div>
+                                {
+                                    hasActionPermission(user?.userRole, 'download-report') && (
+                                        <DeviceCardContainer>
+                                            {
+                                                downloading ? (
+                                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                        <ThreeDots color={colors.icon} width={80} />
+                                                    </div>
 
-                                        ) : (
-                                            <GenerateReportContainer onClick={
-                                                () => {
-                                                    setDownloading(true);
-                                                    handleModalDownloadOpen();
-                                                }
-                                            }>
-                                                <GenerateReportIconContainer>
-                                                    <FaFilePdf />
-                                                </GenerateReportIconContainer>
-                                                <GenerateReportTitle>Download Relatório da Planta Solar</GenerateReportTitle>
-                                            </GenerateReportContainer>
-                                        )
-                                    }
-                                </DeviceCardContainer>
+                                                ) : (
+                                                    <GenerateReportContainer onClick={
+                                                        () => {
+                                                            setDownloading(true);
+                                                            handleModalDownloadOpen();
+                                                        }
+                                                    }>
+                                                        <GenerateReportIconContainer>
+                                                            <FaFilePdf />
+                                                        </GenerateReportIconContainer>
+                                                        <GenerateReportTitle>Download Relatório da Planta Solar</GenerateReportTitle>
+                                                    </GenerateReportContainer>
+                                                )
+                                            }
+                                        </DeviceCardContainer>
+                                    )
+                                }
                             </DeviceCards>
                         </Device >
                         <DeviceInfoModal onClose={handleModalClose} isOpen={isModalOpen} deviceInfo={solarPlantParams.deviceSNInfo} />

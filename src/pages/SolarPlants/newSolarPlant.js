@@ -214,7 +214,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                     </FormColumn>
                                 </FormContent>
                                 <ButtonGroup>
-                                    <BackButton type="button" onClick={() => navigate(`/plantas-solares/cliente/${clientId}`)}>Voltar</BackButton>
+                                    <BackButton type="button" onClick={() => navigate(-1)}>Voltar</BackButton>
                                     {
                                         !isSubmitting && (
                                             <SubmitButton type='submit'>Cadastrar</SubmitButton>
@@ -222,7 +222,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                     }
                                     {
                                         isSubmitting && (
-                                            <ThreeDots color={colors.icon} />
+                                            <ThreeDots color={colors.icon} height={40} />
                                         )
                                     }
                                 </ButtonGroup>

@@ -110,7 +110,7 @@ const Profile = ({ navigate, user }) => {
                                                         type='password'
                                                     />
                                                     <ButtonGroup>
-                                                        <BackButton type='button' onClick={() => navigate('/')}>Voltar</BackButton>
+                                                        <BackButton type='button' onClick={() => navigate(-1)}>Voltar</BackButton>
                                                         {
                                                             !isSubmitting && (
                                                                 <SubmitButton type='submit'>Salvar</SubmitButton>

@@ -1,18 +1,18 @@
 const rolePermissions = {
     ADMIN: {
         menus: ['/dashboard', '/contratos', '/clientes', '/clientes/novo', '/contratos', '/contratos/novo', '/contratos/:contractId', '/financeiro', '/parceiros', '/parceiros/novo', '/parceiros/:partnerId', '/perfil', '/relatorios', '/plantas-solares', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/plantas-solares/cliente/:clientId/nova', '/tarefas'],
-        actions: [],
+        actions: ['edit-client', 'edit-solarPlant', 'download-report'],
     },
     MONTADOR: {
-        menus: ['/dashboard', '/contratos', '/clientes', '/clientes/novo', '/contratos', '/contratos/novo','/contratos/:contractId', '/financeiro', '/parceiros', '/parceiros/novo', '/parceiros/:partnerId', '/perfil', '/relatorios', '/plantas-solares', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/plantas-solares/cliente/:clientId/nova', '/tarefas'],
-        actions: [],
+        menus: ['/dashboard', '/contratos', '/clientes', '/clientes/novo', '/contratos', '/contratos/novo', '/contratos/:contractId', '/financeiro', '/parceiros', '/parceiros/novo', '/parceiros/:partnerId', '/perfil', '/relatorios', '/plantas-solares', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/plantas-solares/cliente/:clientId/nova', '/tarefas'],
+        actions: ['edit-client', 'edit-solarPlant', 'download-report'],
     },
     PARCEIRO: {
         menus: ['/dashboard', '/contratos', '/contratos/novo', '/contratos/:contractId', '/perfil',],
         actions: [],
     },
     CLIENTE: {
-        menus: ['/dashboard', '/perfil', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/financeiro',],
+        menus: ['/dashboard', '/perfil', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/financeiro', '/plantas-solares'],
         actions: [],
     },
 };
