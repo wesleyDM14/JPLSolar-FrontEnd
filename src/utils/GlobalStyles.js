@@ -88,6 +88,12 @@ const GlobalStyle = createGlobalStyle`
         overflow-y: auto;
         display: flex !important;
         flex-direction: column;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .sidebar-responsive::-webkit-scrollbar {
+        display: none; /* Chrome, Safari e Edge */
     }
 
     .label-responsive {
@@ -104,14 +110,20 @@ const GlobalStyle = createGlobalStyle`
     #sidebar {
         background: ${colors.sidebar};
         grid-area: sidebar;
-        overflow-y: hidden;
+        overflow-y: auto;
         padding: 20px;
         -webkit-transition: all 0.5s;
         transition: all 0.5s;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
 
         @media only screen and (max-width: 978px){
             display: none;
         }
+    }
+
+    #sidebar::-webkit-scrollbar {
+        display: none; /* Chrome, Safari e Edge */
     }
 
     .react-datepicker-wrapper {
