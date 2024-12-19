@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getColumnsForUserId, updateColumn } from "../../services/tasksService";
+import { createColumn, getColumnsForUserId, updateColumn } from "../../services/tasksService";
 import {
     BoardContainer,
     TaskContainer,
@@ -7,48 +7,21 @@ import {
     TaskTitle
 } from "./styles";
 import Loading from "../../components/Loading";
-import { FaTasks } from "react-icons/fa";
+import { FaPlusCircle, FaTasks } from "react-icons/fa";
 import { DragDropContext } from 'react-beautiful-dnd';
 import TaskColumn from "./taskColumn";
+import { AddIcon, AddPartnerContainer, AddText } from "../Parterns/styles";
 
 const Tasks = ({ navigate, user }) => {
 
     const [columns, setColumns] = useState([]);
-    const [loading, setLoading] = useState(false);
-
-    const columnsTest = [
-        {
-          id: 'column-1',
-          title: 'Usinas',
-          tasks: [
-            { id: 'task-1', name: 'Planejar instalação' },
-            { id: 'task-2', name: 'Comprar equipamentos' },
-          ],
-        },
-        {
-          id: 'column-2',
-          title: 'Concluído',
-          tasks: [
-            { id: 'task-3', name: 'Análise do terreno' },
-            { id: 'task-4', name: 'Aprovação regulatória' },
-          ],
-        },
-        {
-          id: 'column-3',
-          title: 'A fazer',
-          tasks: [
-            { id: 'task-5', name: 'Conferir painéis' },
-            { id: 'task-6', name: 'Testar inversores' },
-          ],
-        },
-      ];
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setColumns(columnsTest);
-        /*if (loading) {
+        if (loading) {
             getColumnsForUserId(user, setColumns, setLoading);
-        }*/
-    }, []);
+        }
+    }, [loading, user]);
 
     const onDragEnd = async (result) => {
         const { source, destination, draggableId } = result;
@@ -66,14 +39,14 @@ const Tasks = ({ navigate, user }) => {
             const sourceColumn = columns[sourceColumnIndex];
             const destColumn = columns[destColumnIndex];
 
-            const draggedTask = sourceColumn.tasks.find(
+            const draggedTask = sourceColumn.Task.find(
                 (task) => task.id === draggableId
             );
 
             if (!draggedTask) return;
 
-            sourceColumn.tasks.splice(source.index, 1);
-            destColumn.tasks.splice(destination.index, 0, draggedTask);
+            sourceColumn.Task.splice(source.index, 1);
+            destColumn.Task.splice(destination.index, 0, draggedTask);
 
             setColumns([...columns]);
 
@@ -83,11 +56,21 @@ const Tasks = ({ navigate, user }) => {
                 (col) => col.id === source.droppableId
             );
             const column = columns[columnIndex];
-            const [movedTask] = column.tasks.splice(source.index, 1);
-            column.tasks.splice(destination.index, 0, movedTask);
+            const [movedTask] = column.Task.splice(source.index, 1);
+            column.Task.splice(destination.index, 0, movedTask);
             setColumns([...columns]);
         }
-    }
+    };
+
+    const addColumn = async () => {
+        const columnName = prompt('Nome da nova coluna:');
+        if (!columnName) return;
+        try {
+            await createColumn(user, columnName, setLoading);
+        } catch (error) {
+            console.error('Erro ao criar nova coluna:', error);
+        }
+    };
 
     return (
         <TaskContainer>
@@ -98,8 +81,14 @@ const Tasks = ({ navigate, user }) => {
                     <>
                         <TaskHeader>
                             <TaskTitle><FaTasks style={{ marginRight: '10px' }} /> Tarefas</TaskTitle>
+                            <AddPartnerContainer onClick={addColumn}>
+                                <AddIcon>
+                                    <FaPlusCircle />
+                                </AddIcon>
+                                <AddText>Adicionar Coluna</AddText>
+                            </AddPartnerContainer>
                         </TaskHeader>
-                        <DragDropContext>
+                        <DragDropContext onDragEnd={onDragEnd}>
                             <BoardContainer>
                                 {
                                     columns.map((column) => (

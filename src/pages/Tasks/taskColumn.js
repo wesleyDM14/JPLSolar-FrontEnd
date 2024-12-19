@@ -1,6 +1,6 @@
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { createTask } from "../../services/tasksService";
-import { AddTaskButton, ColumnContainer, TaskItem } from "./styles";
+import { AddTaskButton, ColumnContainer, ColumnTitle, TaskItem } from "./styles";
 
 const TaskColumn = ({ column, columns, setColumns, user }) => {
     const addTask = async () => {
@@ -12,7 +12,7 @@ const TaskColumn = ({ column, columns, setColumns, user }) => {
         const response = await createTask(user, taskName, column.id);
 
         const updatedColumns = columns.map((col) =>
-            col.id === column.id ? { ...col, tasks: [...col.tasks, response.data] } : col
+            col.id === column.id ? { ...col, Task: [...col.Task, response.data] } : col
         );
 
         setColumns(updatedColumns);
@@ -23,8 +23,9 @@ const TaskColumn = ({ column, columns, setColumns, user }) => {
             {
                 (provided) => (
                     <ColumnContainer {...provided.droppableProps} ref={provided.innerRef}>
+                        <ColumnTitle>{column.title}</ColumnTitle>
                         {
-                            column.tasks.map((task, index) => (
+                            column.Task.map((task, index) => (
                                 <Draggable key={task.id} draggableId={task.id} index={index}>
                                     {
                                         (provided) => (

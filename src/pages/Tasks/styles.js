@@ -8,6 +8,12 @@ export const BoardContainer = styled.div`
     gap: 20px;
 `;
 
+export const ColumnTitle = styled.h2`
+  font-size: 26px;
+    color: ${colors.title};
+    font-weight: 700;
+`;
+
 export const TaskContainer = styled.div`
     grid-area: main;
     display: block;
