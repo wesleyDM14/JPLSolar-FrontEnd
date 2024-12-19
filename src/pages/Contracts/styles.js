@@ -220,7 +220,6 @@ export const FormInputArea = styled.div`
     margin-bottom: 20px;
 
     @media only screen and (max-width: 978px){
-        width: 90%;
         margin-bottom: 5px;
     }
 `;
@@ -286,6 +285,7 @@ export const ButtonGroup = styled.div`
 
     @media only screen and (max-width: 978px){
         flex-direction: column;
+        padding: 0;
     }
 `;
 

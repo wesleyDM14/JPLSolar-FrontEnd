@@ -105,7 +105,7 @@ export const IconWrapper = styled.div`
 
     @media only screen and (max-width: 978px){
         svg {
-            font-size: 80px;  
+            font-size: 50px;  
         }
     }
 `;
@@ -184,6 +184,7 @@ export const StyledFormArea = styled.div`
 
     @media only screen and (max-width: 978px){
         padding: 30px 10px;
+        margin-top: 0px;
     }
 `;
 
@@ -196,6 +197,7 @@ export const FormContent = styled.div`
         display: flex;
         flex-direction: column;
         width: 100%;
+        margin-top: 0px;
     }
 `;
 
@@ -215,7 +217,6 @@ export const FormInputArea = styled.div`
     margin-bottom: 20px;
 
     @media only screen and (max-width: 978px){
-        width: 90%;
         margin-bottom: 5px;
     }
 `;
@@ -271,6 +272,7 @@ export const ButtonGroup = styled.div`
 
     @media only screen and (max-width: 978px){
         flex-direction: column;
+        padding: 0;
     }
 `;
 
@@ -503,6 +505,10 @@ export const TitleIconContainer = styled.div`
     font-size: 50px;
     margin-right: 20px;
     color: ${colors.icon};
+
+    @media only screen and (max-width: 978px){
+        font-size: 30px;
+    }
 `;
 
 export const Greeting = styled.div`
@@ -683,7 +689,9 @@ export const Chart = styled.div`
     box-shadow: 5px 5px 13px #ededed, -5px -5px 13px #fff;
     max-height: 500px;
     min-height: 500px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 
     @media only screen and (max-width: 978px) {
         min-height: 350px;
@@ -782,6 +790,10 @@ export const DeviceCardIconContainer = styled.div`
     font-size: 80px;
     color: ${colors.icon};
     text-align: center;
+
+    @media only screen and (max-width: 978px) {
+        font-size: 50px;
+    }
 `;
 
 export const InfoDeviceIconContainer = styled.div`
@@ -948,7 +960,8 @@ export const GenerateReportIconContainer = styled.div`
 
     @media only screen and (max-width: 978px) {
         svg {
-            margin-top: 25px;
+            margin-top: 30px;
+            font-size: 35px;
         }
     }
 `;

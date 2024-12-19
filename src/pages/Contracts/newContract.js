@@ -77,6 +77,7 @@ const NewContract = ({ navigate, user }) => {
         cidadeAvalista: '',
         ufAvalista: '',
         cepAvalista: '',
+        genero: '',
     };
 
     const validationSchemaPersonal = Yup.object({
@@ -93,6 +94,7 @@ const NewContract = ({ navigate, user }) => {
         cidade: Yup.string().required('Cidade é obrigatório'),
         uf: Yup.string().required('UF é obrigatório').length(2, 'UF deve ter exatamente 2 caracteres'),
         cep: Yup.string().required('CEP é obrigatório'),
+        genero: Yup.string().required('Genero é obrigatório'),
     });
 
     const validationSchemaTecnical = Yup.object({
@@ -276,15 +278,29 @@ const NewContract = ({ navigate, user }) => {
                                                             />
                                                         </FormInputArea>
                                                     </SubItensContainer>
-                                                    <FormInputArea>
-                                                        <FormInputLabelRequired><GrUserWorker />Profissao</FormInputLabelRequired>
-                                                        <FormInput
-                                                            type='text'
-                                                            name='profissao'
-                                                            placeholder='Profissao do Cliente'
-                                                            autoComplete='profissao'
-                                                        />
-                                                    </FormInputArea>
+                                                    <SubItensContainer>
+                                                        <FormInputArea>
+                                                            <FormInputLabelRequired><CgSelectR />Gênero</FormInputLabelRequired>
+                                                            <Limitador>
+                                                                <SelectWrapper>
+                                                                    <Field as={FormSelect} name='genero'>
+                                                                        <option value=''>Selecione o Gênero</option>
+                                                                        <option value='MASCULINO'>Masculino</option>
+                                                                        <option value='FEMININO'>Feminino</option>
+                                                                    </Field>
+                                                                </SelectWrapper>
+                                                            </Limitador>
+                                                        </FormInputArea>
+                                                        <FormInputArea>
+                                                            <FormInputLabelRequired><GrUserWorker />Profissao</FormInputLabelRequired>
+                                                            <FormInput
+                                                                type='text'
+                                                                name='profissao'
+                                                                placeholder='Profissao do Cliente'
+                                                                autoComplete='profissao'
+                                                            />
+                                                        </FormInputArea>
+                                                    </SubItensContainer>
                                                     <SubItensContainer>
                                                         <FormInputArea>
                                                             <FormInputLabelRequired><CiCalendarDate />Data de Nascimento</FormInputLabelRequired>

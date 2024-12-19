@@ -90,6 +90,7 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
         cidade: Yup.string().required('Cidade é obrigatório'),
         uf: Yup.string().required('UF é obrigatório').length(2, 'UF deve ter exatamente 2 caracteres'),
         cep: Yup.string().required('CEP é obrigatório'),
+        genero: Yup.string().required('Gênero é obrigatório'),
     });
 
     const validationSchemaTecnical = Yup.object({
@@ -348,6 +349,7 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                             cidadeAvalista: selectedContract.avalistaId ? selectedContract.avalista.endereco.cidade : '',
                             ufAvalista: selectedContract.avalistaId ? selectedContract.avalista.endereco.uf : '',
                             cepAvalista: selectedContract.avalistaId ? selectedContract.avalista.endereco.cep : '',
+                            genero: selectedContract.genero,
                         }}
                         validationSchema={validationSchemas[step - 1]}
                         onSubmit={(values, { setSubmitting, setFieldError }) => {
@@ -399,15 +401,29 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                                                                 />
                                                             </FormInputArea>
                                                         </SubItensContainer>
-                                                        <FormInputArea>
-                                                            <FormInputLabelRequired><GrUserWorker />Profissao</FormInputLabelRequired>
-                                                            <FormInput
-                                                                type='text'
-                                                                name='profissao'
-                                                                placeholder='Profissao do Cliente'
-                                                                autoComplete='profissao'
-                                                            />
-                                                        </FormInputArea>
+                                                        <SubItensContainer>
+                                                            <FormInputArea>
+                                                                <FormInputLabelRequired><CgSelectR />Gênero</FormInputLabelRequired>
+                                                                <Limitador>
+                                                                    <SelectWrapper>
+                                                                        <Field as={FormSelect} name='genero'>
+                                                                            <option value=''>Selecione o Gênero</option>
+                                                                            <option value='MASCULINO'>Masculino</option>
+                                                                            <option value='FEMININO'>Feminino</option>
+                                                                        </Field>
+                                                                    </SelectWrapper>
+                                                                </Limitador>
+                                                            </FormInputArea>
+                                                            <FormInputArea>
+                                                                <FormInputLabelRequired><GrUserWorker />Profissao</FormInputLabelRequired>
+                                                                <FormInput
+                                                                    type='text'
+                                                                    name='profissao'
+                                                                    placeholder='Profissao do Cliente'
+                                                                    autoComplete='profissao'
+                                                                />
+                                                            </FormInputArea>
+                                                        </SubItensContainer>
                                                         <SubItensContainer>
                                                             <FormInputArea>
                                                                 <FormInputLabelRequired><CiCalendarDate />Data de Nascimento</FormInputLabelRequired>

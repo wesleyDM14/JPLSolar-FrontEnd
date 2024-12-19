@@ -72,6 +72,10 @@ export const Title = styled.h1`
   font-size: 28px;
   font-weight: bold;
   animation: ${fadeIn} 0.5s ease-in-out;
+
+  @media only screen and (max-width: 978px){
+    font-size: 18px;
+  }
 `;
 
 export const CardsContainer = styled.div`
@@ -106,6 +110,10 @@ export const CardIcon = styled.div`
     $status === '1' ? '#4caf50' : $status === '0' ? '#ffc107' : '#f44336'};
   animation: ${pulse} 1.5s infinite;
   margin-right: 10px;
+
+  @media only screen and (max-width: 978px){
+    font-size: 30px;
+  }
 `;
 
 export const CardInfo = styled.div`
@@ -120,6 +128,10 @@ export const CardTitle = styled.h2`
   font-weight: bold;
   margin: 0;
   color: #ffffff;
+
+  @media only screen and (max-width: 978px){
+    font-size: 16px;
+  }
 `;
 
 export const CardDetail = styled.p`
@@ -135,6 +147,10 @@ export const CardProduction = styled.div`
   color: #f9a825;
   gap: 8px;
   font-weight: bold;
+
+  @media only screen and (max-width: 978px){
+    font-size: 14px;
+  }
 `;
 
 export const ErrorSection = styled.div`
@@ -144,19 +160,29 @@ export const ErrorSection = styled.div`
   border-radius: 12px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5);
   position: relative;
-    
-  /* Garantir altura mínima para não encolher muito */
-  min-height: 350px; /* Ajuste a altura mínima com base no número de cards */
-  height: auto; /* Deixa a altura flexível de acordo com os cards */
-  transition: height 0.3s ease-in-out; /* Suaviza a transição de altura ao animar */
+  min-height: 350px;
+  height: auto;
+  transition: height 0.3s ease-in-out;
 
   overflow: hidden;
+
+  @media only screen and (max-width: 978px){
+    font-size: 18px;
+    padding: 10px;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 `;
 
 export const SectionTitle = styled.h3`
   font-size: 24px;
   color: #f44336;
   margin-bottom: 20px;
+
+  @media only screen and (max-width: 978px){
+    font-size: 18px;
+  }
 `;
 
 export const NavButton = styled.button`
@@ -192,5 +218,20 @@ export const NavButton = styled.button`
     // Botão para a direita
     &.right {
         right: 20px;
+    }
+
+    @media only screen and (max-width: 978px){
+      font-size: 1.5rem;
+      width: 30px;
+      height: 30px;
+
+      &.left {
+        left: 10px;
+      }
+
+    // Botão para a direita
+      &.right {
+          right: 10px;
+      }
     }
 `;

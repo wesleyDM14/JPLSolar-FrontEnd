@@ -100,7 +100,7 @@ export const IconWrapper = styled.div`
 
     @media only screen and (max-width: 978px){
         svg {
-            font-size: 80px;  
+            font-size: 40px;  
         }
     }
 `;
