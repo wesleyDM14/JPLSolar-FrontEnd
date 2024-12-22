@@ -43,6 +43,10 @@ export const StyledInput = styled.input`
     display: block;
     margin: 5px auto 10px auto;
     transition: ease-in-out 0.3s;
+
+    @media only screen and (max-width: 978px){
+        width: 80%;
+    }
 `;
 
 export const StyledIcon = styled.div`
@@ -57,6 +61,8 @@ export const StyledIcon = styled.div`
     @media only screen and (max-width: 978px){
         top: 40%;
         font-size: 18px;
+        ${(props) => props.$right && `right: 15px;`};
+        ${(props) => !props.$right && `left: 15px;`};
     }
 `;
 

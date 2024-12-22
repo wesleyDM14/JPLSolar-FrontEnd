@@ -7,7 +7,7 @@ export const SolarPlantsContainer = styled.div`
     padding: 0 25px;
 
     @media only screen and (max-width: 978px){
-        padding: 0 10px;
+        padding: 5px 10px;
     }
 `;
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createColumn, getColumnsForUserId, updateColumn } from "../../services/tasksService";
+import { createColumn, getColumnsForUserId, updateTaskPosition } from "../../services/tasksService";
 import {
     BoardContainer,
     TaskContainer,
@@ -8,7 +8,7 @@ import {
 } from "./styles";
 import Loading from "../../components/Loading";
 import { FaPlusCircle, FaTasks } from "react-icons/fa";
-import { DragDropContext } from 'react-beautiful-dnd';
+import { closestCenter, DndContext } from "@dnd-kit/core";
 import TaskColumn from "./taskColumn";
 import { AddIcon, AddPartnerContainer, AddText } from "../Parterns/styles";
 
@@ -23,42 +23,44 @@ const Tasks = ({ navigate, user }) => {
         }
     }, [loading, user]);
 
-    const onDragEnd = async (result) => {
-        const { source, destination, draggableId } = result;
+    const onDragEnd = async (event) => {
+        const { active, over } = event;
 
-        if (!destination) return;
+        const [activeColumnId, activeTaskId] = active.id.split(":");
+        const [overColumnId, overTaskId] = over?.id.split(":") || [];
 
-        if (source.droppableId !== destination.droppableId) {
-            const sourceColumnIndex = columns.findIndex(
-                (col) => col.id === source.droppableId
-            );
-            const destColumnIndex = columns.findIndex(
-                (col) => col.id === destination.droppableId
-            );
+        if (!overColumnId || activeColumnId === overColumnId) return;
 
-            const sourceColumn = columns[sourceColumnIndex];
-            const destColumn = columns[destColumnIndex];
+        const sourceColumnIndex = columns.findIndex((col) => col.id === activeColumnId);
+        const destinationColumnIndex = columns.findIndex((col) => col.id === overColumnId);
 
-            const draggedTask = sourceColumn.Task.find(
-                (task) => task.id === draggableId
-            );
+        if (sourceColumnIndex < 0 || destinationColumnIndex < 0) return;
 
-            if (!draggedTask) return;
+        const sourceTaskIndex = columns[sourceColumnIndex].Task.findIndex(
+            (task) => task.id === activeTaskId
+        );
 
-            sourceColumn.Task.splice(source.index, 1);
-            destColumn.Task.splice(destination.index, 0, draggedTask);
+        if (sourceTaskIndex < 0) return;
 
-            setColumns([...columns]);
+        const destinationTaskIndex = overTaskId
+            ? columns[destinationColumnIndex].Task.findIndex((task) => task.id === overTaskId)
+            : columns[destinationColumnIndex].Task.length;
 
-            await updateColumn(user, draggableId, destination.droppableId);
-        } else {
-            const columnIndex = columns.findIndex(
-                (col) => col.id === source.droppableId
-            );
-            const column = columns[columnIndex];
-            const [movedTask] = column.Task.splice(source.index, 1);
-            column.Task.splice(destination.index, 0, movedTask);
-            setColumns([...columns]);
+        const task = columns[sourceColumnIndex].Task[sourceTaskIndex];
+        const updatedColumns = [...columns];
+
+        // Atualiza as tarefas das colunas
+        updatedColumns[sourceColumnIndex].Task.splice(sourceTaskIndex, 1);
+        updatedColumns[destinationColumnIndex].Task.splice(destinationTaskIndex, 0, task);
+
+        setColumns(updatedColumns);
+
+        // Atualiza no backend
+        try {
+            await updateTaskPosition(user, activeTaskId, activeColumnId, overColumnId, destinationTaskIndex);
+        } catch (error) {
+            console.error("Erro ao atualizar posição da tarefa:", error);
+            setLoading(true);
         }
     };
 
@@ -88,21 +90,20 @@ const Tasks = ({ navigate, user }) => {
                                 <AddText>Adicionar Coluna</AddText>
                             </AddPartnerContainer>
                         </TaskHeader>
-                        <DragDropContext onDragEnd={onDragEnd}>
+                        <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
                             <BoardContainer>
                                 {
                                     columns.map((column) => (
                                         <TaskColumn
                                             key={column.id}
                                             column={column}
-                                            columns={columns}
-                                            setColumns={setColumns}
+                                            setLoading={setLoading}
                                             user={user}
                                         />
                                     ))
                                 }
                             </BoardContainer>
-                        </DragDropContext>
+                        </DndContext>
                     </>
                 )
             }

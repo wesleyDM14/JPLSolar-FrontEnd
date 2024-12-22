@@ -27,10 +27,6 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch }) => {
     const [search, setSearch] = useState("");
     const [unreadNotifications, setUnreadNotifications] = useState(3);
 
-    /*const handleSearch = () => {
-        console.log('Procurar por: ', search);
-    }*/
-
     return (
         <NavbarContainer>
             <NavbarShowIcon onClick={() => openSidebar()}>

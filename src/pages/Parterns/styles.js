@@ -6,7 +6,7 @@ export const PartnerContainer = styled.div`
     display: block;
 
     @media only screen and (max-width: 978px){
-        padding: 0 10px;
+        padding: 5px 10px;
     }
 `;
 
@@ -252,6 +252,7 @@ export const ButtonGroup = styled.div`
 
     @media only screen and (max-width: 978px){
         flex-direction: column;
+        align-items: center;
     }
 `;
 

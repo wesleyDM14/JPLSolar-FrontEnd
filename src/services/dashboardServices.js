@@ -25,7 +25,6 @@ export const getDashboardData = async (user, setLoading, setSolarPlants, setSola
 
         setSolarPlants(plantsResponse);
         setSolarPlantsWithError(plantsErrorResponse);
-        console.log(plantsErrorResponse);
         setLoading(false);
 
     }).catch((err) => {

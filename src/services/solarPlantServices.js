@@ -7,10 +7,8 @@ export const createSolarPlant = async (solarPlant, user, navigate, setSubmitting
             "Content-Type": "application/json",
             "Authorization": `Bearer ${user.accessToken}`
         }
-    }).then((response) => {
-        const { data } = response;
+    }).then(() => {
         window.alert('Planta Solar cadastrada com sucesso.');
-        console.log(data);
         navigate(`/plantas-solares/cliente/${solarPlant.clientId}`);
     }).catch((err) => {
         console.error(err.response.data.message);
@@ -149,7 +147,7 @@ export const getErrorListData = async (solarPlant, solarPlantParams, year, user,
         setErrorList(data.errorLog);
     }).catch((err) => {
         window.alert(err.response.data.message);
-        console.log(err.response.data.message);
+        console.error(err.response.data.message);
     }).finally(() => {
         setLoadingErrorList(false);
     });
@@ -197,7 +195,7 @@ export const getChartByType = async (solarPlant, chartDate, chartType, solarPlan
         }
     }).catch((err) => {
         window.alert(err.response.data.message);
-        console.log(err.response.data.message);
+        console.error(err.response.data.message);
     }).finally(() => {
         setLoadingChart(false);
     });

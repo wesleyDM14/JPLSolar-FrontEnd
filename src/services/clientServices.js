@@ -6,10 +6,8 @@ export const createClient = async (client, user, navigate, setSubmitting, setFie
             "Content-Type": "application/json",
             "Authorization": `Bearer ${user.accessToken}`
         }
-    }).then((response) => {
-        const { data } = response;
+    }).then(() => {
         window.alert('cliente cadastrado com sucesso.');
-        console.log(data);
         navigate('/clientes');
     }).catch((err) => {
         console.error(err.response.data.message);

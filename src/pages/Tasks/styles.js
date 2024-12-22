@@ -6,6 +6,10 @@ export const BoardContainer = styled.div`
     justify-content: space-around;
     padding: 20px;
     gap: 20px;
+
+    @media only screen and (max-width: 978px){
+        flex-direction: column;
+    }
 `;
 
 export const ColumnTitle = styled.h2`
@@ -19,7 +23,7 @@ export const TaskContainer = styled.div`
     display: block;
 
     @media only screen and (max-width: 978px){
-        padding: 0 10px;
+        padding: 5px 10px;
     }
 `;
 
@@ -47,7 +51,6 @@ export const TaskTitle = styled.h1`
 `;
 
 export const ColumnContainer = styled.div`
-  width: 30%;
   background: ${colors.background};
   border: 1px solid ${colors.hover};
   border-radius: 5px;
@@ -75,6 +78,15 @@ export const ColumnHeader = styled.div`
 
 export const AddTaskButton = styled.button`
   background: ${colors.greenNeutral};
+  border: 1px solid ${colors.hover};
+  padding: 5px;
+  border-radius: 3px;
+  cursor: pointer;
+`;
+
+export const DeleteColumnButton = styled.button`
+  background: ${colors.hover};
+  color: ${colors.white};
   border: 1px solid ${colors.hover};
   padding: 5px;
   border-radius: 3px;

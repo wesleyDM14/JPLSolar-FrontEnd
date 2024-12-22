@@ -163,8 +163,9 @@ export const ErrorSection = styled.div`
   min-height: 350px;
   height: auto;
   transition: height 0.3s ease-in-out;
-
-  overflow: hidden;
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   @media only screen and (max-width: 978px){
     font-size: 18px;
@@ -231,7 +232,7 @@ export const NavButton = styled.button`
 
     // Botão para a direita
       &.right {
-          right: 10px;
+        right: 10px;
       }
     }
 `;

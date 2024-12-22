@@ -65,7 +65,7 @@ const Dashboard = ({ navigate, user }) => {
 
                         setVisiblePlants(nextPlants);
                         setExiting(false);
-                        
+
                         setCurrentIndex((currentIndex + 4) % solarPlants.length);
                     }, 500);
                 }
@@ -84,7 +84,7 @@ const Dashboard = ({ navigate, user }) => {
     const handleErrorNavigation = (direction) => {
         if (solarPlantsWithError.length > 0) {
             setExitingErrorPlants(true);
-            
+
             let newIndex = errorIndex + direction;
 
             if (newIndex < 0) {

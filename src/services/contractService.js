@@ -7,9 +7,7 @@ export const createContract = async (contract, user, navigate, setSubmitting, se
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.accessToken}`
         }
-    }).then((response) => {
-        const { data } = response;
-        console.log(data);
+    }).then(() => {
         window.alert('Contrato cadastrado com sucesso.');
         navigate('/contratos');
     }).catch((err) => {
@@ -61,9 +59,7 @@ export const updateContract = async (contract, user, setSubmitting, setFieldErro
             "Content-Type": "application/json",
             "Authorization": `Bearer ${user.accessToken}`
         }
-    }).then((response) => {
-        const { data } = response;
-        console.log(data);
+    }).then(() => {
         window.alert('Contrato atualizado com sucesso');
         setSubmitting(false);
         closeEditModal();
@@ -124,7 +120,6 @@ export const downloadPromissoriaPdf = async (contractId, user, setDownloading) =
         const blob = new Blob([data], { type: 'application/pdf' });
         saveAs(blob, 'promissoria.pdf');
     }).catch((err) => {
-        console.log(err);
         console.error(err.response.data.message);
         window.alert(err.response.data.message);
     }).finally(() => {

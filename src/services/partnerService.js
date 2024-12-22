@@ -6,10 +6,8 @@ export const createPartner = async (partner, user, navigate, setSubmitting, setF
             "Content-Type": "application/json",
             "Authorization": `Bearer ${user.accessToken}`
         }
-    }).then((response) => {
-        const { data } = response;
+    }).then(() => {
         window.alert('Parceiro cadastrado com sucesso.');
-        console.log(data);
         navigate('/parceiros');
     }).catch((err) => {
         console.error(err.response.data.message);

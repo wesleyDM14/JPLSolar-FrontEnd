@@ -56,7 +56,7 @@ const GlobalStyle = createGlobalStyle`
 
     main{
         grid-area: main;
-        padding: 15px;
+        padding: 0;
     }
 
     .main-container {

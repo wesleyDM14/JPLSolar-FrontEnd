@@ -25,7 +25,6 @@ export const updatedLoggedUser = async (values, userId, user, setIsLoading, setS
         }
     }).then((response) => {
         const { data } = response;
-        console.log(data.message);
         window.alert(data.message);
         setIsLoading(true);
     }).catch((err) => {

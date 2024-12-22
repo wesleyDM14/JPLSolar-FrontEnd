@@ -8,6 +8,10 @@ export const HomeContainer = styled.div`
     min-height: 100vh;
     background-color: ${colors.white};
     position: relative;
+
+    @media only screen and (max-width: 978px){
+       display: block;
+    }
 `;
 
 export const Content = styled.div`
@@ -20,6 +24,7 @@ export const Content = styled.div`
     @media only screen and (max-width: 978px){
         display: flex;
         flex-direction: column;
+        height: 100vh;
     }
 `;
 
@@ -30,6 +35,10 @@ export const FirstColumn = styled.div`
     align-items: center;
     justify-content: center;
     padding: 45px;
+
+    @media only screen and (max-width: 978px){
+        height: 25vh;
+    }
 `;
 
 export const SecondColumn = styled.div`
@@ -39,6 +48,11 @@ export const SecondColumn = styled.div`
     align-items: center;
     justify-content: center;
     padding: 45px;
+
+    @media only screen and (max-width: 978px){
+        padding: 15px;
+        height: 75vh;
+    }
 `;
 
 export const Logo = styled.img`
@@ -92,7 +106,7 @@ export const Button = styled.button`
     }
 
     @media only screen and (max-width: 978px){
-        width: 80%;
+        width: 100%;
     }
 `;
 
