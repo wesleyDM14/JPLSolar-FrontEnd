@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
     DropDownMenu,
     DropDownMenuIndicator,
@@ -18,14 +18,20 @@ import {
 } from "./style";
 import { FaBars, FaBell, FaPowerOff, FaSearch } from "react-icons/fa";
 import { colors } from "../../utils/GlobalStyles";
-import user from '../../assets/user.png';
 import logo from '../../assets/logo.png';
+import { getNotificationConter } from "../../services/userServices";
 
-const Navbar = ({ openSidebar, logoutUser, navigate, dispatch }) => {
+const Navbar = ({ openSidebar, logoutUser, navigate, dispatch, user }) => {
 
     const [open, setOpen] = useState(false);
     const [search, setSearch] = useState("");
-    const [unreadNotifications, setUnreadNotifications] = useState(3);
+    const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+    useEffect(() => {
+        if (user) {
+            getNotificationConter(user, setUnreadNotifications);
+        }
+    }, [user]);
 
     return (
         <NavbarContainer>

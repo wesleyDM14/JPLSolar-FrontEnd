@@ -6,6 +6,7 @@ import {
     ProfileContainer,
     ProfileHeaderContainer,
     ProfileHeaderTitle,
+    ProfileMainContainer,
     RightContainer,
     StyledFormArea,
     SubmitButton,
@@ -19,7 +20,7 @@ import * as Yup from 'yup';
 import { TextInput } from "../../components/FormLib";
 import { ThreeDots } from "react-loader-spinner";
 import { colors } from "../../utils/GlobalStyles";
-import { getLoggedUserInfo, updatedLoggedUser } from "../../services/userServices";
+import { getLoggedUserInfo, getNotificationByUser, updatedLoggedUser } from "../../services/userServices";
 import Loading from "../../components/Loading";
 import { FaUser } from "react-icons/fa";
 
@@ -28,6 +29,7 @@ const Profile = ({ navigate, user }) => {
     const [warnings, setWarnings] = useState([]);
     const [userInfo, setUserInfo] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [isNotificationLoading, setIsNotificationLoading] = useState(true);
 
     useEffect(() => {
         if (isLoading) {
@@ -35,8 +37,14 @@ const Profile = ({ navigate, user }) => {
         }
     }, [user, isLoading]);
 
+    useEffect(() => {
+        if (isNotificationLoading) {
+            getNotificationByUser(user, setWarnings, setIsNotificationLoading);
+        }
+    }, [isNotificationLoading, user]);
+
     return (
-        <>
+        <ProfileMainContainer>
             {
                 isLoading ? (
                     <Loading />
@@ -48,17 +56,21 @@ const Profile = ({ navigate, user }) => {
                         <ProfileContainer>
                             <LeftContainer>
                                 {
-                                    warnings.length === 0 ? (
-                                        <WarningContainer>
-                                            <WarningIconContainer>
-                                                <TbMessageOff />
-                                            </WarningIconContainer>
-                                            <TextContent>
-                                                Sem Avisos Registrados
-                                            </TextContent>
-                                        </WarningContainer>
+                                    isNotificationLoading ? (
+                                        <Loading />
                                     ) : (
-                                        <></>
+                                        warnings.length === 0 ? (
+                                            <WarningContainer>
+                                                <WarningIconContainer>
+                                                    <TbMessageOff />
+                                                </WarningIconContainer>
+                                                <TextContent>
+                                                    Sem Avisos Registrados
+                                                </TextContent>
+                                            </WarningContainer>
+                                        ) : (
+                                            <></>
+                                        )
                                     )
                                 }
                             </LeftContainer>
@@ -132,7 +144,7 @@ const Profile = ({ navigate, user }) => {
                     </>
                 )
             }
-        </>
+        </ProfileMainContainer>
     )
 }
 

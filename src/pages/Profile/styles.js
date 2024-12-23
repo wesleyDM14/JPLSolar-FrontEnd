@@ -1,6 +1,16 @@
 import styled from "styled-components";
 import { colors } from "../../utils/GlobalStyles";
 
+export const ProfileMainContainer = styled.div`
+    grid-area: main;
+    display: block;
+    padding: 10px;
+
+    @media only screen and (max-width: 978px){
+        padding: 5px 10px;
+    }
+`;
+
 export const ProfileContainer = styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);

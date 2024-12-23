@@ -30,6 +30,7 @@ const MainLayout = ({ children }) => {
                 openSidebar={openSidebar}
                 navigate={navigate}
                 dispatch={dispatch}
+                user={user}
             />
             <main>
                 {React.cloneElement(children, { navigate, user })}

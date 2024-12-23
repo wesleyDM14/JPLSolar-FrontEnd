@@ -4,7 +4,7 @@ const rolePermissions = {
         actions: ['edit-client', 'edit-solarPlant', 'download-report'],
     },
     MONTADOR: {
-        menus: ['/dashboard', '/contratos', '/clientes', '/clientes/novo', '/contratos', '/contratos/novo', '/contratos/:contractId', '/financeiro', '/parceiros', '/parceiros/novo', '/parceiros/:partnerId', '/perfil', '/relatorios', '/plantas-solares', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/plantas-solares/cliente/:clientId/nova', '/tarefas'],
+        menus: ['/dashboard', '/contratos', '/clientes', '/clientes/novo', '/contratos', '/contratos/novo', '/contratos/:contractId', /*'/financeiro',*/ '/parceiros', '/parceiros/novo', '/parceiros/:partnerId', '/perfil', /*'/relatorios',*/ '/plantas-solares', '/plantas-solares/:solarPlantId', '/plantas-solares/cliente/:clientId', '/plantas-solares/cliente/:clientId/nova', '/tarefas'],
         actions: ['edit-client', 'edit-solarPlant', 'download-report'],
     },
     PARCEIRO: {
