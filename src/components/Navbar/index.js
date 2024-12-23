@@ -19,6 +19,7 @@ import {
 import { FaBars, FaBell, FaPowerOff, FaSearch } from "react-icons/fa";
 import { colors } from "../../utils/GlobalStyles";
 import logo from '../../assets/logo.png';
+import userImg from '../../assets/user.png';
 import { getNotificationConter } from "../../services/userServices";
 
 const Navbar = ({ openSidebar, logoutUser, navigate, dispatch, user }) => {
@@ -53,7 +54,10 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch, user }) => {
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar..."
                 />
-                <NotificationIconContainer>
+                <NotificationIconContainer onClick={() => {
+                    setUnreadNotifications(0);
+                    navigate('/perfil');
+                }}>
                     <FaBell />
                     {
                         unreadNotifications > 0 && (
@@ -62,7 +66,7 @@ const Navbar = ({ openSidebar, logoutUser, navigate, dispatch, user }) => {
                     }
                 </NotificationIconContainer>
                 <NavbarItemContainer>
-                    <NavbarAvatar $image={user} onClick={() => setOpen(!open)} />
+                    <NavbarAvatar $image={userImg} onClick={() => setOpen(!open)} />
                     {
                         open && (
                             <DropDownMenu>

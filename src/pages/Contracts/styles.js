@@ -4,6 +4,8 @@ import { colors } from "../../utils/GlobalStyles";
 export const ContractsContainer = styled.div`
     grid-area: main;
     display: block;
+    padding: 5px 10px;
+
 
     @media only screen and (max-width: 978px){
         padding: 5px 10px;

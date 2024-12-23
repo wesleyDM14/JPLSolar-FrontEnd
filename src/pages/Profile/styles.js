@@ -37,12 +37,9 @@ export const ProfileHeaderTitle = styled.h2`
 export const LeftContainer = styled.div`
     padding: 15px;
     border-radius: 5px;
-    background-color: ${colors.white};
+    background-color: ${colors.background};
     margin-right: 5px;
     box-shadow: 5px 5px 13px ${colors.background}, -5px -5px 13px ${colors.white};
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     @media only screen and (max-width: 978px){
         margin-right: 0;
@@ -138,5 +135,125 @@ export const BackButton = styled.button`
         min-width: 80%;
         margin-right: 0;
         margin-bottom: 15px;
+    }
+`;
+
+export const NotificationContainer = styled.div`
+    background-color: ${colors.background};
+    width: 95%;
+    height: 100%;
+`;
+
+export const NotificationHeader = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 0.5fr;
+    min-width: 100%;
+    padding: 10px;
+    background-color: ${colors.white};
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    @media only screen and (max-width: 978px){
+        grid-template-columns: 1fr 0.2fr;
+    }
+`;
+
+export const NotificationLabel = styled.h5`
+    font-size: 14px;
+`;
+
+export const NotificationValueArea = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+export const NotificationValue = styled.span`
+    font-weight: ${props => props.$isRead ? 400 : 700};
+
+    @media only screen and (max-width: 978px){
+       font-size: 12px;
+    }
+`;
+
+export const NotificationValueLabel = styled.span`
+    svg {
+        margin-right: 5px;
+    }
+`;
+
+export const SingleNotification = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 0.5fr;
+    height: 50px;
+    min-width: 100%;
+    align-items: center;
+    padding: 10px;
+    background-color: ${colors.white};
+    cursor: pointer;
+    overflow: hidden;
+
+    @media only screen and (max-width: 978px){
+        grid-template-columns: 1fr 0.2fr;
+    }
+`;
+
+export const AdminNotificationContainer = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+
+    @media only screen and (max-width: 978px){
+       flex-direction: column;
+    }
+`;
+
+export const EditIconContainer = styled.div`
+    margin-right: 45%;
+    font-size: 18px;
+    color: ${colors.mainText};
+
+    @media only screen and (max-width: 978px){
+       margin-right: 0;
+       font-size: 14px;
+    }
+`;
+
+export const DeleteIconContainer = styled.div`
+    font-size: 18px;
+    color: ${colors.red};
+
+    @media only screen and (max-width: 978px){
+       font-size: 14px;
+    }
+`;
+
+export const DeleteContainer = styled.div`
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+`;
+
+export const DeleteTitle = styled.h5`
+    font-size: 20px;
+    color: ${colors.title};
+
+    @media only screen and (max-width: 978px){
+        font-size: 14px;
+    }
+`;
+
+export const DeleteButtonContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 25px;
+    width: 100%;
+
+    @media only screen and (max-width: 978px){
+        flex-direction: column;
     }
 `;

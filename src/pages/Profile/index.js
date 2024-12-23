@@ -23,6 +23,7 @@ import { colors } from "../../utils/GlobalStyles";
 import { getLoggedUserInfo, getNotificationByUser, updatedLoggedUser } from "../../services/userServices";
 import Loading from "../../components/Loading";
 import { FaUser } from "react-icons/fa";
+import NotificationList from "./notificationList";
 
 const Profile = ({ navigate, user }) => {
 
@@ -30,6 +31,9 @@ const Profile = ({ navigate, user }) => {
     const [userInfo, setUserInfo] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isNotificationLoading, setIsNotificationLoading] = useState(true);
+
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 5;
 
     useEffect(() => {
         if (isLoading) {
@@ -69,7 +73,14 @@ const Profile = ({ navigate, user }) => {
                                                 </TextContent>
                                             </WarningContainer>
                                         ) : (
-                                            <></>
+                                            <NotificationList
+                                                itensPerPage={itemsPerPage}
+                                                notifications={warnings}
+                                                page={page}
+                                                setIsNotificationLoading={setIsNotificationLoading}
+                                                setPage={setPage}
+                                                user={user}
+                                            />
                                         )
                                     )
                                 }

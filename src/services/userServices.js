@@ -66,3 +66,18 @@ export const getNotificationConter = async (user, setUnreadNotifications) => {
         window.alert(err.response.data.message);
     });
 }
+
+export const deleteNotification = async (user, notificationId, setIsNotificationLoading, closeDeleteModal) => {
+    await axios.delete(process.env.REACT_APP_BASE_URL + `/api/avisos/${notificationId}`, {
+        headers: {
+            "Content-Type": 'application/json',
+            "Authorization": `Bearer ${user.accessToken}`
+        }
+    }).then(() => {
+        setIsNotificationLoading(true);
+        closeDeleteModal();
+    }).catch((err) => {
+        console.error(err);
+        window.alert(err.response.data.message);
+    });
+}
