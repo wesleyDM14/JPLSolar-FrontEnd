@@ -44,7 +44,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                     initialValues={{
                         code: "",
                         local: "",
-                        installationDate: null,
+                        installationDate: new Date(),
                         inverter: "",
                         inverterPot: 0,
                         panel: "",
