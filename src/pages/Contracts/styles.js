@@ -21,7 +21,7 @@ export const ContractHeader = styled.div`
     @media only screen and (max-width: 978px){
         padding: 0;
     }
-`
+`;
 
 export const ContractTitle = styled.h1`
     display: flex;
