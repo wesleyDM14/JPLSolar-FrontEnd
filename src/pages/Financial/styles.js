@@ -46,7 +46,7 @@ export const TitleIcon = styled.div`
     svg {
         margin-right: 5px;
         font-size: 26px;
-        color: ${colors.title};
+        color: ${colors.icon};
     }
 
     @media only screen and (max-width: 978px){
@@ -195,6 +195,7 @@ export const AddContaButtonIconContainer = styled.div`
     svg {
         font-size: 20px;
         margin-right: 5px;
+        color: ${colors.icon};
     }
 `;
 
@@ -321,3 +322,194 @@ export const BackButton = styled.button`
         margin-bottom: 15px;
     }
 `;
+
+export const NoContentContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 95%;
+    margin-top: 10px;
+    padding: 50px 35px;
+    background-color: ${colors.white};
+    border-radius: 5px;
+    box-shadow: 5px 5px 13px #ededed, -5px -5px 13px #fff;
+
+    @media only screen and (max-width: 978px){
+        padding: 30px 10px;
+        flex-direction: column;
+    }
+`;
+
+export const IconWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+
+    svg {
+        font-size: 150px;
+        color: ${colors.icon};
+    }
+
+    @media only screen and (max-width: 978px){
+        svg {
+            font-size: 80px;  
+        }
+    }
+`;
+
+export const TextContent = styled.h5`
+    font-size: 1.3rem;
+    color: ${colors.mainText};
+
+    @media only screen and (max-width: 978px){
+        font-size: 0.9rem;
+    }
+`;
+
+export const SingleConta = styled.div`
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 0.5fr 0.5fr;
+    max-width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: ${colors.white};
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    @media only screen and (max-width: 978px){
+        font-size: 80%;
+        grid-template-columns: 1fr 1fr 0.5fr 0.5fr;
+        padding: 5px 1px;
+    }
+`;
+
+export const SingleContaValue = styled.span`
+     font-size: 14px;
+     display: flex;
+     align-items: center;
+
+     svg {
+        margin-right: 5px;
+     }
+
+     @media only screen and (max-width: 978px){
+        font-size: 12px;
+    }
+`;
+
+export const AdminContainer = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    @media only screen and (max-width: 978px){
+       flex-direction: column;
+    }
+`;
+
+export const EditIconContainer = styled.div`
+    margin-right: 45%;
+    font-size: 18px;
+    color: ${colors.mainText};
+    cursor: pointer;
+
+    @media only screen and (max-width: 978px){
+       margin-right: 0;
+       font-size: 14px;
+    }
+`;
+
+export const DeleteIconContainer = styled.div`
+    font-size: 18px;
+    color: ${colors.icon};
+    cursor: pointer;
+
+    @media only screen and (max-width: 978px){
+       font-size: 14px;
+    }
+`;
+
+export const DeleteContainer = styled.div`
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+`;
+
+export const DeleteTitle = styled.h5`
+    font-size: 20px;
+    color: ${colors.title};
+
+    @media only screen and (max-width: 978px){
+        font-size: 14px;
+    }
+`;
+
+export const DeleteButtonContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 25px;
+    width: 100%;
+
+    @media only screen and (max-width: 978px){
+        flex-direction: column;
+    }
+`;
+
+export const ClientFinancialContainer = styled.div`
+    display: block;
+    width: 100%;
+`;
+
+export const ClientFinancialHeader = styled.div``;
+
+export const ClientFinancialListContainer = styled.div``;
+
+export const ClientFinancialListHeader = styled.div`
+    display: grid;
+    grid-template-columns: 1fr repeat(10, 0.5fr);
+    max-width: 100%;
+    margin-top: 15px;
+    padding: 10px;
+    background-color: ${colors.white};
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+`;
+
+export const ClientFinancialListContent = styled.div`
+    display: grid;
+    grid-template-columns: 1fr repeat(10, 0.5fr);
+    height: 50px;
+    max-width: 100%;
+    align-items: center;
+    padding: 10px;
+    background-color: ${colors.white};
+    cursor: pointer;
+    overflow: hidden;
+`;
+
+export const ClientFinancialListLabel = styled.h6`
+    font-size: 13px;
+`;
+
+export const ClientFinancialListValue = styled.span`
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+`;
+
+export const ClientFinancialResumeContent = styled.div``;
+
+export const ClientFinancialResumeCardContainer = styled.div``;
+
+export const ClientFinancialResumeCard = styled.div``;
+
+export const ClientFinancialCardValue = styled.h6``;
+
+export const ClientFinancialCardIcon = styled.div``;

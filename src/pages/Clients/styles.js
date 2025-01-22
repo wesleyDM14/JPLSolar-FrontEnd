@@ -320,12 +320,10 @@ export const ClientValueContainer = styled.div`
     display: flex;
     align-items: center;
     flex-direction: row;
-    overflow: hidden; /* Impede que o conteúdo ultrapasse o limite do container */
-    text-overflow: ellipsis; /* Adiciona "..." ao final do texto muito grande */
-    white-space: nowrap; /* Impede a quebra de linha dentro de cada container */
-
-    /* Se você quiser que o conteúdo quebre dentro do container sem afetar o grid */
-    max-width: 95%; /* Impede que o conteúdo ultrapasse a largura do container */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 95%;
 `;
 
 export const ClientValue = styled.a`
