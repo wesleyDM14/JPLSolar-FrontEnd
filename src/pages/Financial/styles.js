@@ -465,9 +465,62 @@ export const ClientFinancialContainer = styled.div`
     width: 100%;
 `;
 
-export const ClientFinancialHeader = styled.div``;
+export const ClientFinancialHeader = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`;
 
-export const ClientFinancialListContainer = styled.div``;
+export const TerceiroSwitchContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
+
+export const TerceiroSwitchTitle = styled.h2`
+    font-size: 14px;
+    color: ${colors.mainText};
+    font-weight: 700;
+`;
+
+export const TerceiroSwitchButton = styled.label`
+    background: ${colors.white};
+    width: 4rem;
+    height: 1.5rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-top: 5px;
+
+    input {
+        height: 100%;
+        width: 100%;
+        opacity: 0;
+    }
+
+    span {
+        position: absolute;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 1rem;
+        background: ${colors.navbar};
+        left: 0;
+        box-shadow: 2px 2px 4px gray;
+        cursor: pointer;
+        transition: 0.5s;
+    }
+
+    input:checked + span {
+        left: 50%;
+        background: ${colors.icon};
+    }
+`;
+
+export const ClientFinancialListContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`;
 
 export const ClientFinancialListHeader = styled.div`
     display: grid;
@@ -502,6 +555,17 @@ export const ClientFinancialListValue = styled.span`
     align-items: center;
     font-size: 12px;
     font-weight: bold;
+
+    ${({ $hasAfter }) =>
+        $hasAfter &&
+        `
+        &::after{
+            display: inline-block;
+            content: "*";
+            margin-left: 2px;
+            color: ${colors.icon};
+        }
+    `}
 `;
 
 export const ClientFinancialResumeContent = styled.div``;
@@ -513,3 +577,50 @@ export const ClientFinancialResumeCard = styled.div``;
 export const ClientFinancialCardValue = styled.h6``;
 
 export const ClientFinancialCardIcon = styled.div``;
+
+export const LegendaContent = styled.div`
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin-top: 5px;
+    align-items: center;
+`;
+
+export const LegendaIcone = styled.h6`
+    font-size: 16px;
+
+    &::after{
+        display: inline-block;
+        content: "*";
+        margin-left: 2px;
+        color: ${colors.icon};
+    }
+`;
+
+export const LegendaText = styled.h6`
+    font-size: 10px;
+`;
+
+export const AddFinanceiroContainer = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+`;
+
+export const AddFinanceiroButtonIconContainer = styled.div`
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+
+    svg {
+        font-size: 20px;
+        margin-right: 5px;
+        color: ${colors.icon};
+    }
+`;
+
+export const AddFinanceiroText = styled.h5`
+    font-weight: 700;
+    cursor: pointer;
+`;

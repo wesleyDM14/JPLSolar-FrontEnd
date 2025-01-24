@@ -16,10 +16,10 @@ export const getDashboardData = async (user, setLoading, setSolarPlants, setSola
         let plantsErrorResponse = [];
 
         plants.forEach(plant => {
-            if (plant.status === '1') {
-                plantsResponse.push(plant);
-            } else {
+            if (plant.status === '-1') {
                 plantsErrorResponse.push(plant);
+            } else {
+                plantsResponse.push(plant);
             }
         });
 
