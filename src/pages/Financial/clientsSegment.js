@@ -34,8 +34,9 @@ import Loading from "../../components/Loading";
 import { formatCurrencyBRL } from "../../utils/formatString";
 import { colors, ModalStyles } from '../../utils/GlobalStyles';
 import { ThreeDots } from 'react-loader-spinner';
+import { deleteClientFinanceiro, getClientsFinanceiro } from '../../services/financialServices';
 
-const ClientsSegment = () => {
+const ClientsSegment = ({ user }) => {
 
     Modal.setAppElement(document.getElementById('root'));
 
@@ -91,15 +92,9 @@ const ClientsSegment = () => {
 
     useEffect(() => {
         if (loading) {
-            setTimeout(() => {
-                setClients([
-                    { id: 'teste1', nome: 'Antonio Carlos de Negreiros', numParcelasTotal: 72, valorParcela: 356, pagTotal: 25632, custoImplantacao: 9038.52, lucro: 16593.48, numParcelasRest: 43, valorQuitado: 10324, valorRest: 15308, sePagou: true, notafiscal: true },
-                    { id: 'teste2', nome: 'Ubernilda', numParcelasTotal: 36, valorParcela: 525.46, pagTotal: 18916.56, custoImplantacao: 14000, lucro: 4916.56, numParcelasRest: 27, valorQuitado: 4729.14, valorRest: 14187.42, sePagou: false, notafiscal: false }
-                ]);
-                setLoading(false);
-            }, 1000);
+            getClientsFinanceiro(user, setClients, setClientTerceiros, setLoading);
         }
-    }, [loading]);
+    }, [loading, user]);
 
     const renderClientList = (items) => (
         items.map((client) => (
@@ -214,7 +209,7 @@ const ClientsSegment = () => {
                             <SubmitButton
                                 type="button"
                                 onClick={() => {
-                                    // delete client logic
+                                    deleteClientFinanceiro(currentClient.id, user, setIsDeleting, setLoading);
                                 }}
                             >
                                 Deletar

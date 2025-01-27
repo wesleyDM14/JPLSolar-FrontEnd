@@ -624,3 +624,15 @@ export const AddFinanceiroText = styled.h5`
     font-weight: 700;
     cursor: pointer;
 `;
+
+export const ClientTitle = styled.h1`
+    display: flex;
+    align-items: center;
+    font-size: 26px;
+    color: ${colors.title};
+    font-weight: 700;
+
+    @media only screen and (max-width: 978px){
+        font-size: 18px;
+    }
+`;

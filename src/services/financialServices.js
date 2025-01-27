@@ -136,7 +136,7 @@ export const createClientFinanceiro = async (client, user, setSubmitting, setFie
     });
 }
 
-export const getClientsFinanceiro = async (user, setClients, setLoading) => {
+export const getClientsFinanceiro = async (user, setClients, setClientTerceiros, setLoading) => {
     await axios.get(process.env.REACT_APP_BASE_URL + '/api/financeiro/myClients', {
         headers: {
             'Content-Type': 'application/json',
@@ -144,7 +144,17 @@ export const getClientsFinanceiro = async (user, setClients, setLoading) => {
         }
     }).then((response) => {
         const { data } = response;
-        setClients(data);
+        const clients = [];
+        const clientsTerceiro = [];
+        data.forEach(element => {
+            if (element.terceiro) {
+                clientsTerceiro.push(element);
+            } else {
+                clients.push(element);
+            }
+        });
+        setClients(clients);
+        setClientTerceiros(clientsTerceiro);
     }).catch((err) => {
         console.error(err.response.data.message);
         window.alert(err.response.data.message);
