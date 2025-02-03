@@ -1,5 +1,5 @@
 import { useField } from "formik"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     ErrorMsg,
     FormInputContainer,
@@ -9,6 +9,8 @@ import {
     StyledIcon,
     StyledInput,
     StyledMaskInput,
+    StyledSelectArea,
+    StyledSelectLabel,
     StyledTextInput,
     StyledTextInputContainer,
     StyledTextInputLabel,
@@ -17,6 +19,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import DatePicker, { registerLocale } from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 import { ptBR } from "date-fns/locale";
+import Select from 'react-select';
 
 registerLocale('pt-BR', ptBR)
 
@@ -203,4 +206,64 @@ export const StyledDatePicker = ({ setFieldValue, ...props }) => {
             />
         </>
     );
+}
+
+export const FormContractSelect = ({ contracts, setSelectedContract }) => {
+    const [options, setOptions] = useState([]);
+
+    useEffect(() => {
+        function generateOptions() {
+            let optionsTmp = [];
+            for (let index = 0; index < contracts.length; index++) {
+                const element = contracts[index];
+                if (!element.clienteFinanciamentoId) {
+                    let temp = { label: element.nome, value: element };
+                    optionsTmp.push(temp);
+                }
+            }
+            setOptions(optionsTmp);
+        }
+        generateOptions();
+    }, [contracts]);
+
+    return (
+        <StyledSelectArea>
+            <StyledSelectLabel>Contrato</StyledSelectLabel>
+            <Select
+                options={options}
+                placeholder={'Selecione o titular do contrato'}
+                onChange={(value) => {
+                    setSelectedContract(value);
+                }}
+                menuPosition="absolute"
+
+                noOptionsMessage={() => "Sem contratos cadastrados"}
+                styles={{
+                    control: (baseStyles, state) => ({
+                        position: 'relative',
+                        maxWidth: '100%',
+                        width: '90%',
+                        backgroundColor: '#fff',
+                        borderColor: '#dbdbdb',
+                        borderRadius: '4px',
+                        color: '#363636',
+                        alignItems: 'center',
+                        border: '2px solid #0a0a0a0d',
+                        display: 'inline-flex',
+                        fontSize: '1rem',
+                        height: '2.5em',
+                        justifyContent: 'flex-start',
+                        paddingBottom: 'calc(.5em - 1px)',
+                        paddingLeft: 'calc(.75em - 1px)',
+                        paddingRight: 'calc(.75em - 1px)',
+                        paddingTop: 'calc(.5em - 1px)',
+                        lineHeight: '1.5',
+                        "&:hover": {
+                            border: '2px solid #000',
+                        }
+                    })
+                }}
+            />
+        </StyledSelectArea>
+    )
 }

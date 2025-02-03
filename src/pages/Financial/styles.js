@@ -241,8 +241,14 @@ export const Limitador = styled.div`
 `;
 
 export const FormInputLabelRequired = styled.p`
+    display: flex;
+    align-items: center;
     font-weight: 600;
     margin-bottom: 5px;
+
+    svg {
+        margin-right: 2px;
+    }
 
     &::after{
         display: inline-block;

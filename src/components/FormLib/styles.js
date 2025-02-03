@@ -160,3 +160,15 @@ export const FormTextInput = styled.input`
         margin: 5px 0;
     }
 `;
+
+export const StyledSelectArea = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+`;
+
+export const StyledSelectLabel = styled.p`
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+`;
