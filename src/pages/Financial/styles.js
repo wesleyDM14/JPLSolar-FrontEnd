@@ -333,7 +333,7 @@ export const NoContentContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 95%;
+    max-width: 100%;
     margin-top: 10px;
     padding: 50px 35px;
     background-color: ${colors.white};
