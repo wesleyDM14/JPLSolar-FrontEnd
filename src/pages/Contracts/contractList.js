@@ -391,11 +391,9 @@ const ContractList = ({ contracts, navigate, search, page, setPage, itensPerPage
                                                             </FormInputArea>
                                                             <FormInputArea>
                                                                 <FormInputLabelRequired><PiIdentificationCard />RG</FormInputLabelRequired>
-                                                                <MaskedInputComponent
-                                                                    name='rg'
-                                                                    mask={[/[0-9]/, /[0-9]/, /[0-9]/, '.', /[0-9]/, /[0-9]/, /[0-9]/, '.', /[0-9]/, /[0-9]/, /[0-9]/]}
-                                                                    value={values.rg}
+                                                                <FormInput
                                                                     type='text'
+                                                                    name='rg'
                                                                     placeholder='RG do Cliente'
                                                                     autoComplete='rg'
                                                                 />
