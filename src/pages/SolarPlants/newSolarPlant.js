@@ -141,6 +141,7 @@ const NewSolarPlant = ({ navigate, user }) => {
                                                         <option value='DEYE'>DEYE</option>
                                                         <option value='GOODWE'>GOODWE</option>
                                                         <option value='GROWATT'>GROWATT</option>
+                                                        <option value='SOLIS'>SOLIS</option>
                                                     </Field>
                                                 </SelectWrapper>
                                             </FormInputArea>

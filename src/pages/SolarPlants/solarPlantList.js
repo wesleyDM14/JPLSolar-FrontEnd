@@ -245,6 +245,7 @@ const SolarPlantList = ({ solarPlants, navigate, search, page, setPage, itensPer
                                                             <option value='CANADIAN'>CANADIAN</option>
                                                             <option value='DEYE'>DEYE</option>
                                                             <option value='GROWATT'>Growatt</option>
+                                                            <option value='SOLIS'>SOLIS</option>
                                                         </Field>
                                                     </SelectWrapper>
                                                 </FormInputArea>

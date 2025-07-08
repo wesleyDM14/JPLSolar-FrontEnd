@@ -240,15 +240,16 @@ export const FormContractSelect = ({ contracts, setSelectedContract }) => {
                 noOptionsMessage={() => "Sem contratos cadastrados"}
                 styles={{
                     control: (baseStyles, state) => ({
+                        ...baseStyles,
                         position: 'relative',
                         maxWidth: '100%',
                         width: '90%',
                         backgroundColor: '#fff',
-                        borderColor: '#dbdbdb',
+                        borderColor: state.isFocused ? '#000' : '#dbdbdb', // Exemplo de melhoria: borda no foco
                         borderRadius: '4px',
                         color: '#363636',
                         alignItems: 'center',
-                        border: '2px solid #0a0a0a0d',
+                        border: state.isFocused ? '2px solid #000' : '2px solid #0a0a0a0d',
                         display: 'inline-flex',
                         fontSize: '1rem',
                         height: '2.5em',
@@ -259,9 +260,17 @@ export const FormContractSelect = ({ contracts, setSelectedContract }) => {
                         paddingTop: 'calc(.5em - 1px)',
                         lineHeight: '1.5',
                         "&:hover": {
-                            border: '2px solid #000',
+                            border: '2px solid #000', // Mantém o seu hover
                         }
-                    })
+                    }),
+                    // --- ADIÇÃO IMPORTANTE AO OBJETO STYLES ABAIXO ---
+                    menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999 // Um zIndex alto para garantir que o menu fique por cima
+                    }),
+                    // --- FIM DA ADIÇÃO IMPORTANTE AO OBJETO STYLES ---
+
+                    // Você pode adicionar outros custom styles aqui se precisar (option, menu, etc.)
                 }}
             />
         </StyledSelectArea>
