@@ -1,38 +1,29 @@
-import axios from "axios";
-import { logout, login } from "../actions/sessionActions";
+import toast from 'react-hot-toast';
+import { authApi } from '../api/resources';
+import { errorMessage } from '../api/client';
+import { queryClient } from '../api/queryClient';
+import { login, logout } from '../actions/sessionActions';
 
 export const loginUser = async (credentials, navigate, setIsLoading, dispatch) => {
-    await axios.post(process.env.REACT_APP_BASE_URL + '/api/login', credentials,
-        {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }
-    ).then((response) => {
-        const { accessToken, userRole } = response.data.accessToken;
-        const loginTime = new Date().getTime();
-        const userData = {
-            accessToken,
-            userRole,
-            loginTime
-        };
+    try {
+        const { accessToken, user } = await authApi.login(credentials);
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        dispatch(login(userData));
+        const session = { accessToken, user, loginTime: new Date().getTime() };
+
+        localStorage.setItem('user', JSON.stringify(session));
+        dispatch(login(session));
 
         navigate('/dashboard');
-    }).catch((error) => {
-        window.alert(error.response.data.message);
-    }).finally(() => {
+    } catch (error) {
+        toast.error(errorMessage(error));
+    } finally {
         setIsLoading(false);
-    });
-}
+    }
+};
 
 export const logoutUser = (navigate, dispatch) => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-
+    // Dados em cache pertencem ao usuário que saiu.
+    queryClient.clear();
     dispatch(logout());
-
     navigate('/');
-}
+};

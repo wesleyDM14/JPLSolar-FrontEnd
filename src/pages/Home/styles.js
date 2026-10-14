@@ -1,141 +1,140 @@
-import styled from "styled-components";
-import { colors } from "../../utils/GlobalStyles";
+import styled from 'styled-components';
+import { tokens } from '../../ui/tokens';
 
-export const HomeContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
+const { colors } = tokens;
+const MOBILE = `(max-width: ${tokens.breakpoint})`;
+
+export const Screen = styled.div`
     min-height: 100vh;
-    background-color: ${colors.white};
-    position: relative;
-
-    @media only screen and (max-width: 978px){
-       display: block;
-    }
-`;
-
-export const Content = styled.div`
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    background-color: ${colors.background};
-    height: 50%;
-    border-radius: 15px;
+    grid-template-columns: minmax(320px, 5fr) minmax(360px, 4fr);
+    background: ${colors.background};
 
-    @media only screen and (max-width: 978px){
+    @media ${MOBILE} {
+        grid-template-columns: 1fr;
+    }
+`;
+
+export const BrandPanel = styled.section`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px clamp(24px, 6vw, 96px);
+    color: #f4f6f8;
+    background:
+        radial-gradient(900px 500px at 10% 0%, rgba(211, 47, 47, 0.35), transparent 60%),
+        linear-gradient(160deg, #14171c 0%, #1d232b 100%);
+
+    img {
+        width: 76px;
+        height: 76px;
+        object-fit: contain;
+        padding: 6px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.95);
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        font-size: clamp(2rem, 3.4vw, 2.8rem);
+        margin: 0 0 8px;
+    }
+
+    p {
+        max-width: 34em;
+        margin: 0;
+        font-size: 1.05rem;
+        line-height: 1.55;
+        color: #aeb6c2;
+    }
+
+    @media ${MOBILE} {
+        padding: 28px 24px;
+
+        img {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            font-size: 0.95rem;
+        }
+    }
+`;
+
+export const FeatureList = styled.ul`
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+
+    li {
         display: flex;
-        flex-direction: column;
-        height: 100vh;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.98rem;
+        color: #d7dce3;
     }
-`;
 
-export const FirstColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    background-color: ${colors.background};
-    align-items: center;
-    justify-content: center;
-    padding: 45px;
-
-    @media only screen and (max-width: 978px){
-        height: 25vh;
-    }
-`;
-
-export const SecondColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    background-color: ${colors.sidebar};
-    align-items: center;
-    justify-content: center;
-    padding: 45px;
-
-    @media only screen and (max-width: 978px){
-        padding: 15px;
-        height: 75vh;
-    }
-`;
-
-export const Logo = styled.img`
-    width: 120px;
-    height: auto;
-    margin: 5px;
-
-    @media only screen and (max-width: 978px){
-        width: 85px;
-    }
-`;
-
-export const Title = styled.h2`
-    font-size: ${props => props.size ? `${props.size}px` : '28px'};
-    color: ${props => props.color ? props.color : colors.title};
-    font-weight: bold;
-    text-transform: capitalize;
-
-    @media only screen and (max-width: 978px){
+    svg {
+        flex: none;
         font-size: 18px;
+        color: #ff6b6b;
+    }
+
+    @media ${MOBILE} {
+        display: none;
     }
 `;
 
-export const Description = styled.p`
-    font-size: 18px;
-    font-weight: 300;
-    color: ${colors.description};
-    margin-top: ${props => props.$marginTop ? props.$marginTop : '0'};
+export const FormPanel = styled.section`
+    display: grid;
+    place-items: center;
+    padding: 32px 20px;
+`;
 
-    @media only screen and (max-width: 978px){
-        font-size: 14px;
+export const Card = styled.div`
+    width: 100%;
+    max-width: 400px;
+    padding: 32px;
+    background: ${colors.surface};
+    border: 1px solid ${colors.border};
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+
+    h2 {
+        margin: 0 0 4px;
+        font-size: 1.5rem;
+        color: ${colors.text};
+    }
+
+    p {
+        margin: 0 0 24px;
+        color: ${colors.muted};
+    }
+
+    form > * + * {
+        margin-top: 4px;
     }
 `;
 
-export const Button = styled.button`
+export const PasswordToggle = styled.button`
+    position: absolute;
+    right: 8px;
+    top: 28px;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: ${colors.muted};
     cursor: pointer;
-    font-weight: 600;
-    border: 1px solid ${colors.btnSecondary};
-    border-radius: 4px;
-    padding: 20px;
-    width: 30%;
-    transition: all .2s ease-out;
-    background-color: ${colors.white};
-    color: ${colors.mainText};
-    margin-top: 15px;
 
-    &:hover{
-        background-color: ${colors.btnSecondary};
-        color: ${colors.white};
-        border: 1px solid ${colors.white};
+    &:hover {
+        background: ${colors.neutralBg};
     }
-
-    @media only screen and (max-width: 978px){
-        width: 100%;
-    }
-`;
-
-export const IconsContainer = styled.div`
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: space-around;
-`;
-
-export const Icon = styled.a`
-    color: ${colors.icon};
-    font-size: 45px;
-    margin-top: 15px;
-    transition: transform 0.3s ease-in-out;
-
-    &:hover{
-        transform: scale(1.2);
-    }
-
-    @media only screen and (max-width: 978px){
-        font-size: 30px;
-    }
-`;
-
-export const FormArea = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
 `;

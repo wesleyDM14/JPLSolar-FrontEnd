@@ -1,21 +1,23 @@
 import { createGlobalStyle } from "styled-components"
 import { isSmallScreen } from "../functions/layoutFuntions";
+import { themeCss } from "../ui/theme";
 
+// Cores herdadas das telas antigas. As que dependem do tema apontam para as variáveis CSS (ui/theme.js).
 export const colors = {
     title: '#D32F2F',
-    background: '#F5F5F5',
+    background: 'var(--c-bg)',
     sidebar: '#212121',
-    mainText: '#424242',
-    description: '#757575',
+    mainText: 'var(--c-text)',
+    description: 'var(--c-muted)',
     icon: '#D32F2F',
     hover: '#B71C1C',
     btnPrimary: '#424242',
     btnSecondary: '#D32F2F',
-    white: '#FFFFFF',
+    white: 'var(--c-surface)',
     red: '#D32F2F',
     greenNeutral: '#4CAF50',
-    darkGray: '#616161',
-    slimGray: '#E0E0E0',
+    darkGray: 'var(--c-muted)',
+    slimGray: 'var(--c-neutral-bg)',
     navbar: '#212121'
 }
 
@@ -35,15 +37,23 @@ export const ModalStyles = {
 }
 
 const GlobalStyle = createGlobalStyle`
+    ${themeCss}
 
     * {
         margin: 0;
         padding: 0;
     }
 
+    /* Campos com width:100% + padding não podem ultrapassar a própria coluna (sobrepunham o vizinho). */
+    input, select, textarea, button {
+        box-sizing: border-box;
+    }
+
     body {
         font-family: 'Roboto', sans-serif;
-        background-color: ${colors.background};
+        background-color: var(--c-bg);
+        color: var(--c-text);
+        transition: background-color 0.2s;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -52,48 +62,6 @@ const GlobalStyle = createGlobalStyle`
 
     p, span, a, li {
         font-family: 'Open Sans', sans-serif;
-    }
-
-    main{
-        grid-area: main;
-        padding: 0;
-    }
-
-    .main-container {
-        display: grid;
-        height: 100vh;
-        width: 100%;
-        grid-template-columns: 0.8fr repeat(3, 1fr);
-        grid-template-rows: 0.2fr 3fr;
-        grid-template-areas: 
-            'sidebar nav nav nav'
-            'sidebar main main main'
-        ;
-
-        @media only screen and (max-width: 978px) {
-            grid-template-columns: 1fr;
-            grid-template-rows: 0.2fr 3fr;
-            grid-template-areas: "nav" "main";
-        }
-    }
-
-    .sidebar-responsive {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        background: ${colors.sidebar};
-        padding: 20px;
-        z-index: 9999 !important;
-        overflow-y: auto;
-        display: flex !important;
-        flex-direction: column;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .sidebar-responsive::-webkit-scrollbar {
-        display: none; /* Chrome, Safari e Edge */
     }
 
     .label-responsive {
@@ -105,25 +73,6 @@ const GlobalStyle = createGlobalStyle`
 
     .first-label {
         margin-left: 5px;
-    }
-
-    #sidebar {
-        background: ${colors.sidebar};
-        grid-area: sidebar;
-        overflow-y: auto;
-        padding: 20px;
-        -webkit-transition: all 0.5s;
-        transition: all 0.5s;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-
-        @media only screen and (max-width: 978px){
-            display: none;
-        }
-    }
-
-    #sidebar::-webkit-scrollbar {
-        display: none; /* Chrome, Safari e Edge */
     }
 
     .react-datepicker-wrapper {
@@ -213,7 +162,7 @@ const GlobalStyle = createGlobalStyle`
 
     .react-calendar__tile--active {
         background-color: ${colors.sidebar};
-        color: ${colors.white};
+        color: #fff;
     }
 
     .label {
@@ -233,9 +182,27 @@ const GlobalStyle = createGlobalStyle`
     }
 
     main {
-        background-color: ${colors.background};
-        grid-area: main;
-        overflow-y: auto;
+        background-color: var(--c-bg);
+    }
+
+    /* Gráficos (recharts) acompanham o tema */
+    .recharts-text,
+    .recharts-cartesian-axis-tick-value {
+        fill: var(--c-muted);
+    }
+
+    .recharts-cartesian-grid line {
+        stroke: var(--c-border);
+    }
+
+    .recharts-legend-item-text {
+        color: var(--c-text) !important;
+    }
+
+    .recharts-default-tooltip {
+        background-color: var(--c-surface) !important;
+        border-color: var(--c-border) !important;
+        color: var(--c-text);
     }
 
     ::-webkit-scrollbar {
@@ -250,7 +217,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     ::-webkit-scrollbar-thumb {
-        background-color: ${colors.greenNeutral};
+        background-color: var(--c-border);
         border-radius: 10px;
 
         &:hover {

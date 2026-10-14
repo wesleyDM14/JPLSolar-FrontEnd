@@ -1,98 +1,79 @@
-import React, { useState } from "react";
-import {
-    Button,
-    Content,
-    Description,
-    FirstColumn,
-    FormArea,
-    HomeContainer,
-    Icon,
-    IconsContainer,
-    Logo,
-    SecondColumn,
-    Title,
-} from "./styles";
-import { PiSolarPanelLight } from "react-icons/pi";
-import { FaFileContract, FaLock, FaUser } from "react-icons/fa";
-import { FaUsersLine } from "react-icons/fa6";
-import { Form, Formik } from "formik";
+import { Form, Formik } from 'formik';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash, FaFileContract, FaSolarPanel, FaUsers } from 'react-icons/fa';
 import * as Yup from 'yup';
-import { LoginInput } from "../../components/FormLib";
 import logo from '../../assets/logo.png';
-import { loginUser } from "../../services/authServices";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import Loading from "../../components/Loading";
+import { loginUser } from '../../services/authServices';
+import { Button, TextField } from '../../ui';
+import { BrandPanel, Card, FeatureList, FormPanel, PasswordToggle, Screen } from './styles';
+
+// O tamanho da senha é decidido pelo servidor; aqui só exige o preenchimento.
+const schema = Yup.object({
+    login: Yup.string().trim().required('Informe o login'),
+    password: Yup.string().required('Informe a senha'),
+});
 
 const Home = () => {
-
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     return (
-        <HomeContainer>
-            {
-                !isLoading ? (
-                    <Content>
-                        <FirstColumn>
-                            <Logo src={logo} alt='Logo da Empresa' />
-                            <Title size={28}>Bem-Vindo de Volta!</Title>
-                            <Description $marginTop='15px'>A sua Gerência de</Description>
-                            <Description>Plantas Solares, Clientes e Contratos</Description>
-                        </FirstColumn>
-                        <SecondColumn>
-                            <Title size={35}>Acesse sua conta</Title>
-                            <IconsContainer>
-                                <Icon><PiSolarPanelLight /></Icon>
-                                <Icon><FaUsersLine /></Icon>
-                                <Icon><FaFileContract /></Icon>
-                            </IconsContainer>
-                            <Formik
-                                initialValues={{
-                                    login: '',
-                                    password: '',
-                                }}
-                                validationSchema={
-                                    Yup.object({
-                                        login: Yup.string().required('Login é obrigatório'),
-                                        password: Yup.string().min(8, 'Senha muito curta').max(30, 'Senha muito Longa').required('Senha é obrigatório'),
-                                    })
-                                }
-                                onSubmit={async (values) => {
-                                    setIsLoading(true);
-                                    await loginUser(values, navigate, setIsLoading, dispatch);
-                                }}
-                            >
-                                {
-                                    () => (
-                                        <Form style={{ width: '100%' }}>
-                                            <FormArea>
-                                                <LoginInput
-                                                    name='login'
-                                                    type='text'
-                                                    label='Login'
-                                                    icon={<FaUser />}
-                                                />
-                                                <LoginInput
-                                                    name='password'
-                                                    type='password'
-                                                    label='Senha'
-                                                    icon={<FaLock />}
-                                                />
-                                                <Button type="submit">Entrar</Button>
-                                            </FormArea>
-                                        </Form>
-                                    )
-                                }
-                            </Formik>
-                        </SecondColumn>
-                    </Content>
-                ) : (
-                    <Loading />
-                )
-            }
-        </HomeContainer>
+        <Screen>
+            <BrandPanel>
+                <img src={logo} alt="JPL Engenharia" />
+                <h1>JPL Solar</h1>
+                <p>Gestão de usinas, clientes e contratos da JPL Solar.</p>
+
+                <FeatureList>
+                    <li><FaSolarPanel aria-hidden /> Monitoramento das usinas em tempo real</li>
+                    <li><FaUsers aria-hidden /> Cadastro completo de clientes (PF e PJ)</li>
+                    <li><FaFileContract aria-hidden /> Contratos e notas promissórias em PDF</li>
+                </FeatureList>
+            </BrandPanel>
+
+            <FormPanel>
+                <Card>
+                    <h2>Entrar</h2>
+                    <p>Acesse o painel administrativo.</p>
+
+                    <Formik
+                        initialValues={{ login: '', password: '' }}
+                        validationSchema={schema}
+                        onSubmit={async (values) => {
+                            setIsLoading(true);
+                            await loginUser({ ...values, login: values.login.trim() }, navigate, setIsLoading, dispatch);
+                        }}
+                    >
+                        <Form noValidate>
+                            <TextField name="login" label="Login" autoComplete="username" autoFocus required />
+                            <div style={{ position: 'relative' }}>
+                                <TextField
+                                    name="password"
+                                    label="Senha"
+                                    type={showPassword ? 'text' : 'password'}
+                                    autoComplete="current-password"
+                                    required
+                                />
+                                <PasswordToggle
+                                    type="button"
+                                    aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                                    onClick={() => setShowPassword((visible) => !visible)}
+                                >
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </PasswordToggle>
+                            </div>
+                            <Button type="submit" loading={isLoading} style={{ width: '100%', marginTop: 8 }}>
+                                Entrar
+                            </Button>
+                        </Form>
+                    </Formik>
+                </Card>
+            </FormPanel>
+        </Screen>
     );
 };
 

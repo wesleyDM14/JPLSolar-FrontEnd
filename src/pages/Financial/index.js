@@ -1,111 +1,80 @@
-import { useEffect, useState } from "react";
-import {
-    CardCount,
-    CardTitle,
-    CardValue,
-    FinanceiroContentContainer,
-    FinanceiroHeader,
-    FinanceiroMainCard,
-    FinanceiroMainContainer,
-    FinanceiroMainContent,
-    FinanceiroTitleContainer,
-    HeaderMenu,
-    MenuItem,
-    Title,
-    TitleIcon,
-} from "./styles";
-import { FaMoneyBill, } from 'react-icons/fa';
-import Loading from "../../components/Loading";
-import { formatCurrencyBRL } from "../../utils/formatString";
-import { getResumeInfo } from "../../services/financialServices";
-import ClientsSegment from "./clientsSegment";
-import BoletoSegment from "./boletosSegment";
-import ContaSegment from "./contaSegment";
+import { useState } from 'react';
+import { FaArrowDown, FaArrowUp, FaCog, FaMoneyBillWave } from 'react-icons/fa';
+import { Navigate, useSearchParams } from 'react-router-dom';
+import { Page, PageHeader } from '../../ui';
+import Cadastros from './Cadastros';
+import LancamentoDialog from './LancamentoDialog';
+import Lancamentos from './Lancamentos';
+import VisaoGeral from './VisaoGeral';
 
-const Financial = ({ navigate, user }) => {
+// Links antigos usavam /financeiro?aba=...; agora cada área tem sua rota.
+const ROTAS_ANTIGAS = { receber: 'receber', pagar: 'pagar', cadastros: 'cadastros', integracao: 'bancos' };
 
-    const [section, setSection] = useState('main');
-    const [data, setData] = useState({});
+/** Visão geral do financeiro. */
+export default function Financial() {
+    const [params] = useSearchParams();
+    const [detalheId, setDetalheId] = useState(null);
+    const aba = params.get('aba');
 
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (loading) {
-            getResumeInfo(setData, setLoading, user);
-        }
-    }, [loading, user]);
+    if (aba && ROTAS_ANTIGAS[aba]) {
+        const resto = new URLSearchParams(params);
+        resto.delete('aba');
+        const consulta = resto.toString();
+        return <Navigate to={`/financeiro/${ROTAS_ANTIGAS[aba]}${consulta ? `?${consulta}` : ''}`} replace />;
+    }
 
     return (
-        <FinanceiroMainContainer>
-            {
-                loading ? (
-                    <Loading />
-                ) : (
-                    <>
-                        <FinanceiroHeader>
-                            <FinanceiroTitleContainer onClick={() => setSection('main')}>
-                                <TitleIcon>
-                                    <FaMoneyBill />
-                                </TitleIcon>
-                                <Title>Financeiro</Title>
-                            </FinanceiroTitleContainer>
-                            <HeaderMenu>
-                                <MenuItem onClick={() => setSection('conta')} $active={section === 'conta'}>Conta</MenuItem>
-                                <MenuItem onClick={() => setSection('clientes')} $active={section === 'clientes'}>Clientes</MenuItem>
-                                <MenuItem onClick={() => setSection('boletos')} $active={section === 'boletos'}>Boletos</MenuItem>
-                            </HeaderMenu>
-                        </FinanceiroHeader>
-                        <FinanceiroContentContainer>
-                            {
-                                section === 'main' && (
-                                    <>
-                                        <Title>Resumo</Title>
-                                        <FinanceiroMainContent>
-                                            <FinanceiroMainCard>
-                                                <CardTitle>RECEBIDO</CardTitle>
-                                                <CardValue>{formatCurrencyBRL(data.recebido)}</CardValue>
-                                                <CardCount>{data.num_pagos} boletos pagos</CardCount>
-                                            </FinanceiroMainCard>
-                                            <FinanceiroMainCard>
-                                                <CardTitle>A RECEBER</CardTitle>
-                                                <CardValue>{formatCurrencyBRL(data.a_receber)}</CardValue>
-                                                <CardCount>{data.num_receber} boletos a vencer/vencidos</CardCount>
-                                            </FinanceiroMainCard>
-                                            <FinanceiroMainCard>
-                                                <CardTitle>VENCIDAS</CardTitle>
-                                                <CardValue>{formatCurrencyBRL(data.vencidas)}</CardValue>
-                                                <CardCount>{data.num_vencidas} boletos vencidos</CardCount>
-                                            </FinanceiroMainCard>
-                                            <FinanceiroMainCard>
-                                                <CardTitle>A VENCER</CardTitle>
-                                                <CardValue>{formatCurrencyBRL(data.a_vencer)}</CardValue>
-                                                <CardCount>{data.num_avencer} boletos a vencer</CardCount>
-                                            </FinanceiroMainCard>
-                                        </FinanceiroMainContent>
-                                    </>
-                                )
-                            }
-                            {
-                                section === 'conta' && (
-                                    <ContaSegment user={user} />
-                                )
-                            }
-                            {
-                                section === 'clientes' && (
-                                    <ClientsSegment user={user} />
-                                )
-                            }
-                            {
-                                section === 'boletos' && (
-                                    <BoletoSegment />
-                                )
-                            }
-                        </FinanceiroContentContainer>
-                    </>
-                )
-            }
-        </FinanceiroMainContainer>
-    )
+        <Page>
+            <PageHeader icon={FaMoneyBillWave} tone="green" title="Financeiro" subtitle="Contas a receber e a pagar, caixa e resultado." />
+            <VisaoGeral onOpenLancamento={setDetalheId} />
+            {detalheId && <LancamentoDialog id={detalheId} onClose={() => setDetalheId(null)} />}
+        </Page>
+    );
 }
 
-export default Financial;
+function filtrosDaUrl(params) {
+    const campos = ['clienteId', 'clienteNome', 'fornecedorId', 'fornecedorNome', 'contratoId', 'boleto', 'categoriaId', 'contaId'];
+    const filtros = Object.fromEntries(campos.filter((campo) => params.get(campo)).map((campo) => [campo, params.get(campo)]));
+    if (params.has('situacao')) filtros.situacao = params.get('situacao');
+    return filtros;
+}
+
+function ListaDeLancamentos({ tipo }) {
+    const [params, setParams] = useSearchParams();
+    const lancamento = params.get('lancamento');
+    const receber = tipo === 'RECEBER';
+
+    return (
+        <Page>
+            <PageHeader
+                icon={receber ? FaArrowDown : FaArrowUp}
+                tone={receber ? 'green' : 'red'}
+                title={receber ? 'Contas a receber' : 'Contas a pagar'}
+                subtitle={receber ? 'Parcelas de contratos e outras receitas.' : 'Despesas e compromissos com fornecedores.'}
+            />
+            <Lancamentos key={`${tipo}-${params.toString()}`} tipo={tipo} inicial={filtrosDaUrl(params)} />
+            {lancamento && (
+                <LancamentoDialog
+                    id={lancamento}
+                    onClose={() => {
+                        const resto = new URLSearchParams(params);
+                        resto.delete('lancamento');
+                        setParams(resto, { replace: true });
+                    }}
+                />
+            )}
+        </Page>
+    );
+}
+
+export const Receber = () => <ListaDeLancamentos tipo="RECEBER" />;
+export const Pagar = () => <ListaDeLancamentos tipo="PAGAR" />;
+
+export function CadastrosPagina() {
+    return (
+        <Page>
+            <PageHeader icon={FaCog} tone="gray" title="Cadastros do financeiro" subtitle="Contas, categorias e fornecedores." />
+            <Cadastros />
+        </Page>
+    );
+}

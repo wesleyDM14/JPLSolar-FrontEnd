@@ -1,200 +1,205 @@
-import { useEffect, useState } from "react";
-import { getDashboardData } from "../../services/dashboardServices";
+import { useQuery } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { dashboardApi } from '../../api/resources';
+import { errorMessage } from '../../api/client';
+import { ErrorBlock, LoadingBlock } from '../../ui';
+import { usinaStatus } from '../../utils/usinaStatus';
 import {
-    Card,
-    CardDetail,
-    CardIcon,
-    CardInfo,
-    CardProduction,
-    CardsContainer,
-    CardTitle,
-    DashboardContainer,
-    ErrorSection,
-    Header,
-    NavButton,
-    SectionTitle,
-    Title,
-} from './styles';
-import Loading from "../../components/Loading";
-import { FaBolt, FaCircle, FaExclamationTriangle, FaHouzz, FaRegMoon } from "react-icons/fa";
+    Banner,
+    BoardFrame,
+    BoardRow,
+    BoardTitle,
+    BoardTop,
+    boardColors,
+    Clock,
+    Columns,
+    Counter,
+    Counters,
+    Layout,
+    Section,
+    SectionHead,
+} from './Board';
 
-const Dashboard = ({ navigate, user }) => {
+const PAGE_SIZE_STACKED = 8; // usinas OK por vez com as listas empilhadas
+const PAGE_SIZE_SIDE = 12; // com as listas lado a lado há mais altura útil
+const ROTATE_MS = 7000; // tempo até virar para o próximo grupo
+const WIDE_QUERY = '(min-width: 1200px)';
 
-    const [loading, setLoading] = useState(true);
-    const [solarPlants, setSolarPlants] = useState([]);
-    const [solarPlantsWithError, setSolarPlantsWithError] = useState([]);
-    const [totalUsinas, setTotalUsinas] = useState(0);
-    const [totalPowerInstaled, setTotalPowerInstaled] = useState(0);
-    const [visiblePlants, setVisiblePlants] = useState([]);
-    const [exiting, setExiting] = useState(false);
-    const [visibleErrorPlants, setVisibleErrorPlants] = useState([]);
-    const [errorIndex, setErrorIndex] = useState(0);
-    const [exitingErrorPlants, setExitingErrorPlants] = useState(false);
-    const [currentIndex, setCurrentIndex] = useState(0);
-
-    const renderIcon = (status) => {
-        if (status === '1') return <FaCircle />;
-        if (status === '0') return <FaRegMoon />;
-        return <FaExclamationTriangle />;
-    }
+// Tela grande = listas lado a lado. Sem matchMedia (testes/SSR) assume tela pequena.
+function useIsWide() {
+    const getMatch = () => (typeof window !== 'undefined' && window.matchMedia ? window.matchMedia(WIDE_QUERY).matches : false);
+    const [wide, setWide] = useState(getMatch);
 
     useEffect(() => {
-        if (loading && user.userRole === 'MONTADOR') {
-            getDashboardData(user, setLoading, setSolarPlants, setSolarPlantsWithError, setTotalUsinas, setTotalPowerInstaled);
-        } else if (user.userRole === 'MONTADOR') {
-            const initialPlants = solarPlants.slice(0, Math.min(4, solarPlants.length));
-            setVisiblePlants(initialPlants);
-            setCurrentIndex(Math.min(4, solarPlants.length));
-        }
-    }, [loading, user, solarPlants]);
+        if (typeof window === 'undefined' || !window.matchMedia) return undefined;
 
-    useEffect(() => {
-        if (user.userRole === 'MONTADOR') {
-            const rotateInterval = setInterval(() => {
-                if (solarPlants.length > 0) {
-                    setExiting(true);
+        const media = window.matchMedia(WIDE_QUERY);
+        const onChange = () => setWide(media.matches);
 
-                    setTimeout(() => {
-                        const nextPlants = [];
+        media.addEventListener('change', onChange);
+        return () => media.removeEventListener('change', onChange);
+    }, []);
 
-                        for (let i = 0; i < Math.min(4, solarPlants.length); i++) {
-                            const nextIndex = (currentIndex + i) % solarPlants.length;
-
-                            nextPlants.push(solarPlants[nextIndex % solarPlants.length]);
-                        }
-
-                        setVisiblePlants(nextPlants);
-                        setExiting(false);
-
-                        setCurrentIndex((currentIndex + 4) % solarPlants.length);
-                    }, 500);
-                }
-            }, 5000);
-
-            return () => clearInterval(rotateInterval);
-        }
-    }, [solarPlants, currentIndex, user]);
-
-    useEffect(() => {
-        if (user.userRole === 'MONTADOR') {
-            setVisibleErrorPlants(solarPlantsWithError.slice(errorIndex, errorIndex + 8));
-        }
-    }, [errorIndex, solarPlantsWithError, user]);
-
-    const handleErrorNavigation = (direction) => {
-        if (solarPlantsWithError.length > 0) {
-            setExitingErrorPlants(true);
-
-            let newIndex = errorIndex + direction;
-
-            if (newIndex < 0) {
-                newIndex = Math.floor(solarPlantsWithError.length / 8);
-            } else if (newIndex > Math.floor(solarPlantsWithError.length / 8)) {
-                newIndex = 0;
-            }
-
-            setErrorIndex(newIndex);
-
-            const startIdx = newIndex * 8;
-            const endIdx = Math.min(startIdx + 8, solarPlantsWithError.length);
-            const nextErrorPlants = solarPlantsWithError.slice(startIdx, endIdx);
-
-            setTimeout(() => {
-                setVisibleErrorPlants(nextErrorPlants);
-                setExitingErrorPlants(false);
-            }, 200);
-        }
-    };
-
-    return (
-        <DashboardContainer>
-            {
-                loading ? (
-                    <Loading />
-                ) : (
-
-                    user.userRole === 'MONTADOR' && (
-                        <>
-                            <Header>
-                                <Title>Painel de Controle - JPL Solar</Title>
-                            </Header>
-                            <CardsContainer>
-                                <Card>
-                                    <CardIcon $status='1'>
-                                        <FaHouzz />
-                                    </CardIcon>
-                                    <CardTitle>Total de Usinas</CardTitle>
-                                    <CardProduction>{totalUsinas}</CardProduction>
-                                </Card>
-                                <Card>
-                                    <CardIcon $status='1'>
-                                        <FaBolt />
-                                    </CardIcon>
-                                    <CardTitle>Potência Instalada</CardTitle>
-                                    <CardProduction>{totalPowerInstaled}</CardProduction>
-                                </Card>
-                            </CardsContainer>
-
-                            {solarPlantsWithError.length > 0 && (
-                                <ErrorSection $cardCount={visibleErrorPlants.length}>
-                                    <SectionTitle>Usinas com Erro</SectionTitle>
-                                    <CardsContainer>
-                                        {visibleErrorPlants.map((plant, i) => (
-                                            <Card key={i} $isExiting={exitingErrorPlants} onClick={() => navigate(`/plantas-solares/${plant.id}`)} style={{ display: exitingErrorPlants ? 'none' : 'flex' }}>
-                                                <CardIcon $status={plant.status}>
-                                                    {renderIcon(plant.status)}
-                                                </CardIcon>
-                                                <CardInfo>
-                                                    <CardTitle>{plant.solarPlantCode}</CardTitle>
-                                                    <CardDetail>Cliente: {plant.clientName}</CardDetail>
-                                                </CardInfo>
-                                                <CardProduction>
-                                                    <FaBolt />
-                                                    {plant.eTotal > 1000
-                                                        ? `${(plant.eTotal / 1000)?.toFixed(2)} MWh`
-                                                        : `${plant.eTotal?.toFixed(2)} kWh`}
-                                                </CardProduction>
-                                            </Card>
-                                        ))}
-                                    </CardsContainer>
-                                    <NavButton className="left" onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleErrorNavigation(-1);
-                                    }}>&lt;</NavButton>
-                                    <NavButton className="right" onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleErrorNavigation(1);
-                                    }}>&gt;</NavButton>
-                                </ErrorSection>
-                            )}
-
-                            <CardsContainer>
-                                {
-                                    visiblePlants.map((plant, i) => (
-                                        <Card key={i} $isExiting={exiting} onClick={() => navigate(`/plantas-solares/${plant.id}`)}>
-                                            <CardIcon $status={plant.status}>
-                                                {renderIcon(plant.status)}
-                                            </CardIcon>
-                                            <CardInfo>
-                                                <CardTitle>{plant.solarPlantCode}</CardTitle>
-                                                <CardDetail>Cliente: {plant.clientName}</CardDetail>
-                                            </CardInfo>
-                                            <CardProduction>
-                                                <FaBolt />
-                                                {plant.eTotal > 1000
-                                                    ? `${(plant.eTotal / 1000)?.toFixed(2)} MWh`
-                                                    : `${plant.eTotal?.toFixed(2)} kWh`}
-                                            </CardProduction>
-                                        </Card>
-                                    ))
-                                }
-                            </CardsContainer>
-                        </>
-                    )
-                )
-            }
-        </DashboardContainer>
-    )
+    return wide;
 }
 
-export default Dashboard;
+// Ordem de gravidade para a lista fixa: alerta, offline, sem leitura.
+const severity = (status) => usinaStatus(status).severity;
+
+// Leitura mais velha que isso, em horário de sol, indica que o monitoramento parou.
+const LEITURA_VELHA_MIN = 45;
+
+const byCode = (a, b) => a.code.localeCompare(b.code, 'pt-BR', { numeric: true });
+
+function ColumnHeaders({ hideStatusCompact = false }) {
+    return (
+        <Columns as="div" $hideStatusCompact={hideStatusCompact}>
+            <span />
+            <span>CÓDIGO</span>
+            <span>CLIENTE</span>
+            <span>INVERSOR</span>
+            <span>GERAÇÃO</span>
+            <span>STATUS</span>
+        </Columns>
+    );
+}
+
+/**
+ * Painel estilo "quadro de embarque": usinas com problema ficam FIXAS no topo;
+ * as que estão operando normalmente ficam rodando em grupos, com as aletas virando a cada troca.
+ */
+export default function DashboardPage() {
+    const navigate = useNavigate();
+    const [page, setPage] = useState(0);
+    const wide = useIsWide();
+    const pageSize = wide ? PAGE_SIZE_SIDE : PAGE_SIZE_STACKED;
+
+    const { data, isLoading, error, refetch, dataUpdatedAt } = useQuery({
+        queryKey: ['dashboard'],
+        queryFn: dashboardApi.get,
+        refetchInterval: 60 * 1000,
+    });
+
+    const { atencao, operando } = useMemo(() => {
+        const lista = (data?.usinas ?? []).map((usina) => ({ ...usina, statusInfo: usinaStatus(usina.status) }));
+
+        return {
+            atencao: lista
+                .filter((usina) => !usina.statusInfo.ok)
+                .sort((a, b) => severity(a.status) - severity(b.status) || byCode(a, b)),
+            operando: lista.filter((usina) => usina.statusInfo.ok).sort(byCode),
+        };
+    }, [data]);
+
+    const totalPages = Math.max(1, Math.ceil(operando.length / pageSize));
+
+    useEffect(() => {
+        if (totalPages <= 1) return undefined;
+
+        const timer = setInterval(() => setPage((current) => (current + 1) % totalPages), ROTATE_MS);
+        return () => clearInterval(timer);
+    }, [totalPages]);
+
+    // Se a lista encolher (atualização de dados), volta ao início.
+    useEffect(() => {
+        if (page >= totalPages) setPage(0);
+    }, [page, totalPages]);
+
+    const openUsina = useCallback((id) => navigate(`/usinas/${id}`), [navigate]);
+
+    if (isLoading) return <LoadingBlock />;
+    if (error) return <ErrorBlock message={errorMessage(error)} onRetry={refetch} />;
+
+    const visiveis = operando.slice(page * pageSize, page * pageSize + pageSize);
+    const hora = (valor) => (valor ? new Date(valor).toLocaleTimeString('pt-BR', { timeZone: 'America/Fortaleza', hour: '2-digit', minute: '2-digit' }) : '');
+    // Mostra a hora da última leitura do monitoramento (não a do carregamento da tela).
+    const ultimaLeitura = data.ultimaAtualizacao ? new Date(data.ultimaAtualizacao) : null;
+    const leituraVelha = Boolean(
+        data.emHorarioDeGeracao && (!ultimaLeitura || (dataUpdatedAt - ultimaLeitura.getTime()) / 60000 > LEITURA_VELHA_MIN),
+    );
+    const porStatus = data.porStatus ?? {};
+
+    return (
+        <BoardFrame>
+            <BoardTop>
+                <div>
+                    <BoardTitle>PAINEL DE USINAS</BoardTitle>
+                    <div style={{ color: boardColors.muted, marginTop: 6 }}>JPL SOLAR · {data.atualizando ? 'ATUALIZANDO AGORA…' : ultimaLeitura ? `ÚLTIMA LEITURA ÀS ${hora(ultimaLeitura)}` : 'SEM LEITURAS REGISTRADAS'}
+                    </div>
+                </div>
+                <Counters>
+                    <Counter label="USINAS" value={data.totalUsinas} />
+                    <Counter label="OPERANDO" value={operando.length} color={boardColors.ok} />
+                    <Counter label="ALERTA" value={porStatus.ALERTA ?? 0} color={porStatus.ALERTA ? boardColors.danger : boardColors.ok} />
+                    <Counter label="OFFLINE" value={porStatus.OFFLINE ?? 0} color={porStatus.OFFLINE ? boardColors.alert : boardColors.ok} />
+                    <Counter
+                        label="POTÊNCIA"
+                        value={`${Number(data.potenciaInstaladaKwp).toLocaleString('pt-BR', { maximumFractionDigits: 0 })} KWP`}
+                        color={boardColors.header}
+                    />
+                </Counters>
+                <Clock />
+            </BoardTop>
+
+            {leituraVelha && (
+                <Banner style={{ color: boardColors.alert }}>
+                    {ultimaLeitura ? `LEITURAS DESATUALIZADAS · ÚLTIMA ÀS ${hora(ultimaLeitura)}` : 'NENHUMA LEITURA REGISTRADA'} — VERIFIQUE O MONITORAMENTO AUTOMÁTICO
+                </Banner>
+            )}
+
+            <Layout>
+            <Section $accent={atencao.length ? boardColors.danger : boardColors.ok}>
+                <SectionHead $accent={atencao.length ? boardColors.danger : boardColors.ok}>
+                    <span>REQUER ATENÇÃO · {atencao.length}</span>
+                    <span style={{ color: boardColors.muted, fontWeight: 400 }}>FIXO</span>
+                </SectionHead>
+
+                {atencao.length === 0 ? (
+                    <Banner>TODAS AS USINAS OPERANDO NORMALMENTE</Banner>
+                ) : (
+                    <>
+                        <ColumnHeaders />
+                        <div>
+                            {atencao.map((usina, index) => (
+                                <BoardRow key={usina.id} usina={usina} status={usina.statusInfo} index={index} animate={false} onOpen={openUsina} />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </Section>
+
+            <Section $accent={boardColors.ok} $sticky>
+                <SectionHead $accent={boardColors.ok}>
+                    <span>OPERANDO NORMALMENTE · {operando.length}</span>
+                    <span style={{ color: boardColors.muted, fontWeight: 400 }}>
+                        GRUPO {operando.length ? page + 1 : 0}/{operando.length ? totalPages : 0}
+                    </span>
+                </SectionHead>
+
+                {operando.length === 0 ? (
+                    <Banner style={{ color: boardColors.muted }}>NENHUMA USINA EM OPERAÇÃO NO MOMENTO</Banner>
+                ) : (
+                    <>
+                        <ColumnHeaders hideStatusCompact />
+                        <div>
+                            {visiveis.map((usina, index) => (
+                                // A chave inclui o grupo: ao trocar de página as linhas remontam e as aletas viram.
+                                <BoardRow
+                                    key={`${page}-${usina.id}`}
+                                    usina={usina}
+                                    status={usina.statusInfo}
+                                    index={index}
+                                    animate
+                                    hideStatusCompact
+                                    onOpen={openUsina}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
+            </Section>
+            </Layout>
+        </BoardFrame>
+    );
+}
