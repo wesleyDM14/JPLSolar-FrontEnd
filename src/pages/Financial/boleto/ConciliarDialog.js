@@ -74,14 +74,28 @@ export default function ConciliarDialog({ onClose }) {
                     {resumo.naoEncontrados.length > 0 && (
                         <div style={{ marginTop: 12 }}>
                             <strong>Liquidações sem lançamento correspondente</strong>
-                            <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
-                                {resumo.naoEncontrados.slice(0, 15).map((item) => (
-                                    <li key={`${item.nossoNumero}-${item.dia}`}>
-                                        Nosso número {item.nossoNumero} · {brl(item.valor)} · {dataBr(item.dia)}
+                            <ul style={{ margin: '6px 0 0', paddingLeft: 0, listStyle: 'none' }}>
+                                {resumo.naoEncontrados.slice(0, 30).map((item) => (
+                                    <li key={`${item.nossoNumero}-${item.dia}`} style={{ padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                                        <strong>{item.pagador?.nome ?? 'Pagador não identificado'}</strong>
+                                        {item.pagador?.documento ? <Muted> · {item.pagador.documento}</Muted> : null}
+                                        <div>
+                                            <Muted>
+                                                {brl(item.valor)} pago em {dataBr(item.dia)}
+                                                {item.vencimento ? ` · venceu ${dataBr(item.vencimento)}` : ''}
+                                                {item.seuNumero ? ` · seu nº ${item.seuNumero}` : ''} · nosso nº {item.nossoNumero}
+                                            </Muted>
+                                        </div>
                                     </li>
                                 ))}
                             </ul>
-                            <Muted>Podem ser boletos emitidos por outro sistema ou direto no Internet Banking.</Muted>
+                            {resumo.naoEncontrados.length > 30 && <Muted>E mais {resumo.naoEncontrados.length - 30}…</Muted>}
+                            <p style={{ marginTop: 8 }}>
+                                <Muted>
+                                    São boletos pagos que não estavam ligados a nenhuma conta a receber (emitidos direto no Internet Banking ou por outro sistema).
+                                    Em <strong>Boletos → No banco</strong>, filtre “Pagos” e “Sem lançamento” e use <strong>Vincular</strong> para ligar cada um a um lançamento ou criar o lançamento.
+                                </Muted>
+                            </p>
                         </div>
                     )}
 

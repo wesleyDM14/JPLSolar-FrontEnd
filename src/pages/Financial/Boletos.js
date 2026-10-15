@@ -30,6 +30,7 @@ import {
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { dataBr, dataHoraBr, fimDoMes, hojeIso, inicioDoMes } from '../../utils/datas';
 import { formatDate } from '../../utils/masks';
+import BoletosDoBanco from './boleto/BoletosDoBanco';
 import ConciliarDialog from './boleto/ConciliarDialog';
 import GerenciarBoletoDialog from './boleto/GerenciarBoletoDialog';
 import { brl } from './format';
@@ -108,6 +109,7 @@ function MeusBoletos() {
     const [gerenciando, setGerenciando] = useState(null);
     const [imprimindo, setImprimindo] = useState(false);
     const [atualizando, setAtualizando] = useState(false);
+    const [porFolha, setPorFolha] = useState('3');
 
     const termo = useDebouncedValue(busca);
     // Ao pesquisar por número ou nome, o período não restringe (o boleto pode estar em qualquer mês).
@@ -139,7 +141,7 @@ function MeusBoletos() {
     const imprimir = async (ids) => {
         setImprimindo(true);
         try {
-            const falhas = await imprimirBoletos(ids);
+            const falhas = await imprimirBoletos(ids, Number(porFolha));
             if (falhas.length > 0) {
                 toast(`${falhas.length} boleto(s) ficaram de fora: ${falhas.slice(0, 3).map((f) => `${f.descricao || 'boleto'} (${f.motivo})`).join('; ')}`, { duration: 8000 });
             }
@@ -254,6 +256,13 @@ function MeusBoletos() {
             {marcados.length > 0 && (
                 <BarraSelecao>
                     <span>{marcados.length} selecionado(s)</span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        Por folha
+                        <select value={porFolha} onChange={(e) => setPorFolha(e.target.value)} style={{ padding: '6px 8px', borderRadius: 8, border: `1px solid ${colors.border}` }}>
+                            <option value="1">1 boleto</option>
+                            <option value="3">3 boletos</option>
+                        </select>
+                    </label>
                     <Button size="sm" icon={<FaPrint />} loading={imprimindo} onClick={() => imprimir(marcados)}>Imprimir (PDF único)</Button>
                     <Button size="sm" variant="secondary" icon={<FaSyncAlt />} loading={atualizando} onClick={atualizarSelecionados}>Atualizar no banco</Button>
                     <Button size="sm" variant="ghost" onClick={() => setMarcados([])}>Limpar seleção</Button>
@@ -401,8 +410,27 @@ function ConsultaNoBanco() {
                             rows={liquidados.data.items.map((i) => ({ ...i, id: i.nossoNumero }))}
                             emptyTitle="Nenhuma liquidação nesse dia"
                             columns={[
-                                { key: 'n', header: 'Nosso número', render: (i) => <code>{i.nossoNumero}</code> },
-                                { key: 's', header: 'Seu número', render: (i) => i.seuNumero },
+                                {
+                                    key: 'p',
+                                    header: 'Pagador',
+                                    render: (i) => (
+                                        <div>
+                                            <strong>{i.pagador?.nome ?? 'Não identificado'}</strong>
+                                            {i.pagador?.documento && <div><Muted>{i.pagador.documento}</Muted></div>}
+                                        </div>
+                                    ),
+                                },
+                                {
+                                    key: 'n',
+                                    header: 'Boleto',
+                                    render: (i) => (
+                                        <div>
+                                            <code>{i.nossoNumero}</code>
+                                            {i.seuNumero && <div><Muted>seu nº {i.seuNumero}</Muted></div>}
+                                        </div>
+                                    ),
+                                },
+                                { key: 've', header: 'Vencimento', render: (i) => (i.dataVencimento ? formatDate(i.dataVencimento) : '—') },
                                 { key: 'v', header: 'Valor liquidado', render: (i) => <strong>{brl(i.valorLiquidado)}</strong> },
                                 { key: 't', header: 'Meio', render: (i) => i.tipoLiquidacao },
                                 {
@@ -425,13 +453,14 @@ function ConsultaNoBanco() {
 
 /** Pesquisa, impressão e consulta de boletos emitidos no Sicredi. */
 export default function Boletos() {
-    const [aba, setAba] = useState('meus');
+    const [aba, setAba] = useState('noBanco');
     const [conciliando, setConciliando] = useState(false);
 
     const abas = useMemo(
         () => [
-            { id: 'meus', label: 'Boletos emitidos', icon: <FaBarcode /> },
-            { id: 'banco', label: 'Consulta no banco', icon: <FaSearch /> },
+            { id: 'noBanco', label: 'No banco (em aberto e pagos)', icon: <FaBarcode /> },
+            { id: 'meus', label: 'Emitidos pelo sistema', icon: <FaBarcode /> },
+            { id: 'banco', label: 'Consulta e liquidados', icon: <FaSearch /> },
         ],
         [],
     );
@@ -448,7 +477,9 @@ export default function Boletos() {
 
             <Tabs tabs={abas} value={aba} onChange={setAba} />
 
-            {aba === 'meus' ? <MeusBoletos /> : <ConsultaNoBanco />}
+            {aba === 'noBanco' && <BoletosDoBanco />}
+            {aba === 'meus' && <MeusBoletos />}
+            {aba === 'banco' && <ConsultaNoBanco />}
 
             {conciliando && <ConciliarDialog onClose={() => setConciliando(false)} />}
         </Page>

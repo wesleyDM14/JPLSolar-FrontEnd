@@ -115,6 +115,15 @@ export const financeiroApi = {
     boletos: (params) => data(api.get('/financeiro/boletos', { params: clean(params) })),
     boletosResumo: () => data(api.get('/financeiro/boletos/resumo')),
 
+    // Boletos conhecidos no banco (inclusive os emitidos fora do sistema)
+    boletosBanco: (params) => data(api.get('/financeiro/boletos/banco', { params: clean(params) })),
+    boletosBancoResumo: () => data(api.get('/financeiro/boletos/banco/resumo')),
+    boletoBancoSugestoes: (nossoNumero) => data(api.get(`/financeiro/boletos/banco/${nossoNumero}/sugestoes`)),
+    boletoBancoAtualizar: (nossoNumero) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/atualizar`)),
+    boletoBancoVincular: (nossoNumero, payload) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/vincular`, payload)),
+    boletoBancoDesvincular: (nossoNumero) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/desvincular`)),
+    boletoBancoCriarLancamento: (nossoNumero, payload = {}) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/criar-lancamento`, payload)),
+
     // Visão 360° do cliente (usinas, contratos e financeiro)
     visaoCliente: (id) => data(api.get(`/financeiro/clientes/${id}/visao`)),
 
@@ -310,18 +319,30 @@ export const sicrediApi = {
     eventos: () => data(api.get('/sicredi/eventos')),
     consultarBoleto: (params) => data(api.get('/sicredi/boletos/consulta', { params: clean(params) })),
     homologacao: (payload) => data(api.post('/sicredi/homologacao', payload)),
+    descoberta: () => data(api.get('/sicredi/descoberta')),
+    iniciarDescoberta: (payload = {}) => data(api.post('/sicredi/descoberta', payload)),
+    cancelarDescoberta: () => data(api.post('/sicredi/descoberta/cancelar')),
 };
 
 /**
  * Junta os PDFs dos boletos em um arquivo só e abre em nova aba (um boleto por página, pronto para imprimir).
  * Devolve a lista de boletos que ficaram de fora (já pagos, sem PDF…).
  */
-export async function imprimirBoletos(ids) {
+export async function imprimirBoletos(ids, porFolha = 1) {
+    return imprimirLote('/financeiro/boletos/pdf-lote', { ids, porFolha });
+}
+
+/** Igual a imprimirBoletos, mas para boletos do banco (pelo nosso número). */
+export async function imprimirBoletosDoBanco(nossosNumeros, porFolha = 1) {
+    return imprimirLote('/financeiro/boletos/banco/pdf-lote', { nossosNumeros, porFolha });
+}
+
+async function imprimirLote(url, corpo) {
     let falhas = [];
 
     await openFileInTab(
         async () => {
-            const resposta = await api.post('/financeiro/boletos/pdf-lote', { ids }, { responseType: 'blob' });
+            const resposta = await api.post(url, corpo, { responseType: 'blob' });
             try {
                 falhas = JSON.parse(decodeURIComponent(resposta.headers['x-boletos-falhas'] ?? '[]'));
             } catch {

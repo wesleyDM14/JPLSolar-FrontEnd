@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FaBolt, FaCalendarAlt, FaChartLine, FaEdit, FaIdCard, FaLeaf, FaSyncAlt, FaTachometerAlt, FaTrashAlt } from 'react-icons/fa';
+import { FaBolt, FaCalendarAlt, FaChartLine, FaEdit, FaIdCard, FaLeaf, FaPowerOff, FaSyncAlt, FaTachometerAlt, FaTrashAlt } from 'react-icons/fa';
 import styled from 'styled-components';
 import { TbSolarPanel2 } from 'react-icons/tb';
 import { useState } from 'react';
@@ -89,6 +89,16 @@ export default function UsinaDetailPage() {
         },
     });
 
+    // Usina inativa sai do monitoramento e das contagens, sem perder o cadastro.
+    const alterarAtiva = useMutation({
+        mutationFn: (ativa) => usinasApi.update(id, { ativa }),
+        onSuccess: async (_usina, ativa) => {
+            await Promise.all(['usina', 'usinas', 'dashboard', 'clientes', 'cliente', 'contratos', 'contrato'].map((chave) => queryClient.invalidateQueries({ queryKey: [chave] })));
+            toast.success(ativa ? 'Usina ativada.' : 'Usina inativada.');
+        },
+        onError: (err) => toast.error(errorMessage(err)),
+    });
+
     // Leitura imediata no portal: grava o estado novo e atualiza a tela.
     const atualizar = useMutation({
         mutationFn: () => usinasApi.atualizar(id),
@@ -118,6 +128,9 @@ export default function UsinaDetailPage() {
                         <Button variant="secondary" onClick={() => navigate('/usinas')}>Voltar</Button>
                         <Button variant="secondary" icon={<FaSyncAlt />} loading={atualizar.isPending} onClick={() => atualizar.mutate()}>Atualizar agora</Button>
                         <Button variant="secondary" icon={<FaEdit />} onClick={() => navigate(`/usinas/${id}/editar`)}>Editar</Button>
+                        <Button variant="secondary" icon={<FaPowerOff />} loading={alterarAtiva.isPending} onClick={() => alterarAtiva.mutate(!usina.ativa)}>
+                            {usina.ativa ? 'Inativar' : 'Ativar'}
+                        </Button>
                         <Button variant="danger" icon={<FaTrashAlt />} onClick={() => setConfirmDelete(true)}>Excluir</Button>
                     </>
                 }

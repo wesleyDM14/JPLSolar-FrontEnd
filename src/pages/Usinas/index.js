@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaBolt, FaCheckCircle, FaExclamationTriangle, FaPlus, FaQuestionCircle } from 'react-icons/fa';
+import { FaBolt, FaCheckCircle, FaExclamationTriangle, FaPlus, FaPowerOff, FaQuestionCircle } from 'react-icons/fa';
 import { MdWifiOff } from 'react-icons/md';
 import { TbSolarPanel2 } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,7 @@ export default function UsinasPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [excluindo, setExcluindo] = useState(null);
+    const [inativando, setInativando] = useState(null);
     const [filters, setFilters] = useState({ search: '', inversor: '', status: '', ativa: '', uf: '' });
     const [page, setPage] = useState(1);
     const [sort, setSort] = useState({ field: 'code', direction: 'asc' });
@@ -48,6 +49,20 @@ export default function UsinasPage() {
         },
         onError: (erro) => {
             setExcluindo(null);
+            toast.error(errorMessage(erro));
+        },
+    });
+
+    // Inativar tira a usina do monitoramento e das contagens (clientes, contratos e painel); os dados são mantidos.
+    const alterarAtiva = useMutation({
+        mutationFn: ({ id, ativa }) => usinasApi.update(id, { ativa }),
+        onSuccess: async (_usina, { ativa }) => {
+            await Promise.all(['usinas', 'dashboard', 'clientes', 'cliente', 'contratos', 'contrato'].map((chave) => queryClient.invalidateQueries({ queryKey: [chave] })));
+            setInativando(null);
+            toast.success(ativa ? 'Usina ativada.' : 'Usina inativada.');
+        },
+        onError: (erro) => {
+            setInativando(null);
             toast.error(errorMessage(erro));
         },
     });
@@ -101,11 +116,16 @@ export default function UsinasPage() {
         {
             key: 'acoes',
             header: '',
-            width: 130,
+            width: 170,
             render: (u) => (
                 <RowActions
                     onVer={() => navigate(`/usinas/${u.id}`)}
                     onEditar={() => navigate(`/usinas/${u.id}/editar`)}
+                    extras={[
+                        u.ativa
+                            ? { rotulo: 'Inativar usina', tom: 'vermelho', icon: FaPowerOff, onClick: () => setInativando(u) }
+                            : { rotulo: 'Ativar usina', tom: 'verde', icon: FaPowerOff, onClick: () => alterarAtiva.mutate({ id: u.id, ativa: true }) },
+                    ]}
                     onExcluir={() => setExcluindo(u)}
                 />
             ),
@@ -173,6 +193,16 @@ export default function UsinasPage() {
                 loading={excluir.isPending}
                 onConfirm={() => excluir.mutate(excluindo.id)}
                 onClose={() => setExcluindo(null)}
+            />
+
+            <ConfirmDialog
+                open={Boolean(inativando)}
+                title="Inativar usina"
+                message={`Inativar a usina ${inativando?.code ?? ''}? Ela deixa de ser monitorada e não entra mais nas contagens; o cadastro é mantido e pode ser reativado.`}
+                confirmLabel="Inativar"
+                loading={alterarAtiva.isPending}
+                onConfirm={() => alterarAtiva.mutate({ id: inativando.id, ativa: false })}
+                onClose={() => setInativando(null)}
             />
         </Page>
     );
