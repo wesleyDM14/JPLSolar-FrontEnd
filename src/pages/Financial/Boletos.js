@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaBarcode, FaCheckCircle, FaClock, FaExclamationTriangle, FaFilePdf, FaPrint, FaSearch, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
+import { FaBarcode, FaCheckCircle, FaClock, FaExclamationTriangle, FaFilePdf, FaPlus, FaPrint, FaSearch, FaSyncAlt, FaTimesCircle } from 'react-icons/fa';
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
 import { financeiroApi, imprimirBoletos, openFileInTab, sicrediApi } from '../../api/resources';
@@ -31,6 +31,7 @@ import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { dataBr, dataHoraBr, fimDoMes, hojeIso, inicioDoMes } from '../../utils/datas';
 import { formatDate } from '../../utils/masks';
 import BoletosDoBanco from './boleto/BoletosDoBanco';
+import BoletoAvulsoDialog from './boleto/BoletoAvulsoDialog';
 import ConciliarDialog from './boleto/ConciliarDialog';
 import GerenciarBoletoDialog from './boleto/GerenciarBoletoDialog';
 import { brl } from './format';
@@ -471,6 +472,7 @@ function ConsultaNoBanco() {
 export default function Boletos() {
     const [aba, setAba] = useState('noBanco');
     const [conciliando, setConciliando] = useState(false);
+    const [avulso, setAvulso] = useState(false);
 
     const abas = useMemo(
         () => [
@@ -488,7 +490,12 @@ export default function Boletos() {
                 tone="blue"
                 title="Boletos"
                 subtitle="Boletos do Sicredi."
-                actions={<Button variant="secondary" icon={<FaSyncAlt />} onClick={() => setConciliando(true)}>Conciliar com Sicredi</Button>}
+                actions={
+                    <>
+                        <Button icon={<FaPlus />} onClick={() => setAvulso(true)}>Gerar boletos avulsos</Button>
+                        <Button variant="secondary" icon={<FaSyncAlt />} onClick={() => setConciliando(true)}>Conciliar com Sicredi</Button>
+                    </>
+                }
             />
 
             <Tabs tabs={abas} value={aba} onChange={setAba} />
@@ -498,6 +505,7 @@ export default function Boletos() {
             {aba === 'banco' && <ConsultaNoBanco />}
 
             {conciliando && <ConciliarDialog onClose={() => setConciliando(false)} />}
+            <BoletoAvulsoDialog open={avulso} onClose={() => setAvulso(false)} />
         </Page>
     );
 }

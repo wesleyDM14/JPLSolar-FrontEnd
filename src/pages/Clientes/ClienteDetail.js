@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FaBuilding, FaEdit, FaFileAlt, FaFileContract, FaIdCard, FaMoneyBillWave, FaTrashAlt, FaUser } from 'react-icons/fa';
+import { FaBarcode, FaBuilding, FaEdit, FaFileAlt, FaFileContract, FaIdCard, FaMoneyBillWave, FaTrashAlt, FaUser } from 'react-icons/fa';
 import { TbSolarPanel2 } from 'react-icons/tb';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
 import { clientesApi, contratosApi, financeiroApi, usinasApi } from '../../api/resources';
 import ClienteDialog from '../Financial/ClienteDialog';
+import BoletoAvulsoDialog from '../Financial/boleto/BoletoAvulsoDialog';
 import DocumentosPanel from '../../components/DocumentosPanel';
 import { errorMessage } from '../../api/client';
 import {
@@ -189,6 +190,7 @@ export default function ClienteDetailPage() {
     });
 
     const [painel, setPainel] = useState(false);
+    const [avulso, setAvulso] = useState(false);
     const visao = useQuery({ queryKey: ['financeiro', 'cliente-visao', id], queryFn: () => financeiroApi.visaoCliente(id) });
 
     if (isLoading) return <Page><LoadingBlock /></Page>;
@@ -214,6 +216,7 @@ export default function ClienteDetailPage() {
                     <>
                         <Button variant="secondary" onClick={() => navigate('/clientes')}>Voltar</Button>
                         <Button variant="secondary" icon={<FaMoneyBillWave />} onClick={() => setPainel(true)}>Financeiro</Button>
+                        <Button variant="secondary" icon={<FaBarcode />} onClick={() => setAvulso(true)}>Gerar boletos</Button>
                         <Button variant="secondary" icon={<FaEdit />} onClick={() => navigate(`/clientes/${id}/editar`)}>Editar</Button>
                         <Button variant="danger" icon={<FaTrashAlt />} onClick={() => setConfirmDelete(true)}>Excluir</Button>
                     </>
@@ -247,6 +250,7 @@ export default function ClienteDetailPage() {
             {tab === 'documentos' && <DocumentosTab cliente={cliente} />}
 
             {painel && <ClienteDialog clienteId={id} onClose={() => setPainel(false)} />}
+            <BoletoAvulsoDialog open={avulso} cliente={{ id, nome: cliente.nome, documento: cliente.documento }} onClose={() => setAvulso(false)} />
 
             <ConfirmDialog
                 open={confirmDelete}

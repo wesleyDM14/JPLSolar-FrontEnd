@@ -12,7 +12,9 @@ export const ESPECIES = [
 export const OPCOES_PADRAO = {
     hibrido: 'true',
     especie: 'DUPLICATA_MERCANTIL_INDICACAO',
-    jurosMensal: '1',
+    // Cláusula do contrato: multa de 2% e mora de 0,33% ao dia sobre a parcela vencida.
+    juros: '0.33',
+    jurosTipo: 'DIARIO',
     multa: '2',
     descontoPercentual: '',
     descontoAte: '',
@@ -21,7 +23,7 @@ export const OPCOES_PADRAO = {
 };
 
 export const opcoesSchema = Yup.object({
-    jurosMensal: Yup.number().typeError('Informe um número').min(0, 'Mínimo 0').max(10, 'Máximo 10%'),
+    juros: Yup.number().typeError('Informe um número').min(0, 'Mínimo 0').max(10, 'Máximo 10%'),
     multa: Yup.number().typeError('Informe um número').min(0, 'Mínimo 0').max(10, 'Máximo 10%'),
     descontoPercentual: Yup.number().transform((v, o) => (o === '' ? undefined : v)).typeError('Informe um número').moreThan(0, 'Maior que 0').lessThan(100, 'Menor que 100'),
     descontoAte: Yup.string().when('descontoPercentual', {
@@ -36,7 +38,8 @@ export function opcoesParaApi(valores) {
     const corpo = {
         hibrido: valores.hibrido === 'true',
         especie: valores.especie,
-        jurosMensal: Number(valores.jurosMensal) || 0,
+        juros: Number(valores.juros) || 0,
+        jurosTipo: valores.jurosTipo || 'DIARIO',
         multa: Number(valores.multa) || 0,
     };
 
@@ -68,8 +71,18 @@ export function OpcoesBoletoCampos({ valores }) {
                 hint="O híbrido precisa estar contratado no Sicredi."
             />
             <SelectField name="especie" label="Espécie do documento" placeholder={null} options={ESPECIES} />
-            <TextField name="jurosMensal" label="Juros ao mês (%)" type="number" step="0.01" min="0" hint="0 = sem juros." />
-            <TextField name="multa" label="Multa por atraso (%)" type="number" step="0.01" min="0" hint="0 = sem multa." />
+            <TextField name="juros" label="Juros de mora (%)" type="number" step="0.01" min="0" hint="Padrão do contrato: 0,33. Use 0 para não cobrar." />
+            <SelectField
+                name="jurosTipo"
+                label="Juros cobrados"
+                placeholder={null}
+                options={[
+                    { value: 'DIARIO', label: 'Por dia de atraso' },
+                    { value: 'MENSAL', label: 'Por mês de atraso' },
+                ]}
+            />
+            <TextField name="multa" label="Multa por atraso (%)" type="number" step="0.01" min="0" hint="Padrão do contrato: 2. Use 0 para não cobrar." />
+            <span />
             <TextField name="descontoPercentual" label="Desconto (%)" type="number" step="0.01" min="0" hint="Opcional, para pagamento antecipado." />
             <DateField name="descontoAte" label="Desconto vale até" />
             <SelectField
