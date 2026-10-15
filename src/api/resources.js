@@ -214,6 +214,42 @@ export async function openFileInTab(load, filename, message = 'Gerando documento
     }
 }
 
+// ── Serviços em campo, equipes e usuários ───────────────────────────────────
+export const usuariosApi = {
+    listar: () => data(api.get('/usuarios')),
+    criar: (payload) => data(api.post('/usuarios', payload)),
+    atualizar: (id, payload) => data(api.put(`/usuarios/${id}`, payload)),
+    remover: (id) => api.delete(`/usuarios/${id}`),
+};
+
+export const equipesApi = {
+    listar: () => data(api.get('/equipes')),
+    criar: (payload) => data(api.post('/equipes', payload)),
+    atualizar: (id, payload) => data(api.put(`/equipes/${id}`, payload)),
+    remover: (id) => api.delete(`/equipes/${id}`),
+};
+
+export const modelosServicoApi = {
+    listar: (ativos) => data(api.get('/modelos-servico', { params: clean({ ativos: ativos ? 'true' : undefined }) })),
+    obter: (id) => data(api.get(`/modelos-servico/${id}`)),
+    criar: (payload) => data(api.post('/modelos-servico', payload)),
+    atualizar: (id, payload) => data(api.put(`/modelos-servico/${id}`, payload)),
+    remover: (id) => api.delete(`/modelos-servico/${id}`),
+};
+
+export const servicosApi = {
+    listar: (params) => data(api.get('/servicos', { params: clean(params) })),
+    obter: (id) => data(api.get(`/servicos/${id}`)),
+    pessoas: () => data(api.get('/servicos/pessoas')),
+    agenda: (params) => data(api.get('/servicos/agenda', { params: clean(params) })),
+    iniciarDoContrato: (contratoId, payload) => data(api.post(`/servicos/contratos/${contratoId}/iniciar`, payload)),
+    criarAvulso: (payload) => data(api.post('/servicos/avulso', payload)),
+    atualizar: (id, payload) => data(api.put(`/servicos/${id}`, payload)),
+    cancelar: (id) => data(api.post(`/servicos/${id}/cancelar`)),
+    adicionarEtapa: (id, payload) => data(api.post(`/servicos/${id}/etapas`, payload)),
+    atualizarEtapa: (etapaId, payload) => data(api.put(`/servicos/etapas/${etapaId}`, payload)),
+};
+
 export const fiscalApi = {
     configuracao: () => data(api.get('/fiscal/configuracao')),
     salvarConfiguracao: (payload) => data(api.put('/fiscal/configuracao', payload)),

@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FaEdit, FaPrint, FaFileContract, FaFileInvoiceDollar, FaFilePdf, FaMoneyBillWave, FaReceipt, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaHardHat, FaPrint, FaFileContract, FaFileInvoiceDollar, FaFilePdf, FaMoneyBillWave, FaReceipt, FaTrashAlt } from 'react-icons/fa';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { contratosApi, financeiroApi, fiscalApi, imprimirBoletos, openFileInTab } from '../../api/resources';
+import { contratosApi, financeiroApi, fiscalApi, imprimirBoletos, openFileInTab, servicosApi } from '../../api/resources';
+import IniciarServicoDialog from '../Servicos/IniciarServicoDialog';
+import { STATUS_SERVICO } from '../Servicos/formato';
 import { EmitirNotaDialog } from '../Financial/fiscal/EmitirNotaDialog';
 import NotaDialog from '../Financial/fiscal/NotaDialog';
 import { STATUS_NOTA } from '../Financial/fiscal/formato';
@@ -45,6 +47,7 @@ export default function ContratoDetailPage() {
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [downloading, setDownloading] = useState('');
     const [emitindoNfse, setEmitindoNfse] = useState(false);
+    const [iniciandoServico, setIniciandoServico] = useState(false);
     const [notaAberta, setNotaAberta] = useState(null);
 
     const { data: contrato, isLoading, error, refetch } = useQuery({
@@ -61,6 +64,12 @@ export default function ContratoDetailPage() {
     const parcelas = useQuery({
         queryKey: ['financeiro', 'lancamentos', 'contrato', id],
         queryFn: () => financeiroApi.lancamentos({ contratoId: id, situacao: '', pageSize: 100 }),
+    });
+
+    // Serviços de campo (tarefas) deste contrato.
+    const servicosCampo = useQuery({
+        queryKey: ['servicos', 'lista', 'contrato', id],
+        queryFn: () => servicosApi.listar({ contratoId: id, pageSize: 20 }),
     });
 
     // Notas fiscais emitidas ou vinculadas a este contrato.
@@ -188,6 +197,9 @@ export default function ContratoDetailPage() {
                         )}
                         <Button variant="secondary" icon={<FaMoneyBillWave />} onClick={() => setParcelasDialog({ refazer: false })}>Gerar parcelas</Button>
                         <Button variant="secondary" icon={<FaFileInvoiceDollar />} onClick={() => setEmitindoNfse(true)}>Emitir NFS-e</Button>
+                        {contrato.status !== 'CANCELADO' && (
+                            <Button icon={<FaHardHat />} onClick={() => setIniciandoServico(true)}>Iniciar serviço</Button>
+                        )}
                         {boletosParaImprimir.length > 0 && (
                             <Button variant="secondary" icon={<FaPrint />} loading={imprimindo} onClick={imprimirDoContrato}>
                                 Imprimir boletos ({boletosParaImprimir.length})
@@ -309,6 +321,34 @@ export default function ContratoDetailPage() {
 
                     <Card>
                         <Row $justify="space-between">
+                            <CardTitle>Serviços em campo</CardTitle>
+                            {contrato.status !== 'CANCELADO' && (
+                                <Button size="sm" variant="secondary" icon={<FaHardHat />} onClick={() => setIniciandoServico(true)}>Iniciar serviço</Button>
+                            )}
+                        </Row>
+                        {(servicosCampo.data?.data ?? []).length === 0 ? (
+                            <Muted>Nenhum serviço iniciado. “Iniciar serviço” cria as tarefas (visita técnica, materiais, instalação, conferência…) para a equipe.</Muted>
+                        ) : (
+                            <div style={{ display: 'grid', gap: 8 }}>
+                                {servicosCampo.data.data.map((sv) => (
+                                    <button
+                                        key={sv.id}
+                                        type="button"
+                                        onClick={() => navigate(`/servicos/${sv.id}`)}
+                                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', border: '1px solid var(--c-border)', borderRadius: 10, background: 'transparent', color: 'inherit', cursor: 'pointer', textAlign: 'left', flexWrap: 'wrap' }}
+                                    >
+                                        <Badge $tone={STATUS_SERVICO[sv.status]?.tom ?? 'neutral'}>{STATUS_SERVICO[sv.status]?.rotulo ?? sv.status}</Badge>
+                                        <strong style={{ flex: 1, minWidth: 160 }}>{sv.titulo}</strong>
+                                        <Muted>{sv.progresso.concluidas}/{sv.progresso.total} tarefas · {sv.progresso.percentual}%</Muted>
+                                        <Muted>{sv.proximaEtapa ? `Próxima: ${sv.proximaEtapa.nome}` : ''}</Muted>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </Card>
+
+                    <Card>
+                        <Row $justify="space-between">
                             <CardTitle>Notas fiscais</CardTitle>
                             <Button size="sm" variant="secondary" icon={<FaFileInvoiceDollar />} onClick={() => setEmitindoNfse(true)}>Emitir NFS-e</Button>
                         </Row>
@@ -357,6 +397,7 @@ export default function ContratoDetailPage() {
                 />
             )}
 
+            {iniciandoServico && <IniciarServicoDialog contrato={contrato} onClose={() => { setIniciandoServico(false); servicosCampo.refetch(); }} />}
             <EmitirNotaDialog
                 open={emitindoNfse}
                 preset={presetNfse}

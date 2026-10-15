@@ -8,6 +8,12 @@ export const loginUser = async (credentials, navigate, setIsLoading, dispatch) =
     try {
         const { accessToken, user } = await authApi.login(credentials);
 
+        // O painel é só de administradores; instaladores trabalham pelo aplicativo de campo.
+        if (user?.papel === 'INSTALADOR') {
+            toast.error('Seu acesso é pelo aplicativo de campo. O painel é só para administradores.');
+            return;
+        }
+
         const session = { accessToken, user, loginTime: new Date().getTime() };
 
         localStorage.setItem('user', JSON.stringify(session));

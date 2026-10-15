@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi, notificacoesApi } from '../../api/resources';
 import { Avatar } from '../../ui';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBars, FaBell, FaFileAlt, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaUsers } from 'react-icons/fa';
+import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaUserCog, FaUsers } from 'react-icons/fa';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { TbReportAnalytics, TbSolarPanel2 } from 'react-icons/tb';
 import { logoutUser } from '../../services/authServices';
@@ -53,6 +53,8 @@ const SECTIONS = [
         title: 'Operacional',
         items: [
             { path: '/relatorios', title: 'Relatórios', icon: <TbReportAnalytics /> },
+            { path: '/servicos', title: 'Serviços em campo', icon: <FaHardHat /> },
+            { path: '/equipe', title: 'Equipe e acessos', icon: <FaUserCog /> },
             { path: '/tarefas', title: 'Tarefas', icon: <FaTasks /> },
             { path: '/notificacoes', title: 'Notificações', icon: <FaBell />, contador: true },
         ],

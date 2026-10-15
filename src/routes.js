@@ -31,6 +31,10 @@ import ClienteDetail from './pages/Clientes/ClienteDetail';
 import Usinas from './pages/Usinas';
 import UsinaFormPage from './pages/Usinas/UsinaFormPage';
 import UsinaDetail from './pages/Usinas/UsinaDetail';
+import Equipe from './pages/Equipe';
+import Servicos from './pages/Servicos';
+import ServicoDetail from './pages/Servicos/ServicoDetail';
+import ModelosServico from './pages/Servicos/Modelos';
 import Contratos from './pages/Contratos';
 import ContratoFormPage from './pages/Contratos/ContratoFormPage';
 import ContratoDetail from './pages/Contratos/ContratoDetail';
@@ -61,6 +65,11 @@ export const AppRoutes = () => (
         <Route path='/contratos/novo' element={<Protected><ContratoFormPage /></Protected>} />
         <Route path='/contratos/:id' element={<Protected><ContratoDetail /></Protected>} />
         <Route path='/contratos/:id/editar' element={<Protected><ContratoFormPage /></Protected>} />
+
+        <Route path='/servicos' element={<Protected><Servicos /></Protected>} />
+        <Route path='/servicos/modelos' element={<Protected><ModelosServico /></Protected>} />
+        <Route path='/servicos/:id' element={<Protected><ServicoDetail /></Protected>} />
+        <Route path='/equipe' element={<Protected><Equipe /></Protected>} />
 
         <Route path='/financeiro' element={<Protected><Financial /></Protected>} />
         <Route path='/financeiro/receber' element={<Protected><Receber /></Protected>} />
