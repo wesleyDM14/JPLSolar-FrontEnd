@@ -138,6 +138,7 @@ const documentoFormatado = (documento) => {
 
 function BuscaNoBanco({ onConcluida }) {
     const [refazer, setRefazer] = useState(false);
+    const [somenteExtras, setSomenteExtras] = useState(true);
     const extras = usePostosExtras();
 
     const estado = useQuery({
@@ -147,7 +148,7 @@ function BuscaNoBanco({ onConcluida }) {
     });
 
     const iniciar = useMutation({
-        mutationFn: () => sicrediApi.iniciarDescoberta({ completo: refazer, postos: extras.postos.length ? extras.postos : undefined }),
+        mutationFn: () => sicrediApi.iniciarDescoberta({ completo: refazer, postos: extras.postos.length ? extras.postos : undefined, somentePostos: somenteExtras && extras.postos.length > 0 }),
         onSuccess: () => estado.refetch(),
         onError: (erro) => toast.error(errorMessage(erro)),
     });
@@ -189,6 +190,12 @@ function BuscaNoBanco({ onConcluida }) {
                         Refazer tudo
                     </label>
                 )}
+                {!emAndamento && extras.postos.length > 0 && (
+                    <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: '0.85rem' }}>
+                        <input type="checkbox" checked={somenteExtras} onChange={(e) => setSomenteExtras(e.target.checked)} />
+                        Pesquisar só {extras.postos.length > 1 ? 'esses postos' : `o posto ${extras.postos[0]}`}
+                    </label>
+                )}
                 {!emAndamento && (
                     <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: '0.85rem' }} title="Outros postos do convênio onde boletos antigos foram emitidos. Separe por vírgula.">
                         Outros postos
@@ -208,7 +215,7 @@ function BuscaNoBanco({ onConcluida }) {
                         <>
                             <Badge $tone="info">Buscando…</Badge>{' '}
                             <Muted>
-                                {dados.postos?.length > 1 ? `posto ${dados.postoAtual} · ` : ''}
+                                {dados.postos?.length > 0 ? `posto ${dados.postoAtual ?? dados.postos[0]} · ` : ''}
                                 {dados.encontrados} boletos encontrados · {dados.novos} novos · {dados.consultados} consultados
                             </Muted>
                         </>
@@ -218,6 +225,9 @@ function BuscaNoBanco({ onConcluida }) {
                             <Muted>
                                 {dataHoraBr(dados.terminouEm)} · {dados.encontrados} boletos · {dados.novos} novos
                                 {dados.erro ? ` · ${dados.erro}` : ''}
+                                {dados.porPosto
+                                    ? ` · ${Object.entries(dados.porPosto).map(([posto, r]) => `posto ${posto}: ${r.encontrados}`).join(', ')}`
+                                    : ''}
                             </Muted>
                         </>
                     )}
