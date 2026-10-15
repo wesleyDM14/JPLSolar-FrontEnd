@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { errorMessage } from '../../../api/client';
 import { sicrediApi } from '../../../api/resources';
+import { usePostosExtras } from '../../../hooks/usePostosExtras';
 import { Badge, Button, Dialog, FilterInput, Grid, Muted, Row, StatCard, StatGrid } from '../../../ui';
 import { dataBr, hojeIso, somarDias } from '../../../utils/datas';
 import { brl } from '../format';
@@ -13,9 +14,10 @@ export default function ConciliarDialog({ onClose }) {
     const queryClient = useQueryClient();
     const [de, setDe] = useState(somarDias(hojeIso(), -7));
     const [ate, setAte] = useState(hojeIso());
+    const extras = usePostosExtras();
 
     const sincronizar = useMutation({
-        mutationFn: () => sicrediApi.sincronizar({ de, ate }),
+        mutationFn: () => sicrediApi.sincronizar({ de, ate, postos: extras.postos.length ? extras.postos : undefined }),
         onSuccess: async (resumo) => {
             await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
             await queryClient.invalidateQueries({ queryKey: ['notificacoes-contagem'] });
@@ -45,6 +47,9 @@ export default function ConciliarDialog({ onClose }) {
                 <FilterInput label="De" type="date" value={de} max={ate} onChange={(e) => setDe(e.target.value)} />
                 <FilterInput label="Até" type="date" value={ate} min={de} max={hojeIso()} onChange={(e) => setAte(e.target.value)} />
             </Grid>
+            <div style={{ marginTop: 10, maxWidth: 260 }}>
+                <FilterInput label="Outros postos (opcional)" placeholder="ex.: 08" value={extras.texto} onChange={(e) => extras.alterar(e.target.value)} />
+            </div>
             <Row style={{ marginTop: 10 }}>
                 <Button size="sm" variant="ghost" onClick={() => { setDe(hojeIso()); setAte(hojeIso()); }}>Hoje</Button>
                 <Button size="sm" variant="ghost" onClick={() => { setDe(somarDias(hojeIso(), -7)); setAte(hojeIso()); }}>Últimos 7 dias</Button>

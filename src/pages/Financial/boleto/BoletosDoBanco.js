@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { errorMessage } from '../../../api/client';
 import { financeiroApi, imprimirBoletosDoBanco, sicrediApi } from '../../../api/resources';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
+import { usePostosExtras } from '../../../hooks/usePostosExtras';
 import {
     Badge,
     Button,
@@ -137,6 +138,7 @@ const documentoFormatado = (documento) => {
 
 function BuscaNoBanco({ onConcluida }) {
     const [refazer, setRefazer] = useState(false);
+    const extras = usePostosExtras();
 
     const estado = useQuery({
         queryKey: ['sicredi', 'descoberta'],
@@ -145,7 +147,7 @@ function BuscaNoBanco({ onConcluida }) {
     });
 
     const iniciar = useMutation({
-        mutationFn: () => sicrediApi.iniciarDescoberta({ completo: refazer }),
+        mutationFn: () => sicrediApi.iniciarDescoberta({ completo: refazer, postos: extras.postos.length ? extras.postos : undefined }),
         onSuccess: () => estado.refetch(),
         onError: (erro) => toast.error(errorMessage(erro)),
     });
@@ -187,6 +189,17 @@ function BuscaNoBanco({ onConcluida }) {
                         Refazer tudo
                     </label>
                 )}
+                {!emAndamento && (
+                    <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: '0.85rem' }} title="Outros postos do convênio onde boletos antigos foram emitidos. Separe por vírgula.">
+                        Outros postos
+                        <input
+                            value={extras.texto}
+                            onChange={(e) => extras.alterar(e.target.value)}
+                            placeholder="ex.: 08"
+                            style={{ width: 90, padding: '6px 8px', borderRadius: 8, border: `1px solid ${colors.border}`, background: colors.surface, color: colors.text }}
+                        />
+                    </label>
+                )}
             </Row>
 
             {dados && (emAndamento || dados.terminouEm) && (
@@ -194,7 +207,10 @@ function BuscaNoBanco({ onConcluida }) {
                     {emAndamento ? (
                         <>
                             <Badge $tone="info">Buscando…</Badge>{' '}
-                            <Muted>{dados.encontrados} boletos encontrados · {dados.novos} novos · {dados.consultados} consultados</Muted>
+                            <Muted>
+                                {dados.postos?.length > 1 ? `posto ${dados.postoAtual} · ` : ''}
+                                {dados.encontrados} boletos encontrados · {dados.novos} novos · {dados.consultados} consultados
+                            </Muted>
                         </>
                     ) : (
                         <>
