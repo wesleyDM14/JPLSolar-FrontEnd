@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Button } from './Button';
 import { EmptyState, LoadingBlock } from './layout';
@@ -133,20 +134,64 @@ export function DataTable({ columns, rows, loading, emptyTitle = 'Nada encontrad
     );
 }
 
+const IrParaPagina = styled.form`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    input {
+        width: 64px;
+        padding: 6px 8px;
+        border: 1px solid ${colors.border};
+        border-radius: 8px;
+        background: ${colors.surface};
+        color: ${colors.text};
+        font-family: inherit;
+        font-size: 0.85rem;
+        text-align: center;
+    }
+`;
+
 export function PaginationBar({ meta, onPageChange, label = 'registros' }) {
+    const [destino, setDestino] = useState('');
+
     if (!meta) return null;
 
     const { page, totalPages, total, pageSize } = meta;
     const first = total === 0 ? 0 : (page - 1) * pageSize + 1;
     const last = Math.min(page * pageSize, total);
 
+    const irPara = (evento) => {
+        evento.preventDefault();
+        const numero = Math.min(Math.max(parseInt(destino, 10) || 0, 1), totalPages);
+        setDestino('');
+        if (numero >= 1 && numero !== page) onPageChange(numero);
+    };
+
     return (
         <Footer>
             <span>{first}–{last} de {total} {label}</span>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Button size="sm" variant="secondary" disabled={page <= 1} title="Primeira página" aria-label="Primeira página" onClick={() => onPageChange(1)}>«</Button>
                 <Button size="sm" variant="secondary" disabled={page <= 1} onClick={() => onPageChange(page - 1)}>Anterior</Button>
                 <span>Página {page} de {totalPages}</span>
                 <Button size="sm" variant="secondary" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}>Próxima</Button>
+                <Button size="sm" variant="secondary" disabled={page >= totalPages} title="Última página" aria-label="Última página" onClick={() => onPageChange(totalPages)}>»</Button>
+                {totalPages > 2 && (
+                    <IrParaPagina onSubmit={irPara}>
+                        <input
+                            type="number"
+                            min="1"
+                            max={totalPages}
+                            inputMode="numeric"
+                            placeholder="Ir p/"
+                            aria-label="Ir para a página"
+                            value={destino}
+                            onChange={(e) => setDestino(e.target.value)}
+                        />
+                        <Button size="sm" variant="secondary" type="submit" disabled={!destino}>Ir</Button>
+                    </IrParaPagina>
+                )}
             </div>
         </Footer>
     );

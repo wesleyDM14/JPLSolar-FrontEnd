@@ -42,7 +42,7 @@ const { colors } = tokens;
 const PAGE_SIZE = 15;
 
 const SITUACOES = [
-    { value: 'EM_CARTEIRA', label: 'Em carteira' },
+    { value: 'EM_CARTEIRA', label: 'A vencer' },
     { value: 'VENCIDO', label: 'Vencidos' },
     { value: 'LIQUIDADO', label: 'Liquidados' },
     { value: 'BAIXADO', label: 'Baixados' },
@@ -229,7 +229,7 @@ function MeusBoletos() {
     return (
         <>
             <StatGrid>
-                <StatCard icon={FaClock} tom="blue" rotulo="Em carteira" valor={resumo.data?.emCarteira.quantidade ?? 0} detalhe={brl(resumo.data?.emCarteira.valor ?? 0)} ativo={situacao === 'EM_CARTEIRA'} onClick={() => { setSituacao(situacao === 'EM_CARTEIRA' ? '' : 'EM_CARTEIRA'); setPage(1); }} />
+                <StatCard icon={FaClock} tom="blue" rotulo="A vencer" valor={resumo.data?.emCarteira.quantidade ?? 0} detalhe={brl(resumo.data?.emCarteira.valor ?? 0)} ativo={situacao === 'EM_CARTEIRA'} onClick={() => { setSituacao(situacao === 'EM_CARTEIRA' ? '' : 'EM_CARTEIRA'); setPage(1); }} />
                 <StatCard icon={FaExclamationTriangle} tom="red" rotulo="Vencidos" valor={resumo.data?.vencidos.quantidade ?? 0} detalhe={brl(resumo.data?.vencidos.valor ?? 0)} ativo={situacao === 'VENCIDO'} onClick={() => { setSituacao(situacao === 'VENCIDO' ? '' : 'VENCIDO'); setPage(1); }} />
                 <StatCard icon={FaCheckCircle} tom="green" rotulo="Liquidados" valor={resumo.data?.liquidados.quantidade ?? 0} detalhe={brl(resumo.data?.liquidados.valor ?? 0)} ativo={situacao === 'LIQUIDADO'} onClick={() => { setSituacao(situacao === 'LIQUIDADO' ? '' : 'LIQUIDADO'); setPage(1); }} />
                 <StatCard icon={FaTimesCircle} tom="gray" rotulo="Baixados" valor={resumo.data?.baixados.quantidade ?? 0} detalhe={brl(resumo.data?.baixados.valor ?? 0)} ativo={situacao === 'BAIXADO'} onClick={() => { setSituacao(situacao === 'BAIXADO' ? '' : 'BAIXADO'); setPage(1); }} />

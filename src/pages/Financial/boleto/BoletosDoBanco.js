@@ -29,6 +29,7 @@ import { dataHoraBr } from '../../../utils/datas';
 import { formatDate } from '../../../utils/masks';
 import { brl } from '../format';
 import LancamentoDialog from '../LancamentoDialog';
+import GerenciarBoletoDialog from './GerenciarBoletoDialog';
 
 const { colors } = tokens;
 
@@ -47,11 +48,11 @@ const VINCULOS = [
 ];
 
 const SITUACAO = {
-    EM_CARTEIRA: { rotulo: 'Em carteira', tom: 'info' },
+    EM_CARTEIRA: { rotulo: 'A vencer', tom: 'info' },
     VENCIDO: { rotulo: 'Vencido', tom: 'danger' },
     LIQUIDADO: { rotulo: 'Pago', tom: 'success' },
     BAIXADO: { rotulo: 'Baixado', tom: 'neutral' },
-    BAIXA_PENDENTE: { rotulo: 'Baixa pendente', tom: 'warning' },
+    BAIXA_PENDENTE: { rotulo: 'Baixa solicitada', tom: 'warning' },
     PROTESTO: { rotulo: 'Em protesto', tom: 'warning' },
     NEGATIVACAO: { rotulo: 'Negativado', tom: 'warning' },
     REJEITADO: { rotulo: 'Rejeitado', tom: 'danger' },
@@ -356,6 +357,7 @@ export default function BoletosDoBanco() {
     const [vinculando, setVinculando] = useState(null);
     const [desvinculando, setDesvinculando] = useState(null);
     const [lancamentoAberto, setLancamentoAberto] = useState(null);
+    const [gerenciando, setGerenciando] = useState(null);
 
     const termo = useDebouncedValue(busca);
     const params = { grupo, vinculo: vinculo || undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE };
@@ -442,7 +444,28 @@ export default function BoletosDoBanco() {
             ),
         },
         { key: 'vencimento', header: 'Vencimento', render: (l) => formatDate(l.dataVencimento) },
-        { key: 'valor', header: 'Valor', render: (l) => <strong>{brl(l.valor)}</strong> },
+        {
+            key: 'valor',
+            header: 'Valor',
+            render: (l) => {
+                const extras = [
+                    l.encargos?.juros > 0 && `juros ${brl(l.encargos.juros)}`,
+                    l.encargos?.multa > 0 && `multa ${brl(l.encargos.multa)}`,
+                    l.encargos?.desconto > 0 && `desconto ${brl(l.encargos.desconto)}`,
+                    l.encargos?.abatimento > 0 && `abatimento ${brl(l.encargos.abatimento)}`,
+                ].filter(Boolean);
+                const pagoDiferente = l.valorLiquidado !== null && l.valorLiquidado !== undefined && Math.abs(l.valorLiquidado - l.valor) > 0.009;
+
+                return (
+                    <div>
+                        <strong>{brl(l.valor)}</strong>
+                        {l.situacao === 'LIQUIDADO' && l.valorLiquidado !== null && pagoDiferente && (
+                            <div><Muted style={{ fontSize: '0.78rem' }}>pago {brl(l.valorLiquidado)}{extras.length ? ` (${extras.join(', ')})` : ''}</Muted></div>
+                        )}
+                    </div>
+                );
+            },
+        },
         {
             key: 'situacao',
             header: 'Situação',
@@ -471,9 +494,10 @@ export default function BoletosDoBanco() {
         {
             key: 'acoes',
             header: '',
-            width: 150,
+            width: 240,
             render: (l) => (
                 <Row $justify="flex-end" $wrap={false}>
+                    <Button size="sm" variant="secondary" onClick={() => setGerenciando(l)}>Gerenciar</Button>
                     {l.lancamento ? (
                         <Button size="sm" variant="ghost" icon={<FaUnlink />} onClick={() => setDesvinculando(l)}>Desvincular</Button>
                     ) : (
@@ -534,7 +558,7 @@ export default function BoletosDoBanco() {
                     />
                 </div>
                 <div className="campo">
-                    <FilterSelect label="Situação" options={GRUPOS} placeholder="Em aberto" value={grupo === 'abertos' ? '' : grupo} onChange={(e) => escolher(e.target.value || 'abertos')} />
+                    <FilterSelect label="Situação" options={GRUPOS} placeholder={null} value={grupo} onChange={(e) => escolher(e.target.value)} />
                 </div>
                 <div className="campo">
                     <FilterSelect label="Lançamento" options={VINCULOS} value={vinculo} onChange={(e) => { setVinculo(e.target.value); setPage(1); }} />
@@ -572,6 +596,7 @@ export default function BoletosDoBanco() {
                 </>
             )}
 
+            {gerenciando && <GerenciarBoletoDialog boletoBanco={gerenciando} onClose={() => setGerenciando(null)} />}
             {vinculando && <VincularDialog boleto={vinculando} onClose={() => setVinculando(null)} onFeito={() => { setVinculando(null); recarregar(); }} />}
             <ConfirmDialog
                 open={Boolean(desvinculando)}

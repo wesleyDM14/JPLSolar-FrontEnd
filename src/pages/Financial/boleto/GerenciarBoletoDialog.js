@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaBan, FaCheckCircle, FaCopy, FaExclamationTriangle, FaHistory, FaSyncAlt } from 'react-icons/fa';
+import { FaBan, FaCheckCircle, FaCopy, FaExclamationTriangle, FaFilePdf, FaHistory, FaSyncAlt } from 'react-icons/fa';
 import styled from 'styled-components';
 import { errorMessage } from '../../../api/client';
-import { financeiroApi } from '../../../api/resources';
+import { financeiroApi, openFileInTab } from '../../../api/resources';
 import { Badge, Button, ConfirmDialog, Dialog, ErrorBlock, FilterInput, Grid, KeyValue, LoadingBlock, Muted, Row, SectionTitle, tokens } from '../../../ui';
 import { dataBr, dataHoraBr, hojeIso } from '../../../utils/datas';
 import { brl } from '../format';
@@ -92,13 +92,47 @@ const Historico = styled.ol`
 const ROTULO_TIPO = { EMITIDO: 'Emissão', COMANDO: 'Instrução', CONSULTA: 'Consulta', LIQUIDACAO: 'Liquidação', ESTORNO: 'Estorno', ERRO: 'Recusado', BAIXA_MANUAL: 'Baixa' };
 const TOM_TIPO = { EMITIDO: 'info', COMANDO: 'neutral', CONSULTA: 'neutral', LIQUIDACAO: 'success', ESTORNO: 'warning', ERRO: 'danger', BAIXA_MANUAL: 'success' };
 
+const ROTULO_SITUACAO = {
+    EM_CARTEIRA: 'A vencer',
+    VENCIDO: 'Vencido',
+    LIQUIDADO: 'Pago',
+    BAIXADO: 'Baixado',
+    BAIXA_PENDENTE: 'Baixa solicitada',
+    PROTESTO: 'Em protesto',
+    NEGATIVACAO: 'Negativado',
+    REJEITADO: 'Rejeitado',
+    DESCONTO: 'Com desconto',
+    DESCONHECIDA: 'Desconhecida',
+};
+
 function copiar(texto, mensagem) {
     navigator.clipboard?.writeText(texto).then(() => toast.success(mensagem));
 }
 
-/** Situação do boleto no banco, instruções (vencimento, abatimento, baixa, protesto…) e histórico. */
-export default function GerenciarBoletoDialog({ lancamento, onClose }) {
+/**
+ * Situação do boleto no banco, instruções (vencimento, abatimento, baixa, protesto…) e histórico.
+ * Recebe um `lancamento` (boleto emitido pelo sistema) ou um `boletoBanco` (qualquer boleto do convênio, com ou sem lançamento).
+ */
+export default function GerenciarBoletoDialog({ lancamento: lancamentoProp, boletoBanco: boletoProp, onClose }) {
     const queryClient = useQueryClient();
+    const doBanco = Boolean(boletoProp);
+
+    // Dados vivos do boleto do banco (a janela continua aberta depois de cada instrução).
+    const vivo = useQuery({
+        queryKey: ['financeiro', 'boletos', 'banco', 'um', boletoProp?.nossoNumero],
+        queryFn: () => financeiroApi.boletosBanco({ search: boletoProp.nossoNumero, grupo: 'todos', pageSize: 1 }),
+        enabled: doBanco,
+    });
+    const boletoBanco = doBanco ? vivo.data?.data?.find((b) => b.nossoNumero === boletoProp.nossoNumero) ?? boletoProp : null;
+    const lancamento = doBanco
+        ? {
+            id: boletoBanco.lancamento?.id,
+            descricao: boletoBanco.pagador?.nome ?? `Boleto ${boletoBanco.nossoNumeroFormatado}`,
+            valor: boletoBanco.valor,
+            status: boletoBanco.lancamento?.status ?? 'ABERTO',
+            dataVencimento: boletoBanco.dataVencimento,
+        }
+        : lancamentoProp;
     const [vencimento, setVencimento] = useState('');
     const [abatimento, setAbatimento] = useState('');
     const [juros, setJuros] = useState('');
@@ -106,21 +140,49 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
     const [confirmacao, setConfirmacao] = useState(null);
     const [avancado, setAvancado] = useState(false);
 
-    const detalhe = useQuery({ queryKey: ['financeiro', 'boleto', lancamento.id], queryFn: () => financeiroApi.boleto(lancamento.id) });
+    const detalheLancamento = useQuery({
+        queryKey: ['financeiro', 'boleto', lancamento.id],
+        queryFn: () => financeiroApi.boleto(lancamento.id),
+        enabled: Boolean(lancamento.id),
+    });
+    const detalhe = doBanco
+        ? {
+            isLoading: vivo.isLoading,
+            error: vivo.error,
+            refetch: vivo.refetch,
+            data: {
+                emitido: true,
+                nossoNumero: boletoBanco.nossoNumeroFormatado,
+                seuNumero: boletoBanco.seuNumero,
+                linhaDigitavel: boletoBanco.linhaDigitavel,
+                pixCopiaECola: null,
+                emitidoEm: boletoBanco.dataEmissao,
+                situacao: {
+                    codigo: boletoBanco.situacao,
+                    rotulo: ROTULO_SITUACAO[boletoBanco.situacao] ?? boletoBanco.situacaoBanco ?? boletoBanco.situacao,
+                    liquidado: boletoBanco.situacao === 'LIQUIDADO',
+                    encerrado: boletoBanco.encerrado,
+                    consultadoEm: boletoBanco.consultadoEm,
+                },
+                podeEmitirOutro: false,
+                historico: detalheLancamento.data?.historico ?? [],
+            },
+        }
+        : detalheLancamento;
 
     const atualizarTudo = () => queryClient.invalidateQueries({ queryKey: ['financeiro'] });
 
     const consultar = useMutation({
-        mutationFn: () => financeiroApi.atualizarBoleto(lancamento.id),
+        mutationFn: () => (doBanco ? financeiroApi.boletoBancoAtualizar(boletoBanco.nossoNumero) : financeiroApi.atualizarBoleto(lancamento.id)),
         onSuccess: async (resultado) => {
             await atualizarTudo();
-            toast.success(resultado.baixouAgora ? 'Boleto liquidado: a baixa foi registrada.' : `Situação no banco: ${resultado.rotulo}.`);
+            toast.success(resultado.baixouAgora ? 'Boleto liquidado: a baixa foi registrada.' : `Situação no banco: ${resultado.rotulo ?? ROTULO_SITUACAO[resultado.situacao] ?? resultado.situacao}.`);
         },
         onError: (erro) => toast.error(errorMessage(erro)),
     });
 
     const instruir = useMutation({
-        mutationFn: (payload) => financeiroApi.comandoBoleto(lancamento.id, payload),
+        mutationFn: (payload) => (doBanco ? financeiroApi.boletoBancoComando(boletoBanco.nossoNumero, payload) : financeiroApi.comandoBoleto(lancamento.id, payload)),
         onSuccess: async (resultado) => {
             await atualizarTudo();
             setConfirmacao(null);
@@ -134,7 +196,7 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
 
     const dados = detalhe.data;
     const situacao = dados?.situacao;
-    const aberto = ['ABERTO', 'PARCIAL'].includes(lancamento.status);
+    const aberto = doBanco ? true : ['ABERTO', 'PARCIAL'].includes(lancamento.status);
     const aceitaComando = Boolean(dados?.emitido) && aberto && !situacao?.encerrado;
 
     const perguntar = (titulo, mensagem, payload, danger = false) => setConfirmacao({ titulo, mensagem, payload, danger });
@@ -144,7 +206,7 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
             <Dialog
                 open
                 width={760}
-                title="Boleto"
+                title={doBanco ? 'Gerenciar boleto' : 'Boleto'}
                 subtitle={`${lancamento.descricao} · ${brl(lancamento.valor)}`}
                 onClose={onClose}
                 footer={<Button variant="secondary" onClick={onClose}>Fechar</Button>}
@@ -163,16 +225,31 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
                                 )}
                                 {situacao?.consultadoEm && <Muted>consultado em {dataHoraBr(situacao.consultadoEm)}</Muted>}
                             </Row>
-                            <Button size="sm" variant="secondary" icon={<FaSyncAlt />} loading={consultar.isPending} onClick={() => consultar.mutate()}>
-                                Atualizar no banco
-                            </Button>
+                            <Row>
+                                {doBanco && !situacao?.liquidado && (
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        icon={<FaFilePdf />}
+                                        onClick={() => openFileInTab(() => financeiroApi.boletoBancoPdf(boletoBanco.nossoNumero), 'boleto.pdf', 'Abrindo boleto…').catch((erro) => toast.error(errorMessage(erro)))}
+                                    >
+                                        2ª via (PDF)
+                                    </Button>
+                                )}
+                                <Button size="sm" variant="secondary" icon={<FaSyncAlt />} loading={consultar.isPending} onClick={() => consultar.mutate()}>
+                                    Atualizar no banco
+                                </Button>
+                            </Row>
                         </Row>
 
                         <Grid $cols={2}>
-                            <KeyValue label="Nosso número">{dados.nossoNumero}</KeyValue>
+                            {doBanco && <KeyValue label="Pagador">{boletoBanco.pagador?.nome}</KeyValue>}
+                            {doBanco && <KeyValue label="CPF/CNPJ">{boletoBanco.pagador?.documento}</KeyValue>}
+                            <KeyValue label="Nº do boleto">{dados.nossoNumero}</KeyValue>
                             <KeyValue label="Seu número">{dados.seuNumero}</KeyValue>
-                            <KeyValue label="Vencimento">{dataBr(String(lancamento.dataVencimento).slice(0, 10))}</KeyValue>
-                            <KeyValue label="Emitido em">{dados.emitidoEm ? dataHoraBr(dados.emitidoEm) : ''}</KeyValue>
+                            <KeyValue label="Valor">{brl(lancamento.valor)}</KeyValue>
+                            <KeyValue label="Vencimento">{lancamento.dataVencimento ? dataBr(String(lancamento.dataVencimento).slice(0, 10)) : ''}</KeyValue>
+                            <KeyValue label="Emitido em">{dados.emitidoEm ? dataBr(String(dados.emitidoEm).slice(0, 10)) : ''}</KeyValue>
                         </Grid>
 
                         {dados.linhaDigitavel && (
@@ -195,7 +272,19 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
                         )}
 
                         {situacao?.liquidado && (
-                            <p style={{ marginTop: 14 }}><Badge $tone="success"><FaCheckCircle /> Pago</Badge> <Muted>O banco informa que este boleto foi liquidado.</Muted></p>
+                            <div style={{ marginTop: 14 }}>
+                                <Badge $tone="success"><FaCheckCircle /> Pago</Badge>
+                                {doBanco && boletoBanco.valorLiquidado !== null && (
+                                    <Grid $cols={2} style={{ marginTop: 10 }}>
+                                        <KeyValue label="Valor pago">{brl(boletoBanco.valorLiquidado)}</KeyValue>
+                                        <KeyValue label="Pago em">{boletoBanco.dataLiquidacao ? dataBr(String(boletoBanco.dataLiquidacao).slice(0, 10)) : ''}</KeyValue>
+                                        {boletoBanco.encargos?.juros > 0 && <KeyValue label="Juros">{brl(boletoBanco.encargos.juros)}</KeyValue>}
+                                        {boletoBanco.encargos?.multa > 0 && <KeyValue label="Multa">{brl(boletoBanco.encargos.multa)}</KeyValue>}
+                                        {boletoBanco.encargos?.desconto > 0 && <KeyValue label="Desconto">{brl(boletoBanco.encargos.desconto)}</KeyValue>}
+                                        {boletoBanco.encargos?.abatimento > 0 && <KeyValue label="Abatimento">{brl(boletoBanco.encargos.abatimento)}</KeyValue>}
+                                    </Grid>
+                                )}
+                            </div>
                         )}
                         {situacao?.encerrado && !situacao.liquidado && (
                             <p style={{ marginTop: 14 }}>
@@ -213,7 +302,7 @@ export default function GerenciarBoletoDialog({ lancamento, onClose }) {
 
                                 <Caixa>
                                     <h4>Alterar vencimento</h4>
-                                    <p>O novo vencimento vale para o boleto e para o lançamento.</p>
+                                    <p>{doBanco && !lancamento.id ? 'O novo vencimento vale para o boleto.' : 'O novo vencimento vale para o boleto e para o lançamento.'}</p>
                                     <Linha>
                                         <div className="campo">
                                             <FilterInput label="Nova data" type="date" min={hojeIso()} value={vencimento} onChange={(e) => setVencimento(e.target.value)} />

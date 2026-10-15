@@ -120,6 +120,8 @@ export const financeiroApi = {
     boletosBancoResumo: () => data(api.get('/financeiro/boletos/banco/resumo')),
     boletoBancoSugestoes: (nossoNumero) => data(api.get(`/financeiro/boletos/banco/${nossoNumero}/sugestoes`)),
     boletoBancoAtualizar: (nossoNumero) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/atualizar`)),
+    boletoBancoComando: (nossoNumero, payload) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/comando`, payload)),
+    boletoBancoPdf: (nossoNumero) => api.get(`/financeiro/boletos/banco/${nossoNumero}/pdf`, { responseType: 'blob' }),
     boletoBancoVincular: (nossoNumero, payload) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/vincular`, payload)),
     boletoBancoDesvincular: (nossoNumero) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/desvincular`)),
     boletoBancoCriarLancamento: (nossoNumero, payload = {}) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/criar-lancamento`, payload)),
@@ -172,6 +174,31 @@ export function saveBlob(blob, filename) {
     window.URL.revokeObjectURL(url);
 }
 
+/** Lê o nome do arquivo do cabeçalho Content-Disposition (filename*=UTF-8''… ou filename="…"). */
+function nomeDoCabecalho(cabecalho) {
+    if (!cabecalho) return null;
+    const utf8 = /filename\*=UTF-8''([^;]+)/i.exec(cabecalho);
+    if (utf8) {
+        try {
+            return decodeURIComponent(utf8[1]);
+        } catch {
+            // segue para o nome simples
+        }
+    }
+    const simples = /filename="?([^";]+)"?/i.exec(cabecalho);
+    return simples ? simples[1] : null;
+}
+
+/** Guarda o arquivo no servidor por alguns minutos e devolve um endereço terminado pelo nome. */
+async function enderecoComNome(arquivo, nome) {
+    try {
+        const resposta = await api.post('/arquivos/temporario', arquivo, { params: { nome }, headers: { 'Content-Type': arquivo.type || 'application/pdf' } });
+        return `${process.env.REACT_APP_BASE_URL}${resposta.data.caminho}`;
+    } catch {
+        return null;
+    }
+}
+
 /**
  * Abre um arquivo (PDF/imagem) numa nova aba em vez de baixá-lo.
  * A aba é aberta já no clique — depois de um `await` o navegador a trataria como pop-up e bloquearia —
@@ -195,17 +222,24 @@ export async function openFileInTab(load, filename, message = 'Gerando documento
     try {
         const response = await load();
         const blob = response.data;
-        const url = window.URL.createObjectURL(blob.type ? blob : new Blob([blob], { type: 'application/pdf' }));
+        const nome = nomeDoCabecalho(response.headers?.['content-disposition']) || filename;
+        const arquivo = blob.type ? blob : new Blob([blob], { type: 'application/pdf' });
 
         if (tab && !tab.closed) {
-            tab.location.href = url;
+            // Endereço do próprio servidor com o nome do arquivo no final: a aba e o "salvar como" saem com o nome certo.
+            const endereco = await enderecoComNome(arquivo, nome);
+
+            if (endereco) {
+                tab.location.href = endereco;
+            } else {
+                const url = window.URL.createObjectURL(arquivo);
+                tab.location.href = url;
+                setTimeout(() => window.URL.revokeObjectURL(url), 5 * 60 * 1000);
+            }
         } else {
             // O usuário fechou a aba (ou o pop-up foi bloqueado): entrega como download.
-            saveBlob(blob, filename);
+            saveBlob(arquivo, nome);
         }
-
-        // Dá tempo de a aba carregar o blob antes de liberar a memória.
-        setTimeout(() => window.URL.revokeObjectURL(url), 5 * 60 * 1000);
     } catch (error) {
         if (tab) tab.close();
 
