@@ -8,6 +8,7 @@ import { Badge, Button, Dialog, Muted } from '../../ui';
 import { hojeIso } from '../../utils/datas';
 import { formatCurrency, formatDate } from '../../utils/masks';
 import { OPCOES_PADRAO, OpcoesBoletoCampos, opcoesParaApi, opcoesSchema } from '../Financial/boleto/OpcoesBoleto';
+import ResultadoEmissao from '../Financial/boleto/ResultadoEmissao';
 
 /**
  * Cria as parcelas a receber do contrato no financeiro. Opcionalmente já emite o boleto de cada uma no Sicredi.
@@ -19,6 +20,7 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
     const vencimentoPassado = primeiroVencimento < hojeIso();
 
     const [progresso, setProgresso] = useState(null); // { feitos, total }
+    const [resultado, setResultado] = useState(null);
 
     const gerar = useMutation({
         mutationFn: (payload) => financeiroApi.gerarParcelas(contrato.id, payload),
@@ -42,6 +44,10 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
         return resultado;
     };
 
+    if (resultado) {
+        return <ResultadoEmissao titulo="Parcelas e boletos gerados" {...resultado} onClose={onClose} />;
+    }
+
     return (
         <Formik
             initialValues={{ emitirBoletos: false, ...OPCOES_PADRAO }}
@@ -57,6 +63,13 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
                         if (boletos.falhas.length > 0) {
                             toast.error(`${boletos.falhas.length} boleto(s) não emitido(s): ${boletos.falhas[0].motivo}`, { duration: 9000 });
                         }
+
+                        await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
+
+                        // Resultado com a opção de imprimir os boletos recém-emitidos.
+                        const comFalha = new Set(boletos.falhas.map((f) => f.lancamentoId));
+                        setResultado({ emitidos: boletos.emitidos, falhas: boletos.falhas, ids: resultado.ids.filter((id) => !comFalha.has(id)) });
+                        return;
                     }
 
                     await queryClient.invalidateQueries({ queryKey: ['financeiro'] });

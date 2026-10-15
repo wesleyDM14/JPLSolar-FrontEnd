@@ -9,6 +9,7 @@ import ParteField from '../../../components/ParteField';
 import { Button, DateField, Dialog, Grid, Muted, SelectField, TextField } from '../../../ui';
 import { brl } from '../format';
 import { OPCOES_PADRAO, OpcoesBoletoCampos, opcoesParaApi, opcoesSchema } from './OpcoesBoleto';
+import ResultadoEmissao from './ResultadoEmissao';
 
 const hojeIso = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Fortaleza' });
 
@@ -29,8 +30,13 @@ const schema = opcoesSchema.concat(
 export default function BoletoAvulsoDialog({ open, cliente, onClose }) {
     const queryClient = useQueryClient();
     const [progresso, setProgresso] = useState(null);
+    const [resultado, setResultado] = useState(null);
 
     if (!open) return null;
+
+    if (resultado) {
+        return <ResultadoEmissao titulo="Boletos avulsos gerados" {...resultado} onClose={onClose} />;
+    }
 
     const emitirEmPedacos = async (ids, opcoes) => {
         const total = ids.length;
@@ -77,8 +83,12 @@ export default function BoletoAvulsoDialog({ open, cliente, onClose }) {
 
                     if (valores.emitir === 'true') {
                         const boletos = await emitirEmPedacos(ids, opcoesParaApi(valores));
-                        toast.success(`${boletos.emitidos} boleto(s) emitido(s) no Sicredi.`);
-                        if (boletos.falhas.length > 0) toast.error(`${boletos.falhas.length} não emitido(s): ${boletos.falhas[0].motivo}`, { duration: 9000 });
+                        await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
+
+                        // Mostra o resultado com a opção de imprimir (um clique do usuário, sem bloqueio de pop-up).
+                        const comFalha = new Set(boletos.falhas.map((f) => f.lancamentoId));
+                        setResultado({ emitidos: boletos.emitidos, falhas: boletos.falhas, ids: ids.filter((id) => !comFalha.has(id)) });
+                        return;
                     }
 
                     await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
