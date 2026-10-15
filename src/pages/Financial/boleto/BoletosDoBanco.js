@@ -433,10 +433,11 @@ export default function BoletosDoBanco() {
             key: 'pagador',
             header: 'Pagador',
             sortKey: 'pagador',
+            minWidth: 280,
             render: (l) => (
-                <div>
-                    <strong>{l.pagador?.nome ?? 'Pagador não identificado'}</strong>
-                    <div><Muted>{documentoFormatado(l.pagador?.documento)}</Muted></div>
+                <div style={{ lineHeight: 1.35 }}>
+                    <strong style={{ fontWeight: 600 }}>{l.pagador?.nome ?? 'Pagador não identificado'}</strong>
+                    <div><Muted style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{documentoFormatado(l.pagador?.documento)}</Muted></div>
                 </div>
             ),
         },
@@ -444,6 +445,7 @@ export default function BoletosDoBanco() {
             key: 'numeros',
             header: 'Nº do boleto',
             sortKey: 'nossoNumero',
+            nowrap: true,
             render: (l) => (
                 <div>
                     <code>{l.nossoNumeroFormatado}</code>
@@ -451,9 +453,10 @@ export default function BoletosDoBanco() {
                 </div>
             ),
         },
-        { key: 'vencimento', header: 'Vencimento', sortKey: 'dataVencimento', render: (l) => formatDate(l.dataVencimento) },
-        { key: 'emissao', header: 'Emissão', sortKey: 'dataEmissao', render: (l) => (l.dataEmissao ? formatDate(l.dataEmissao) : '—') },
-        { key: 'pagoEm', header: 'Pago em', sortKey: 'dataLiquidacao', render: (l) => (l.dataLiquidacao ? formatDate(l.dataLiquidacao) : '—') },
+        { key: 'vencimento', header: 'Vencimento', sortKey: 'dataVencimento', nowrap: true, render: (l) => formatDate(l.dataVencimento) },
+        { key: 'emissao', header: 'Emissão', sortKey: 'dataEmissao', nowrap: true, render: (l) => (l.dataEmissao ? formatDate(l.dataEmissao) : '—') },
+        // "Pago em" só faz sentido fora da lista de abertos.
+        ...(grupo === 'abertos' ? [] : [{ key: 'pagoEm', header: 'Pago em', sortKey: 'dataLiquidacao', nowrap: true, render: (l) => (l.dataLiquidacao ? formatDate(l.dataLiquidacao) : '—') }]),
         {
             key: 'valor',
             header: 'Valor',
@@ -506,14 +509,15 @@ export default function BoletosDoBanco() {
         {
             key: 'acoes',
             header: '',
-            width: 240,
+            width: 150,
+            nowrap: true,
             render: (l) => (
                 <Row $justify="flex-end" $wrap={false}>
                     <Button size="sm" variant="secondary" onClick={() => setGerenciando(l)}>Gerenciar</Button>
                     {l.lancamento ? (
-                        <Button size="sm" variant="ghost" icon={<FaUnlink />} onClick={() => setDesvinculando(l)}>Desvincular</Button>
+                        <Button size="sm" variant="ghost" icon={<FaUnlink />} title="Desvincular do lançamento" aria-label="Desvincular do lançamento" onClick={() => setDesvinculando(l)} />
                     ) : (
-                        <Button size="sm" variant="secondary" icon={<FaLink />} onClick={() => setVinculando(l)}>Vincular</Button>
+                        <Button size="sm" variant="secondary" icon={<FaLink />} title="Vincular a um lançamento" aria-label="Vincular a um lançamento" onClick={() => setVinculando(l)} />
                     )}
                 </Row>
             ),

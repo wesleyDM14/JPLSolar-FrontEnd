@@ -193,6 +193,7 @@ function MeusBoletos() {
             key: 'cliente',
             header: 'Cliente',
             sortKey: 'cliente',
+            minWidth: 260,
             render: (l) => (
                 <div>
                     <strong>{l.cliente?.nome ?? '—'}</strong>

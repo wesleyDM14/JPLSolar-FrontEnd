@@ -85,7 +85,7 @@ const Footer = styled.div`
 `;
 
 /**
- * columns: [{ key, header, render?(row), sortKey?, width? }]
+ * columns: [{ key, header, render?(row), sortKey?, width?, minWidth?, nowrap? }]
  * sort: { field, direction } | onSort(field)
  */
 export function DataTable({ columns, rows, loading, emptyTitle = 'Nada encontrado', emptyDescription, onRowClick, sort, onSort, rowKey = (row) => row.id }) {
@@ -109,7 +109,7 @@ export function DataTable({ columns, rows, loading, emptyTitle = 'Nada encontrad
                                 <Th
                                     key={column.key}
                                     $sortable={sortable}
-                                    style={{ width: column.width }}
+                                    style={{ width: column.width, minWidth: column.minWidth }}
                                     onClick={sortable ? () => onSort(column.sortKey) : undefined}
                                     aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}
                                 >
@@ -124,7 +124,9 @@ export function DataTable({ columns, rows, loading, emptyTitle = 'Nada encontrad
                     {rows.map((row, index) => (
                         <Tr key={rowKey(row)} $i={index} $clickable={Boolean(onRowClick)} onClick={onRowClick ? () => onRowClick(row) : undefined}>
                             {columns.map((column) => (
-                                <Td key={column.key}>{column.render ? column.render(row) : row[column.key]}</Td>
+                                <Td key={column.key} style={{ minWidth: column.minWidth, whiteSpace: column.nowrap ? 'nowrap' : undefined }}>
+                                    {column.render ? column.render(row) : row[column.key]}
+                                </Td>
                             ))}
                         </Tr>
                     ))}
