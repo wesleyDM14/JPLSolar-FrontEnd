@@ -200,7 +200,7 @@ function MeusBoletos() {
                 </div>
             ),
         },
-        { key: 'nossoNumero', header: 'Nosso número', sortKey: 'nossoNumero', render: (l) => <code>{l.nossoNumero}</code> },
+        { key: 'nossoNumero', header: 'Nº do boleto', sortKey: 'nossoNumero', render: (l) => <code>{l.nossoNumero}</code> },
         { key: 'vencimento', header: 'Vencimento', sortKey: 'dataVencimento', render: (l) => formatDate(l.dataVencimento) },
         { key: 'valor', header: 'Valor', sortKey: 'valor', render: (l) => <strong>{brl(l.valor)}</strong> },
         {
@@ -238,8 +238,8 @@ function MeusBoletos() {
             <Filtros>
                 <div className="busca">
                     <FilterInput
-                        label="Pesquisar por nome do cliente ou número do boleto"
-                        placeholder="Nome do cliente, CPF/CNPJ, nosso número, linha digitável…"
+                        label="Buscar"
+                        placeholder="Nome, CPF/CNPJ ou número do boleto"
                         value={busca}
                         onChange={(e) => { setBusca(e.target.value); setPage(1); }}
                     />
@@ -248,7 +248,7 @@ function MeusBoletos() {
                     <FilterSelect label="Situação" options={SITUACOES} value={situacao} onChange={(e) => { setSituacao(e.target.value); setPage(1); }} />
                 </div>
                 <div style={{ opacity: usaPeriodo ? 1 : 0.5 }}>
-                    <Muted style={{ display: 'block', fontSize: '0.8rem', marginBottom: 4 }}>Vencimento{usaPeriodo ? '' : ' (ignorado na pesquisa)'}</Muted>
+                    <Muted style={{ display: 'block', fontSize: '0.8rem', marginBottom: 4 }}>Vencimento{usaPeriodo ? '' : ' (ignorado na busca)'}</Muted>
                     <SeletorPeriodo de={periodo.de} ate={periodo.ate} onChange={(p) => { setPeriodo(p); setPage(1); }} modos={['mes', 'ano', 'tudo']} />
                 </div>
             </Filtros>
@@ -281,7 +281,7 @@ function MeusBoletos() {
                         onSort={alternarOrdem}
                         onRowClick={(l) => setLancamentoAberto(l.id)}
                         emptyTitle="Nenhum boleto encontrado"
-                        emptyDescription="Ajuste a pesquisa, a situação ou o período. Boletos são emitidos em Contas a receber."
+                        emptyDescription="Ajuste a pesquisa ou o período."
                     />
                     <PaginationBar meta={lista.data?.meta} onPageChange={setPage} label={lista.isFetching ? 'atualizando…' : 'boletos'} />
                     {lista.data?.totais && (
@@ -422,11 +422,11 @@ function ConsultaNoBanco() {
                                 },
                                 {
                                     key: 'n',
-                                    header: 'Boleto',
+                                    header: 'Nº do boleto',
                                     render: (i) => (
                                         <div>
                                             <code>{i.nossoNumero}</code>
-                                            {i.seuNumero && <div><Muted>seu nº {i.seuNumero}</Muted></div>}
+                                            {i.seuNumero && <div><Muted>{i.seuNumero}</Muted></div>}
                                         </div>
                                     ),
                                 },
@@ -471,7 +471,7 @@ export default function Boletos() {
                 icon={FaBarcode}
                 tone="blue"
                 title="Boletos"
-                subtitle="Pesquise, imprima e acompanhe os boletos emitidos pelo Sicredi."
+                subtitle="Boletos do Sicredi."
                 actions={<Button variant="secondary" icon={<FaSyncAlt />} onClick={() => setConciliando(true)}>Conciliar com Sicredi</Button>}
             />
 

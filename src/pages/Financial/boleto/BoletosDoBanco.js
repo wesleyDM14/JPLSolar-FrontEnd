@@ -172,24 +172,17 @@ function BuscaNoBanco({ onConcluida }) {
 
     return (
         <Card>
-            <SectionTitle icon={FaSearch} tom="blue">Buscar todos os boletos no Sicredi</SectionTitle>
-            <p style={{ margin: '0 0 12px' }}>
-                <Muted>
-                    O Sicredi não entrega uma lista dos boletos em aberto; por isso o sistema consulta a numeração do convênio, um a um, e guarda o nome do pagador,
-                    o vencimento e o valor de cada boleto, inclusive os emitidos direto no Internet Banking. Pode demorar alguns minutos na primeira vez e continua
-                    em segundo plano.
-                </Muted>
-            </p>
+            <SectionTitle icon={FaSearch} tom="blue">Boletos do Sicredi</SectionTitle>
             <Row style={{ alignItems: 'center' }}>
                 {emAndamento ? (
                     <Button variant="secondary" loading={cancelar.isPending} onClick={() => cancelar.mutate()}>Parar busca</Button>
                 ) : (
-                    <Button icon={<FaSearch />} loading={iniciar.isPending} onClick={() => iniciar.mutate()}>Buscar no banco</Button>
+                    <Button icon={<FaSearch />} loading={iniciar.isPending} onClick={() => iniciar.mutate()}>Buscar boletos em aberto e pagos</Button>
                 )}
                 {!emAndamento && (
                     <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: '0.85rem' }}>
                         <input type="checkbox" checked={refazer} onChange={(e) => setRefazer(e.target.checked)} />
-                        Refazer desde o início
+                        Refazer tudo
                     </label>
                 )}
             </Row>
@@ -199,15 +192,13 @@ function BuscaNoBanco({ onConcluida }) {
                     {emAndamento ? (
                         <>
                             <Badge $tone="info">Buscando…</Badge>{' '}
-                            <Muted>
-                                ano {dados.anoAtual ?? '—'} · nº {dados.sequenciaAtual ?? '—'} · {dados.consultados} consultados · {dados.encontrados} boletos encontrados ({dados.novos} novos)
-                            </Muted>
+                            <Muted>{dados.encontrados} boletos encontrados · {dados.novos} novos · {dados.consultados} consultados</Muted>
                         </>
                     ) : (
                         <>
                             <Badge $tone={dados.erro ? 'danger' : 'success'}>{dados.erro ? 'Interrompida' : 'Concluída'}</Badge>{' '}
                             <Muted>
-                                {dataHoraBr(dados.terminouEm)} · {dados.encontrados} boletos encontrados ({dados.novos} novos)
+                                {dataHoraBr(dados.terminouEm)} · {dados.encontrados} boletos · {dados.novos} novos
                                 {dados.erro ? ` · ${dados.erro}` : ''}
                             </Muted>
                         </>
@@ -262,7 +253,7 @@ function VincularDialog({ boleto, onClose, onFeito }) {
         mutationFn: () => financeiroApi.boletoBancoCriarLancamento(boleto.nossoNumero, { descricao: descricao.trim() || undefined }),
         onSuccess: async (resposta) => {
             await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
-            toast.success(resposta.clienteEncontrado ? 'Lançamento criado e vinculado ao cliente.' : 'Lançamento criado (cliente não cadastrado: o pagador ficou nas observações).');
+            toast.success(resposta.clienteEncontrado ? 'Lançamento criado.' : 'Lançamento criado sem cliente (pagador nas observações).');
             onFeito();
         },
         onError: (erro) => toast.error(errorMessage(erro)),
@@ -303,18 +294,11 @@ function VincularDialog({ boleto, onClose, onFeito }) {
                 onClose={onClose}
                 footer={<Button variant="secondary" onClick={onClose}>Fechar</Button>}
             >
-                <p style={{ margin: '0 0 10px' }}>
-                    <Muted>
-                        O vínculo liga o boleto a uma <strong>conta a receber</strong>. Se o banco já recebeu o boleto, o pagamento é registrado no lançamento na hora.
-                        (O Sicredi só cobra a receber; contas a pagar não têm boleto de cobrança.)
-                    </Muted>
-                </p>
-
                 <strong>Sugestões</strong>
                 <div style={{ marginTop: 8 }}>
                     {sugestoes.isLoading && <LoadingBlock />}
                     {sugestoes.error && <ErrorBlock message={errorMessage(sugestoes.error)} onRetry={sugestoes.refetch} />}
-                    {sugestoes.data?.length === 0 && <Muted>Nenhum lançamento a receber parecido (mesmo valor ou mesmo cliente) sem boleto.</Muted>}
+                    {sugestoes.data?.length === 0 && <Muted>Nenhuma sugestão.</Muted>}
                     {(sugestoes.data ?? []).map(linhaLancamento)}
                 </div>
 
@@ -322,16 +306,14 @@ function VincularDialog({ boleto, onClose, onFeito }) {
                     <FilterInput label="Procurar outro lançamento a receber" placeholder="Nome do cliente ou descrição" value={busca} onChange={(e) => setBusca(e.target.value)} />
                     <div style={{ marginTop: 8 }}>
                         {pesquisa.isFetching && <LoadingBlock />}
-                        {termo.trim().length >= 2 && !pesquisa.isFetching && resultados.length === 0 && <Muted>Nada encontrado (só aparecem a receber ainda sem boleto).</Muted>}
+                        {termo.trim().length >= 2 && !pesquisa.isFetching && resultados.length === 0 && <Muted>Nada encontrado.</Muted>}
                         {resultados.map(linhaLancamento)}
                     </div>
                 </div>
 
                 <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${colors.border}` }}>
-                    <strong>Não existe lançamento?</strong>
-                    <p style={{ margin: '4px 0 8px' }}>
-                        <Muted>Cria uma conta a receber com os dados do boleto (cliente pelo CPF/CNPJ do pagador, quando cadastrado) e já vincula.</Muted>
-                    </p>
+                    <strong>Sem lançamento?</strong>
+                    <div style={{ height: 8 }} />
                     {criando ? (
                         <>
                             <FilterInput label="Descrição (opcional)" value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder={`Boleto — ${boleto.pagador?.nome ?? boleto.nossoNumeroFormatado}`} />
@@ -451,11 +433,11 @@ export default function BoletosDoBanco() {
         },
         {
             key: 'numeros',
-            header: 'Boleto',
+            header: 'Nº do boleto',
             render: (l) => (
                 <div>
                     <code>{l.nossoNumeroFormatado}</code>
-                    {l.seuNumero && <div><Muted>seu nº {l.seuNumero}</Muted></div>}
+                    {l.seuNumero && <div><Muted>{l.seuNumero}</Muted></div>}
                 </div>
             ),
         },
@@ -493,7 +475,7 @@ export default function BoletosDoBanco() {
             render: (l) => (
                 <Row $justify="flex-end" $wrap={false}>
                     {l.lancamento ? (
-                        <Button size="sm" variant="ghost" icon={<FaUnlink />} title="Desvincular do lançamento" onClick={() => setDesvinculando(l)}>Desvincular</Button>
+                        <Button size="sm" variant="ghost" icon={<FaUnlink />} onClick={() => setDesvinculando(l)}>Desvincular</Button>
                     ) : (
                         <Button size="sm" variant="secondary" icon={<FaLink />} onClick={() => setVinculando(l)}>Vincular</Button>
                     )}
@@ -527,7 +509,7 @@ export default function BoletosDoBanco() {
                     tom="orange"
                     rotulo="Em aberto sem lançamento"
                     valor={resumo.data?.abertos.semLancamento ?? 0}
-                    detalhe="precisam ser vinculados"
+                    detalhe="a vincular"
                     ativo={grupo === 'abertos' && vinculo === 'nao'}
                     onClick={() => { escolher('abertos'); setVinculo('nao'); }}
                 />
@@ -545,8 +527,8 @@ export default function BoletosDoBanco() {
             <Filtros>
                 <div className="busca">
                     <FilterInput
-                        label="Pesquisar"
-                        placeholder="Nome do pagador, CPF/CNPJ, nosso número ou seu número…"
+                        label="Buscar"
+                        placeholder="Nome, CPF/CNPJ ou número do boleto"
                         value={busca}
                         onChange={(e) => { setBusca(e.target.value); setPage(1); }}
                     />
@@ -584,7 +566,7 @@ export default function BoletosDoBanco() {
                         rows={linhas}
                         loading={lista.isLoading}
                         emptyTitle="Nenhum boleto encontrado"
-                        emptyDescription="Use “Buscar no banco” para o sistema descobrir os boletos do Sicredi."
+                        emptyDescription="Clique em “Buscar boletos” acima."
                     />
                     <PaginationBar meta={lista.data?.meta} onPageChange={setPage} label={lista.isFetching ? 'atualizando…' : 'boletos'} />
                 </>
@@ -594,7 +576,7 @@ export default function BoletosDoBanco() {
             <ConfirmDialog
                 open={Boolean(desvinculando)}
                 title="Desvincular boleto"
-                message={desvinculando ? `Remover o vínculo do boleto ${desvinculando.nossoNumeroFormatado} com o lançamento "${desvinculando.lancamento?.descricao ?? ''}"? O lançamento não é apagado.` : ''}
+                message={desvinculando ? `Desvincular o boleto ${desvinculando.nossoNumeroFormatado} de "${desvinculando.lancamento?.descricao ?? ''}"?` : ''}
                 confirmLabel="Desvincular"
                 loading={desvincular.isPending}
                 onConfirm={() => desvincular.mutate(desvinculando.nossoNumero)}

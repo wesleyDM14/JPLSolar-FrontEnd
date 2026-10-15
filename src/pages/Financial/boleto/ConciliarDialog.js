@@ -32,7 +32,7 @@ export default function ConciliarDialog({ onClose }) {
             open
             width={680}
             title="Conciliar com o Sicredi"
-            subtitle="Busca os boletos liquidados no banco e baixa os lançamentos correspondentes."
+            subtitle="Baixa os lançamentos dos boletos pagos no período."
             onClose={onClose}
             footer={
                 <>
@@ -50,12 +50,6 @@ export default function ConciliarDialog({ onClose }) {
                 <Button size="sm" variant="ghost" onClick={() => { setDe(somarDias(hojeIso(), -7)); setAte(hojeIso()); }}>Últimos 7 dias</Button>
                 <Button size="sm" variant="ghost" onClick={() => { setDe(somarDias(hojeIso(), -30)); setAte(hojeIso()); }}>Últimos 30 dias</Button>
             </Row>
-            <p style={{ marginTop: 10 }}>
-                <Muted>
-                    Os avisos de pagamento já baixam sozinhos; use isto para conferir o período ou se algum aviso não chegou.
-                    Nada é baixado duas vezes. Pagamentos por Pix no fim de semana aparecem com a data do dia útil seguinte.
-                </Muted>
-            </p>
 
             {resumo && (
                 <div style={{ marginTop: 16 }}>
@@ -67,13 +61,13 @@ export default function ConciliarDialog({ onClose }) {
                             tom={resumo.naoEncontrados.length > 0 ? 'orange' : 'gray'}
                             rotulo="Sem lançamento"
                             valor={resumo.naoEncontrados.length}
-                            detalhe="boletos do banco não achados aqui"
+                            detalhe="pagos sem lançamento"
                         />
                     </StatGrid>
 
                     {resumo.naoEncontrados.length > 0 && (
                         <div style={{ marginTop: 12 }}>
-                            <strong>Liquidações sem lançamento correspondente</strong>
+                            <strong>Pagos sem lançamento</strong>
                             <ul style={{ margin: '6px 0 0', paddingLeft: 0, listStyle: 'none' }}>
                                 {resumo.naoEncontrados.slice(0, 30).map((item) => (
                                     <li key={`${item.nossoNumero}-${item.dia}`} style={{ padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
@@ -81,21 +75,16 @@ export default function ConciliarDialog({ onClose }) {
                                         {item.pagador?.documento ? <Muted> · {item.pagador.documento}</Muted> : null}
                                         <div>
                                             <Muted>
-                                                {brl(item.valor)} pago em {dataBr(item.dia)}
-                                                {item.vencimento ? ` · venceu ${dataBr(item.vencimento)}` : ''}
-                                                {item.seuNumero ? ` · seu nº ${item.seuNumero}` : ''} · nosso nº {item.nossoNumero}
+                                                {brl(item.valor)} · pago em {dataBr(item.dia)}
+                                                {item.vencimento ? ` · venc. ${dataBr(item.vencimento)}` : ''}
+                                                {item.seuNumero ? ` · ${item.seuNumero}` : ''} · {item.nossoNumero}
                                             </Muted>
                                         </div>
                                     </li>
                                 ))}
                             </ul>
                             {resumo.naoEncontrados.length > 30 && <Muted>E mais {resumo.naoEncontrados.length - 30}…</Muted>}
-                            <p style={{ marginTop: 8 }}>
-                                <Muted>
-                                    São boletos pagos que não estavam ligados a nenhuma conta a receber (emitidos direto no Internet Banking ou por outro sistema).
-                                    Em <strong>Boletos → No banco</strong>, filtre “Pagos” e “Sem lançamento” e use <strong>Vincular</strong> para ligar cada um a um lançamento ou criar o lançamento.
-                                </Muted>
-                            </p>
+                            <p style={{ marginTop: 8 }}><Muted>Vincule em Boletos → No banco → Pagos → Sem lançamento.</Muted></p>
                         </div>
                     )}
 
