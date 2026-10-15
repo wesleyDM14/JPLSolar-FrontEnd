@@ -30,6 +30,7 @@ import { formatDate } from '../../../utils/masks';
 import { brl } from '../format';
 import LancamentoDialog from '../LancamentoDialog';
 import GerenciarBoletoDialog from './GerenciarBoletoDialog';
+import VinculoAutomaticoDialog from './VinculoAutomaticoDialog';
 
 const { colors } = tokens;
 
@@ -362,6 +363,7 @@ export default function BoletosDoBanco() {
     const [desvinculando, setDesvinculando] = useState(null);
     const [lancamentoAberto, setLancamentoAberto] = useState(null);
     const [gerenciando, setGerenciando] = useState(null);
+    const [vinculoAutomatico, setVinculoAutomatico] = useState(false);
 
     const termo = useDebouncedValue(busca);
     const params = { grupo, vinculo: vinculo || undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE, sort: `${sort.field}:${sort.direction}` };
@@ -579,6 +581,9 @@ export default function BoletosDoBanco() {
                 <div className="campo">
                     <FilterSelect label="Situação" options={GRUPOS} placeholder={null} value={grupo} onChange={(e) => escolher(e.target.value)} />
                 </div>
+                <div style={{ alignSelf: 'flex-end' }}>
+                    <Button variant="secondary" icon={<FaLink />} onClick={() => setVinculoAutomatico(true)}>Vincular automaticamente</Button>
+                </div>
                 <div className="campo">
                     <FilterSelect label="Lançamento" options={VINCULOS} value={vinculo} onChange={(e) => { setVinculo(e.target.value); setPage(1); }} />
                 </div>
@@ -617,6 +622,7 @@ export default function BoletosDoBanco() {
                 </>
             )}
 
+            {vinculoAutomatico && <VinculoAutomaticoDialog onClose={() => setVinculoAutomatico(false)} />}
             {gerenciando && <GerenciarBoletoDialog boletoBanco={gerenciando} onClose={() => setGerenciando(null)} />}
             {vinculando && <VincularDialog boleto={vinculando} onClose={() => setVinculando(null)} onFeito={() => { setVinculando(null); recarregar(); }} />}
             <ConfirmDialog
