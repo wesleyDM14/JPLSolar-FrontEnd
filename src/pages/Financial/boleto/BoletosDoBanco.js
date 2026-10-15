@@ -270,6 +270,9 @@ function VincularDialog({ boleto, onClose, onFeito }) {
                         {l.motivos?.length ? ` · ${l.motivos.join(', ')}` : ''}
                     </Muted>
                 </div>
+                {String(l.dataVencimento).slice(0, 10) !== String(boleto.dataVencimento).slice(0, 10) && boleto.dataVencimento && (
+                    <div><Badge $tone="warning">Vencimento passa a ser {formatDate(boleto.dataVencimento)} (o do boleto)</Badge></div>
+                )}
             </div>
             <Button size="sm" icon={<FaLink />} loading={vincular.isPending && vincular.variables?.lancamento.id === l.id} onClick={() => vincular.mutate({ lancamento: l })}>
                 Vincular
