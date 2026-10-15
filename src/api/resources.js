@@ -70,6 +70,11 @@ export const notificacoesApi = {
     markAllRead: () => data(api.post('/notificacoes/marcar-todas-lidas')),
     limpar: (escopo) => data(api.delete('/notificacoes', { params: { escopo } })),
     remove: (id) => api.delete(`/notificacoes/${id}`),
+    pushChave: () => data(api.get('/notificacoes/push/chave')),
+    pushEstado: (endpoint) => data(api.post('/notificacoes/push/estado', { endpoint })),
+    pushInscrever: (payload) => data(api.post('/notificacoes/push/inscrever', payload)),
+    pushCancelar: (endpoint) => data(api.post('/notificacoes/push/cancelar', { endpoint })),
+    pushTestar: () => data(api.post('/notificacoes/push/testar')),
 };
 
 export const tarefasApi = {

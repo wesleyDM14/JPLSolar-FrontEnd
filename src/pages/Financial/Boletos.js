@@ -202,10 +202,25 @@ function MeusBoletos() {
         },
         { key: 'nossoNumero', header: 'Nº do boleto', sortKey: 'nossoNumero', render: (l) => <code>{l.nossoNumero}</code> },
         { key: 'vencimento', header: 'Vencimento', sortKey: 'dataVencimento', render: (l) => formatDate(l.dataVencimento) },
-        { key: 'valor', header: 'Valor', sortKey: 'valor', render: (l) => <strong>{brl(l.valor)}</strong> },
+        { key: 'emitidoEm', header: 'Emitido em', sortKey: 'emitidoEm', render: (l) => (l.emitidoEm ? formatDate(l.emitidoEm) : '—') },
+        { key: 'pagoEm', header: 'Pago em', sortKey: 'dataPagamento', render: (l) => (l.pagoEm ? formatDate(l.pagoEm) : '—') },
+        {
+            key: 'valor',
+            header: 'Valor',
+            sortKey: 'valor',
+            render: (l) => (
+                <div>
+                    <strong>{brl(l.valor)}</strong>
+                    {l.valorLiquidado !== null && l.valorLiquidado !== undefined && Math.abs(l.valorLiquidado - l.valor) > 0.009 && (
+                        <div><Muted style={{ fontSize: '0.78rem' }}>pago {brl(l.valorLiquidado)}</Muted></div>
+                    )}
+                </div>
+            ),
+        },
         {
             key: 'situacao',
             header: 'Situação',
+            sortKey: 'situacao',
             render: (l) => (
                 <div>
                     <Badge $tone={TOM[l.situacao.codigo] ?? 'neutral'}>{l.situacao.rotulo}</Badge>

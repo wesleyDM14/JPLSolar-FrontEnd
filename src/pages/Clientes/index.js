@@ -73,15 +73,16 @@ export default function ClientesPage() {
         {
             key: 'tipoPessoa',
             header: 'Tipo',
+            sortKey: 'tipoPessoa',
             render: (c) => (c.tipoPessoa === 'PESSOA_JURIDICA'
                 ? <Badge $tone="info"><FaBuilding /> PJ</Badge>
                 : <Badge $tone="neutral"><FaUser /> PF</Badge>),
         },
-        { key: 'documento', header: 'CPF / CNPJ', render: (c) => (c.documento ? formatDocumento(c.documento) : <Muted>—</Muted>) },
-        { key: 'telefone', header: 'Telefone', render: (c) => (c.telefone ? formatPhone(c.telefone) : <Muted>—</Muted>) },
+        { key: 'documento', header: 'CPF / CNPJ', sortKey: 'documento', render: (c) => (c.documento ? formatDocumento(c.documento) : <Muted>—</Muted>) },
+        { key: 'telefone', header: 'Telefone', sortKey: 'telefone', render: (c) => (c.telefone ? formatPhone(c.telefone) : <Muted>—</Muted>) },
         { key: 'cidade', header: 'Cidade', render: (c) => (c.endereco ? `${c.endereco.cidade}/${c.endereco.uf}` : <Muted>—</Muted>) },
-        { key: 'usinas', header: 'Usinas', render: (c) => (c._count.plants > 0 ? <Badge $tone="success"><TbSolarPanel2 /> {c._count.plants}</Badge> : <Muted>—</Muted>) },
-        { key: 'contratos', header: 'Contratos', render: (c) => (c._count.contratos > 0 ? c._count.contratos : <Muted>—</Muted>) },
+        { key: 'usinas', header: 'Usinas', sortKey: 'usinas', render: (c) => (c._count.plants > 0 ? <Badge $tone="success"><TbSolarPanel2 /> {c._count.plants}</Badge> : <Muted>—</Muted>) },
+        { key: 'contratos', header: 'Contratos', sortKey: 'contratos', render: (c) => (c._count.contratos > 0 ? c._count.contratos : <Muted>—</Muted>) },
         {
             key: 'acoes',
             header: '',

@@ -350,6 +350,7 @@ export default function BoletosDoBanco() {
     const [vinculo, setVinculo] = useState('');
     const [busca, setBusca] = useState('');
     const [page, setPage] = useState(1);
+    const [sort, setSort] = useState({ field: 'dataVencimento', direction: 'asc' });
     const [marcados, setMarcados] = useState([]);
     const [porFolha, setPorFolha] = useState('3');
     const [imprimindo, setImprimindo] = useState(false);
@@ -360,7 +361,12 @@ export default function BoletosDoBanco() {
     const [gerenciando, setGerenciando] = useState(null);
 
     const termo = useDebouncedValue(busca);
-    const params = { grupo, vinculo: vinculo || undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE };
+    const params = { grupo, vinculo: vinculo || undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE, sort: `${sort.field}:${sort.direction}` };
+
+    const alternarOrdem = (campo) => {
+        setPage(1);
+        setSort((atual) => (atual.field === campo ? { field: campo, direction: atual.direction === 'asc' ? 'desc' : 'asc' } : { field: campo, direction: campo.startsWith('data') ? 'desc' : 'asc' }));
+    };
 
     const resumo = useQuery({ queryKey: ['financeiro', 'boletos', 'banco', 'resumo'], queryFn: financeiroApi.boletosBancoResumo });
     const lista = useQuery({
@@ -426,6 +432,7 @@ export default function BoletosDoBanco() {
         {
             key: 'pagador',
             header: 'Pagador',
+            sortKey: 'pagador',
             render: (l) => (
                 <div>
                     <strong>{l.pagador?.nome ?? 'Pagador não identificado'}</strong>
@@ -436,6 +443,7 @@ export default function BoletosDoBanco() {
         {
             key: 'numeros',
             header: 'Nº do boleto',
+            sortKey: 'nossoNumero',
             render: (l) => (
                 <div>
                     <code>{l.nossoNumeroFormatado}</code>
@@ -443,10 +451,13 @@ export default function BoletosDoBanco() {
                 </div>
             ),
         },
-        { key: 'vencimento', header: 'Vencimento', render: (l) => formatDate(l.dataVencimento) },
+        { key: 'vencimento', header: 'Vencimento', sortKey: 'dataVencimento', render: (l) => formatDate(l.dataVencimento) },
+        { key: 'emissao', header: 'Emissão', sortKey: 'dataEmissao', render: (l) => (l.dataEmissao ? formatDate(l.dataEmissao) : '—') },
+        { key: 'pagoEm', header: 'Pago em', sortKey: 'dataLiquidacao', render: (l) => (l.dataLiquidacao ? formatDate(l.dataLiquidacao) : '—') },
         {
             key: 'valor',
             header: 'Valor',
+            sortKey: 'valor',
             render: (l) => {
                 const extras = [
                     l.encargos?.juros > 0 && `juros ${brl(l.encargos.juros)}`,
@@ -469,6 +480,7 @@ export default function BoletosDoBanco() {
         {
             key: 'situacao',
             header: 'Situação',
+            sortKey: 'situacao',
             render: (l) => {
                 const s = SITUACAO[l.situacao] ?? SITUACAO.DESCONHECIDA;
                 return (
@@ -589,6 +601,8 @@ export default function BoletosDoBanco() {
                         columns={colunas}
                         rows={linhas}
                         loading={lista.isLoading}
+                        sort={sort}
+                        onSort={alternarOrdem}
                         emptyTitle="Nenhum boleto encontrado"
                         emptyDescription="Clique em “Buscar boletos” acima."
                     />

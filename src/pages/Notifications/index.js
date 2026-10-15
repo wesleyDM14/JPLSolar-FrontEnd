@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
 import { notificacoesApi } from '../../api/resources';
+import PushNotificacoes from '../../components/PushNotificacoes';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import {
     Badge,
@@ -282,6 +283,8 @@ export default function NotificationsPage() {
                 <StatCard icon={FaMoneyBillWave} tom="green" rotulo="Financeiro" valor={r?.financeiro ?? 0} detalhe="pagamentos e conferências" ativo={grupo === 'financeiro'} onClick={() => escolher(grupo === 'financeiro' ? '' : 'financeiro')} delay={120} />
                 <StatCard icon={FaEnvelopeOpen} tom="gray" rotulo="Já lidas" valor={lidas} detalhe="podem ser limpas" delay={180} />
             </StatGrid>
+
+            <PushNotificacoes />
 
             <Filtros>
                 <Chips role="tablist">

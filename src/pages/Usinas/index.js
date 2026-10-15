@@ -86,10 +86,10 @@ export default function UsinasPage() {
 
     const columns = [
         { key: 'code', header: 'Código', sortKey: 'code', render: (u) => <strong>{u.code}</strong> },
-        { key: 'cliente', header: 'Cliente', render: (u) => u.client.nome },
-        { key: 'inversor', header: 'Inversor', render: (u) => inversorLabel(u.inversor) },
+        { key: 'cliente', header: 'Cliente', sortKey: 'cliente', render: (u) => u.client.nome },
+        { key: 'inversor', header: 'Inversor', sortKey: 'inversor', render: (u) => inversorLabel(u.inversor) },
         { key: 'installedPower', header: 'Potência', sortKey: 'installedPower', render: (u) => `${u.installedPower} kWp` },
-        { key: 'local', header: 'Local', render: (u) => (u.cidade ? `${u.cidade}${u.uf ? `/${u.uf}` : ''}` : <Muted>{u.local}</Muted>) },
+        { key: 'local', header: 'Local', sortKey: 'cidade', render: (u) => (u.cidade ? `${u.cidade}${u.uf ? `/${u.uf}` : ''}` : <Muted>{u.local}</Muted>) },
         {
             key: 'status',
             header: 'Status',

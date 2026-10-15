@@ -155,6 +155,7 @@ export default function Lancamentos({ tipo, inicial }) {
                 </span>
             ),
         },
+        { key: 'emissao', header: 'Emissão', sortKey: 'dataEmissao', render: (l) => (l.dataEmissao ? formatDate(l.dataEmissao) : <Muted>—</Muted>) },
         {
             key: 'descricao',
             header: 'Descrição',
@@ -170,6 +171,7 @@ export default function Lancamentos({ tipo, inicial }) {
         {
             key: 'parte',
             header: receber ? 'Cliente' : 'Fornecedor',
+            sortKey: receber ? 'cliente' : undefined,
             render: (l) => {
                 if (receber && l.cliente) {
                     // Abre o painel do cliente sem abrir o detalhe do lançamento.
@@ -199,6 +201,7 @@ export default function Lancamentos({ tipo, inicial }) {
         {
             key: 'situacao',
             header: 'Situação',
+            sortKey: 'status',
             render: (l) => {
                 const situacao = situacaoInfo(l.situacao, l.tipo);
                 return <Badge $tone={situacao.tone}>{situacao.label}</Badge>;
