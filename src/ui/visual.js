@@ -128,6 +128,8 @@ const StatBox = styled.div`
     border: 1px solid ${colors.border};
     box-shadow: ${tokens.shadow};
     overflow: hidden;
+    /* O tamanho do número acompanha a largura do cartão (valores em R$ não podem ser cortados). */
+    container-type: inline-size;
     animation: ${fadeUp} 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: ${({ $delay }) => $delay}ms;
     transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
@@ -173,6 +175,8 @@ const StatBox = styled.div`
     .valor {
         margin-top: 1px;
         font-size: 1.55rem;
+        font-size: clamp(0.95rem, 8.6cqi, 1.55rem);
+        white-space: nowrap;
         font-weight: 800;
         line-height: 1.15;
         font-family: 'Montserrat', sans-serif;
@@ -184,6 +188,12 @@ const StatBox = styled.div`
         margin-top: 2px;
         font-size: 0.8rem;
         color: ${colors.muted};
+    }
+
+    @container (max-width: 240px) {
+        .icone {
+            display: none;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -240,7 +250,7 @@ export function StatCard({ icon: Icon, rotulo, valor, formato, detalhe, tom = 'b
             tabIndex={onClick ? 0 : undefined}
             onKeyDown={onClick ? (evento) => (evento.key === 'Enter' || evento.key === ' ') && onClick() : undefined}
         >
-            {Icon && <IconChip $tone={tom} $size={46}><Icon /></IconChip>}
+            {Icon && <span className="icone"><IconChip $tone={tom} $size={46}><Icon /></IconChip></span>}
             <div className="texto">
                 <div className="rotulo">{rotulo}</div>
                 <div className="valor">
