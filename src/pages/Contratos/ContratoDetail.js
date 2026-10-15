@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { FaEdit, FaHardHat, FaPrint, FaFileContract, FaFileInvoiceDollar, FaFilePdf, FaMoneyBillWave, FaReceipt, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit, FaHardHat, FaListUl, FaPrint, FaFileContract, FaFileInvoiceDollar, FaFilePdf, FaMoneyBillWave, FaReceipt, FaTrashAlt } from 'react-icons/fa';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { EmitirNotaDialog } from '../Financial/fiscal/EmitirNotaDialog';
 import NotaDialog from '../Financial/fiscal/NotaDialog';
 import { STATUS_NOTA } from '../Financial/fiscal/formato';
 import GerarParcelasDialog from './GerarParcelasDialog';
+import ParcelasDoContrato from './ParcelasDoContrato';
 import { errorMessage } from '../../api/client';
 import DocumentosPanel from '../../components/DocumentosPanel';
 import {
@@ -66,6 +67,12 @@ export default function ContratoDetailPage() {
         queryFn: () => financeiroApi.lancamentos({ contratoId: id, situacao: '', pageSize: 100 }),
     });
 
+    // Resumo financeiro do contrato (inclui juros e multa recebidos).
+    const parcelasResumo = useQuery({
+        queryKey: ['financeiro', 'contrato', 'parcelas', id],
+        queryFn: () => financeiroApi.contratoParcelas(id),
+    });
+
     // Serviços de campo (tarefas) deste contrato.
     const servicosCampo = useQuery({
         queryKey: ['servicos', 'lista', 'contrato', id],
@@ -85,7 +92,7 @@ export default function ContratoDetailPage() {
     });
 
     // Cria no financeiro as parcelas a receber do contrato (uma por vencimento), com boletos se pedido.
-    const [parcelasDialog, setParcelasDialog] = useState(null); // null | { refazer: boolean, motivo?: string }
+    const [parcelasDialog, setParcelasDialog] = useState(false);
     const [imprimindo, setImprimindo] = useState(false);
 
     const remove = useMutation({
@@ -195,7 +202,11 @@ export default function ContratoDetailPage() {
                         {!servicos && (
                             <Button variant="secondary" icon={<FaReceipt />} loading={downloading === 'promissoria'} onClick={() => downloadPdf('promissoria')}>Promissória</Button>
                         )}
-                        <Button variant="secondary" icon={<FaMoneyBillWave />} onClick={() => setParcelasDialog({ refazer: false })}>Gerar parcelas</Button>
+                        {parcelasResumo.data && parcelasResumo.data.resumo.quantidade > 0 ? (
+                            <Button variant="secondary" icon={<FaListUl />} onClick={() => setTab('parcelas')}>Ver parcelas ({parcelasResumo.data.resumo.quantidade})</Button>
+                        ) : (
+                            !parcelasResumo.isLoading && <Button variant="secondary" icon={<FaMoneyBillWave />} onClick={() => setParcelasDialog(true)}>Gerar parcelas</Button>
+                        )}
                         <Button variant="secondary" icon={<FaFileInvoiceDollar />} onClick={() => setEmitindoNfse(true)}>Emitir NFS-e</Button>
                         {contrato.status !== 'CANCELADO' && (
                             <Button icon={<FaHardHat />} onClick={() => setIniciandoServico(true)}>Iniciar serviço</Button>
@@ -226,6 +237,7 @@ export default function ContratoDetailPage() {
                     { rotulo: 'Valor do contrato', valor: formatCurrency(contrato.priceTotal) },
                     { rotulo: 'Recebido', valor: formatCurrency(recebido), cor: 'var(--c-success)' },
                     { rotulo: 'Parcelas pagas', valor: totalParcelas > 0 ? `${Math.round((recebido / totalParcelas) * 100)}%` : '—' },
+                    { rotulo: 'Juros e multa recebidos', valor: formatCurrency(parcelasResumo.data?.resumo.jurosRecebidos ?? 0), cor: 'var(--c-success)' },
                     { rotulo: 'Próximo vencimento', valor: proxima ? formatDate(proxima.dataVencimento) : '—' },
                 ]}
             />
@@ -233,6 +245,7 @@ export default function ContratoDetailPage() {
             <Tabs
                 tabs={[
                     { id: 'contrato', label: 'Contrato', icon: <FaFileContract /> },
+                    { id: 'parcelas', label: `Parcelas${parcelasResumo.data ? ` (${parcelasResumo.data.resumo.quantidade})` : ''}`, icon: <FaListUl /> },
                     { id: 'documentos', label: `Documentos (${contrato._count.documentos})`, icon: <FaFilePdf /> },
                 ]}
                 value={tab}
@@ -389,6 +402,8 @@ export default function ContratoDetailPage() {
                 </>
             )}
 
+            {tab === 'parcelas' && <ParcelasDoContrato contratoId={id} />}
+
             {tab === 'documentos' && (
                 <DocumentosPanel
                     contractId={id}
@@ -411,10 +426,11 @@ export default function ContratoDetailPage() {
             {parcelasDialog && (
                 <GerarParcelasDialog
                     contrato={contrato}
-                    refazer={parcelasDialog.refazer}
-                    motivo={parcelasDialog.motivo}
-                    onClose={() => setParcelasDialog(null)}
-                    onConflito={(motivo) => setParcelasDialog({ refazer: true, motivo })}
+                    onClose={() => {
+                        setParcelasDialog(false);
+                        parcelasResumo.refetch();
+                        parcelas.refetch();
+                    }}
                 />
             )}
 

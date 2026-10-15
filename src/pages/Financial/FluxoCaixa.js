@@ -4,7 +4,7 @@ import { FaArrowDown, FaArrowUp, FaBalanceScale, FaPiggyBank, FaWater } from 're
 import { Area, Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { errorMessage } from '../../api/client';
 import { financeiroApi } from '../../api/resources';
-import { Card, DataTable, ErrorBlock, LoadingBlock, Page, PageHeader, SectionTitle, StatCard, StatGrid, tokens } from '../../ui';
+import { Card, DataTable, ErrorBlock, LoadingBlock, Page, PageHeader, SectionTitle, StatCard, StatGrid, tokens, tooltipTema } from '../../ui';
 import { ExportButtons, PeriodoFiltro, periodoDoAno } from './comuns';
 import { brl, mesCurto, mesLabel } from './format';
 
@@ -60,7 +60,7 @@ export default function FluxoCaixa() {
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="rotulo" />
                                     <YAxis tickFormatter={eixoMil} />
-                                    <Tooltip formatter={(valor) => brl(valor)} />
+                                    <Tooltip {...tooltipTema} formatter={(valor) => brl(valor)} />
                                     <Legend />
                                     <Bar dataKey="previstoReceber" name="A receber (previsto)" fill="#64B5F6" radius={[4, 4, 0, 0]} />
                                     <Bar dataKey="realizadoReceber" name="Recebido" fill="#43A047" radius={[4, 4, 0, 0]} />

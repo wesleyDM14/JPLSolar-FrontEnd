@@ -121,6 +121,7 @@ export const financeiroApi = {
     boletosResumo: () => data(api.get('/financeiro/boletos/resumo')),
 
     // Boletos conhecidos no banco (inclusive os emitidos fora do sistema)
+    contratoParcelas: (contratoId) => data(api.get(`/financeiro/contratos/${contratoId}/parcelas`)),
     boletosBanco: (params) => data(api.get('/financeiro/boletos/banco', { params: clean(params) })),
     boletosBancoResumo: () => data(api.get('/financeiro/boletos/banco/resumo')),
     boletoBancoSugestoes: (nossoNumero) => data(api.get(`/financeiro/boletos/banco/${nossoNumero}/sugestoes`)),

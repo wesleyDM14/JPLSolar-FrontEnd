@@ -520,9 +520,19 @@ export default function BoletosDoBanco() {
             header: 'Lançamento',
             render: (l) =>
                 l.lancamento ? (
-                    <Button size="sm" variant="ghost" onClick={() => setLancamentoAberto(l.lancamento.id)}>
-                        {l.lancamento.cliente?.nome ?? l.lancamento.descricao}
-                    </Button>
+                    <button
+                        type="button"
+                        onClick={() => setLancamentoAberto(l.lancamento.id)}
+                        title={`Abrir lançamento: ${l.lancamento.descricao}`}
+                        style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', textAlign: 'left', color: 'inherit' }}
+                    >
+                        <Badge $tone="success">Vinculado</Badge>
+                        <div>
+                            <Muted style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                                {l.lancamento.parcelaTotal ? `parcela ${l.lancamento.parcelaNumero}/${l.lancamento.parcelaTotal}` : brl(l.lancamento.valor)}
+                            </Muted>
+                        </div>
+                    </button>
                 ) : (
                     <Badge $tone="warning">Sem lançamento</Badge>
                 ),

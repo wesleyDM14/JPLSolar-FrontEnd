@@ -39,7 +39,7 @@ const RELATORIOS_FINANCEIROS = [
     { path: '/financeiro/dre', titulo: 'DRE', descricao: 'Resultado por competência ou por caixa, mês a mês.', icon: FaBalanceScale, tom: 'blue' },
     { path: '/financeiro/fluxo', titulo: 'Fluxo de caixa', descricao: 'Entradas, saídas e saldo acumulado, com previsão dos próximos meses.', icon: FaWater, tom: 'teal' },
     { path: '/financeiro/indicadores', titulo: 'Indicadores', descricao: 'Margens, EBITDA, ROI, liquidez e ponto de equilíbrio.', icon: FaChartLine, tom: 'purple' },
-    { path: '/financeiro/risco', titulo: 'Clientes de risco', descricao: 'Nota de risco e atrasos por cliente.', icon: FaExclamationTriangle, tom: 'orange' },
+    { path: '/financeiro/risco', titulo: 'Score dos clientes', descricao: 'Score de 0 a 1000, risco e atrasos por cliente.', icon: FaExclamationTriangle, tom: 'orange' },
     { path: '/financeiro/contabilidade', titulo: 'Contabilidade', descricao: 'Livro caixa, razão e pacote mensal do contador.', icon: FaBook, tom: 'green' },
     { path: '/financeiro/fiscal', titulo: 'Notas fiscais', descricao: 'XML individual ou em lote e envio ao contador.', icon: FaFileInvoiceDollar, tom: 'red' },
 ];

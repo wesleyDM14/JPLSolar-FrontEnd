@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { errorMessage } from '../../api/client';
 import { financeiroApi } from '../../api/resources';
-import { Badge, Card, CardTitle, ErrorBlock, Grid, LoadingBlock, Muted, StatCard, StatGrid, tokens } from '../../ui';
+import { Badge, Card, CardTitle, ErrorBlock, Grid, LoadingBlock, Muted, StatCard, StatGrid, tokens, tooltipTema } from '../../ui';
 import { formatDate } from '../../utils/masks';
 import { brl, mesCurto, parteDe, situacaoInfo } from './format';
 
@@ -12,7 +12,7 @@ const { colors } = tokens;
 
 const Linha = styled.button`
     display: grid;
-    grid-template-columns: 78px 1fr auto;
+    grid-template-columns: 78px minmax(0, 1fr) auto;
     gap: 12px;
     align-items: center;
     width: 100%;
@@ -44,6 +44,7 @@ const Linha = styled.button`
         text-align: right;
         font-variant-numeric: tabular-nums;
         font-weight: 600;
+        white-space: nowrap;
     }
 `;
 
@@ -143,7 +144,7 @@ export default function VisaoGeral({ onOpenLancamento }) {
                                 <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
                                 <XAxis dataKey="rotulo" />
                                 <YAxis tickFormatter={(valor) => (Math.abs(valor) >= 1000 ? `${Math.round(valor / 1000)} mil` : valor)} />
-                                <Tooltip formatter={(valor) => brl(valor)} />
+                                <Tooltip {...tooltipTema} formatter={(valor) => brl(valor)} />
                                 <Legend />
                                 <Bar dataKey="previstoReceber" name="A receber (previsto)" fill="#64B5F6" />
                                 <Bar dataKey="realizadoReceber" name="Recebido" fill="#43A047" />

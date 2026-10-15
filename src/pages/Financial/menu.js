@@ -22,7 +22,7 @@ export const FINANCEIRO_MENU = [
     { path: '/financeiro/fluxo', rotulo: 'Fluxo de caixa', icon: FaWater },
     { path: '/financeiro/dre', rotulo: 'DRE', icon: FaBalanceScale },
     { path: '/financeiro/indicadores', rotulo: 'Indicadores', icon: FaChartLine },
-    { path: '/financeiro/risco', rotulo: 'Clientes de risco', icon: FaExclamationTriangle },
+    { path: '/financeiro/risco', rotulo: 'Score dos clientes', icon: FaExclamationTriangle },
     { path: '/financeiro/contabilidade', rotulo: 'Contabilidade', icon: FaBook },
     { path: '/financeiro/fiscal', rotulo: 'Notas fiscais', icon: FaFileInvoiceDollar },
     { path: '/financeiro/bancos', rotulo: 'Bancos', icon: FaUniversity },

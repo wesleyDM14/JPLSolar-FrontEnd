@@ -5,7 +5,7 @@ import { Area, Bar, CartesianGrid, Cell, ComposedChart, Legend, Line, ReferenceL
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
 import { financeiroApi } from '../../api/resources';
-import { Badge, Card, ErrorBlock, Grid, LoadingBlock, Muted, Page, PageHeader, Reveal, SectionTitle, StatCard, StatGrid, tokens } from '../../ui';
+import { Badge, Card, ErrorBlock, Grid, LoadingBlock, Muted, Page, PageHeader, Reveal, SectionTitle, StatCard, StatGrid, tokens, tooltipTema } from '../../ui';
 import { ExportButtons, PeriodoFiltro, num, pct, periodoDoAno } from './comuns';
 import { brl, mesCurto } from './format';
 
@@ -101,7 +101,7 @@ export default function Indicadores() {
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="rotulo" />
                                             <YAxis tickFormatter={eixoMil} />
-                                            <Tooltip formatter={(v) => brl(v)} />
+                                            <Tooltip {...tooltipTema} formatter={(v) => brl(v)} />
                                             <Legend />
                                             <Bar dataKey="receita" name="Receita" fill="#43A047" radius={[4, 4, 0, 0]} />
                                             <Bar dataKey="despesas" name="Despesas" fill="#E53935" radius={[4, 4, 0, 0]} />
@@ -127,7 +127,7 @@ export default function Indicadores() {
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="rotulo" />
                                             <YAxis tickFormatter={eixoMil} />
-                                            <Tooltip formatter={(v) => brl(v)} />
+                                            <Tooltip {...tooltipTema} formatter={(v) => brl(v)} />
                                             <ReferenceLine y={0} stroke="#9E9E9E" />
                                             <Area type="monotone" dataKey="resultadoAcumulado" name="Resultado acumulado" stroke="#8E24AA" strokeWidth={2.5} fill="url(#acumulado)" />
                                         </ComposedChart>
@@ -147,7 +147,7 @@ export default function Indicadores() {
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis dataKey="rotulo" />
                                             <YAxis tickFormatter={eixoMil} />
-                                            <Tooltip formatter={(v) => brl(v)} />
+                                            <Tooltip {...tooltipTema} formatter={(v) => brl(v)} />
                                             <Legend />
                                             <Bar dataKey="receita" name="Receita do mês" radius={[4, 4, 0, 0]}>
                                                 {curva.map((ponto) => (
@@ -182,7 +182,7 @@ export default function Indicadores() {
                                                 <XAxis dataKey="nome" tickFormatter={(n) => `${String(n).split(' ')[0]}`} interval={0} fontSize={11} />
                                                 <YAxis yAxisId="valor" tickFormatter={eixoMil} />
                                                 <YAxis yAxisId="pct" orientation="right" domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                                                <Tooltip formatter={(v, nome) => (nome === 'Acumulado' ? `${v}%` : brl(v))} />
+                                                <Tooltip {...tooltipTema} formatter={(v, nome) => (nome === 'Acumulado' ? `${v}%` : brl(v))} />
                                                 <Bar yAxisId="valor" dataKey="valor" name="Receita" radius={[4, 4, 0, 0]}>
                                                     {data.curvaAbc.slice(0, 15).map((cliente) => (
                                                         <Cell key={cliente.clienteId} fill={cliente.classe === 'A' ? '#1E88E5' : cliente.classe === 'B' ? '#FB8C00' : '#90A4AE'} />

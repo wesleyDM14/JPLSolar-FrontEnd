@@ -7,5 +7,6 @@ export * from './DataTable';
 export * from './EnderecoFields';
 export { default as Combobox } from './Combobox';
 export * from './visual';
+export * from './charts';
 export * from './theme';
 export * from './RowActions';

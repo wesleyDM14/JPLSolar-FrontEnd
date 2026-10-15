@@ -33,7 +33,7 @@ const CATALOGO = [
     { tipo: 'dre', titulo: 'DRE', descricao: 'Resultado dos 6 meses até o mês escolhido.', icon: FaBalanceScale, tom: 'teal', periodo: 'ate6' },
     { tipo: 'fluxo-caixa', titulo: 'Fluxo de caixa', descricao: 'Previsto e realizado nos 6 meses até o mês escolhido.', icon: FaWater, tom: 'blue', periodo: 'ate6' },
     { tipo: 'inadimplencia', titulo: 'Inadimplência', descricao: 'Contas a receber e a pagar por faixa de atraso.', icon: FaExclamationTriangle, tom: 'orange', periodo: 'nenhum' },
-    { tipo: 'clientes-risco', titulo: 'Clientes de risco', descricao: 'Clientes ordenados pelo risco de inadimplência.', icon: FaExclamationTriangle, tom: 'red', periodo: 'nenhum' },
+    { tipo: 'clientes-risco', titulo: 'Score dos clientes', descricao: 'Score de 0 a 1000 e risco de inadimplência por cliente.', icon: FaExclamationTriangle, tom: 'red', periodo: 'nenhum' },
 ];
 
 const CartaoRelatorio = styled.div`

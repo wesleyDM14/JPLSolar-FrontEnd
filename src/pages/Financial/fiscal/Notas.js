@@ -39,6 +39,7 @@ import {
     StatCard,
     StatGrid,
     tokens,
+    tooltipTema,
 } from '../../../ui';
 import { formatCurrency, formatDate } from '../../../utils/masks';
 import { anoAtual, fimDoAno, fimDoMes, inicioDoAno, inicioDoMes, mesAtual } from '../../../utils/datas';
@@ -245,7 +246,7 @@ export default function Notas() {
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="rotulo" />
                             <YAxis tickFormatter={eixoMil} />
-                            <Tooltip formatter={(v) => formatCurrency(v)} />
+                            <Tooltip {...tooltipTema} formatter={(v) => formatCurrency(v)} />
                             <Legend />
                             <Bar dataKey="saida" name="Notas emitidas" fill="#8E24AA" radius={[4, 4, 0, 0]} />
                             <Bar dataKey="entrada" name="Notas recebidas" fill="#FB8C00" radius={[4, 4, 0, 0]} />
