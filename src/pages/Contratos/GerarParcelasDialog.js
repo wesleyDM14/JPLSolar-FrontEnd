@@ -4,7 +4,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { errorMessage } from '../../api/client';
 import { financeiroApi } from '../../api/resources';
-import { Badge, Button, Dialog, Muted } from '../../ui';
+import { Badge, Button, DateField, Dialog, Grid, Muted } from '../../ui';
 import { hojeIso } from '../../utils/datas';
 import { formatCurrency, formatDate } from '../../utils/masks';
 import { OPCOES_PADRAO, OpcoesBoletoCampos, opcoesParaApi, opcoesSchema } from '../Financial/boleto/OpcoesBoleto';
@@ -17,7 +17,6 @@ import ResultadoEmissao from '../Financial/boleto/ResultadoEmissao';
 export default function GerarParcelasDialog({ contrato, refazer = false, motivo, onClose, onConflito }) {
     const queryClient = useQueryClient();
     const primeiroVencimento = String(contrato.dataPrimeiraParcela).slice(0, 10);
-    const vencimentoPassado = primeiroVencimento < hojeIso();
 
     const [progresso, setProgresso] = useState(null); // { feitos, total }
     const [resultado, setResultado] = useState(null);
@@ -50,11 +49,11 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
 
     return (
         <Formik
-            initialValues={{ emitirBoletos: false, ...OPCOES_PADRAO }}
+            initialValues={{ emitirBoletos: false, primeiroVencimento: primeiroVencimento, ...OPCOES_PADRAO }}
             validationSchema={opcoesSchema}
             onSubmit={async (valores) => {
                 try {
-                    const resultado = await gerar.mutateAsync({ refazer });
+                    const resultado = await gerar.mutateAsync({ refazer, primeiroVencimento: valores.primeiroVencimento || undefined });
                     toast.success(`${resultado.geradas} parcela(s) criadas em Financeiro > A receber.`);
 
                     if (valores.emitirBoletos) {
@@ -89,7 +88,7 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
                     open
                     width={640}
                     title={refazer ? 'Refazer parcelas' : 'Gerar parcelas a receber'}
-                    subtitle={`${contrato.quantParcelas} parcela(s) de ${formatCurrency(contrato.quantParcelas === 1 ? contrato.priceTotal : contrato.priceParcela)}, a partir de ${formatDate(contrato.dataPrimeiraParcela)}`}
+                    subtitle={`${contrato.quantParcelas} parcela(s) de ${formatCurrency(contrato.quantParcelas === 1 ? contrato.priceTotal : contrato.priceParcela)}`}
                     onClose={onClose}
                     footer={
                         <>
@@ -109,6 +108,13 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
                     )}
 
                     <Form noValidate id="gerar-parcelas">
+                        <Grid $cols={2} style={{ marginBottom: 14 }}>
+                            <DateField name="primeiroVencimento" label="Vencimento da 1ª parcela" required />
+                            <div style={{ alignSelf: 'end' }}>
+                                <Muted>Contrato: {formatDate(contrato.dataPrimeiraParcela)}. As demais vencem mês a mês a partir desta data.</Muted>
+                            </div>
+                        </Grid>
+
                         <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', cursor: 'pointer' }}>
                             <Field type="checkbox" name="emitirBoletos" style={{ marginTop: 4 }} />
                             <span>
@@ -120,7 +126,7 @@ export default function GerarParcelasDialog({ contrato, refazer = false, motivo,
 
                         {values.emitirBoletos && (
                             <div style={{ marginTop: 14 }}>
-                                {vencimentoPassado && (
+                                {values.primeiroVencimento && values.primeiroVencimento < hojeIso() && (
                                     <p style={{ marginBottom: 10 }}>
                                         <Badge $tone="warning">Primeira parcela já venceu</Badge> <Muted>Ela não terá boleto; as demais sim.</Muted>
                                     </p>
