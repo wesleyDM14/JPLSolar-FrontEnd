@@ -19,7 +19,8 @@ export function infoNotificacao(notificacao) {
 export function destinoNotificacao(notificacao) {
     if (notificacao.plant?.id) return `/usinas/${notificacao.plant.id}`;
     if (notificacao.lancamentoId) return `/financeiro/receber?lancamento=${notificacao.lancamentoId}`;
-    if (notificacao.tipo === 'PAGAMENTO_RECEBIDO' || notificacao.tipo === 'PAGAMENTO_NAO_IDENTIFICADO') return '/financeiro/receber';
+    if (notificacao.tipo === 'PAGAMENTO_NAO_IDENTIFICADO') return '/financeiro/boletos';
+    if (notificacao.tipo === 'PAGAMENTO_RECEBIDO') return '/financeiro/receber';
     return null;
 }
 
