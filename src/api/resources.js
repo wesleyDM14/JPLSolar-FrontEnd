@@ -370,12 +370,12 @@ export const sicrediApi = {
  * Junta os PDFs dos boletos em um arquivo só e abre em nova aba (um boleto por página, pronto para imprimir).
  * Devolve a lista de boletos que ficaram de fora (já pagos, sem PDF…).
  */
-export async function imprimirBoletos(ids, porFolha = 1) {
+export async function imprimirBoletos(ids, porFolha = 3) {
     return imprimirLote('/financeiro/boletos/pdf-lote', { ids, porFolha });
 }
 
 /** Igual a imprimirBoletos, mas para boletos do banco (pelo nosso número). */
-export async function imprimirBoletosDoBanco(nossosNumeros, porFolha = 1) {
+export async function imprimirBoletosDoBanco(nossosNumeros, porFolha = 3) {
     return imprimirLote('/financeiro/boletos/banco/pdf-lote', { nossosNumeros, porFolha });
 }
 
