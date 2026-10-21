@@ -53,7 +53,7 @@ export const tipoContratoLabel = (value) => tipoContratoOptions.find((o) => o.va
 export const statusContratoOptions = [
     { value: 'ATIVO', label: 'Ativo' },
     { value: 'QUITADO', label: 'Quitado' },
-    { value: 'CANCELADO', label: 'Cancelado' },
+    { value: 'CANCELADO', label: 'Inativo' },
 ];
 
 export const statusContratoTone = { ATIVO: 'info', QUITADO: 'success', CANCELADO: 'danger' };

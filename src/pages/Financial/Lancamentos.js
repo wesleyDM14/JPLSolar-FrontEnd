@@ -3,7 +3,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
-import { financeiroApi, saveBlob } from '../../api/resources';
+import { financeiroApi, saveResponse } from '../../api/resources';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { Badge, Button, DataTable, ErrorBlock, FilterSelect, Muted, PaginationBar, Row, tokens } from '../../ui';
 import { formatDate } from '../../utils/masks';
@@ -15,32 +15,9 @@ import FiltrosPanel, { filtrosPadrao, filtrosSemPeriodo } from './FiltrosPanel';
 import { agruparOptions, brl, mesLabel, primeiroDiaDoMes, situacaoInfo, TIPO, ultimoDiaDoMes } from './format';
 import LancamentoDialog from './LancamentoDialog';
 import LancamentoFormDialog from './LancamentoFormDialog';
+import PainelLancamentos from './PainelLancamentos';
 
 const { colors } = tokens;
-
-const Totais = styled.div`
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-    background: ${colors.surface};
-    border-radius: ${tokens.radius};
-    box-shadow: ${tokens.shadow};
-    padding: 12px 18px;
-    margin-bottom: 14px;
-
-    .item small {
-        display: block;
-        font-size: 0.74rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: ${colors.muted};
-    }
-
-    .item strong {
-        font-size: 1.15rem;
-        font-variant-numeric: tabular-nums;
-    }
-`;
 
 const ClienteLink = styled.button`
     padding: 0;
@@ -81,6 +58,12 @@ export default function Lancamentos({ tipo, inicial }) {
     // eslint-disable-next-line no-unused-vars
     const { clienteNome, fornecedorNome, ...filtrosApi } = filtros;
     const params = { ...filtrosApi, search: busca, tipo };
+    // O painel mostra sempre a divisão completa (pago, a vencer, vencido); a situação filtra só a lista.
+    // Os gráficos ainda ignoram o período, para mostrar a linha do tempo inteira.
+    // eslint-disable-next-line no-unused-vars
+    const { situacao: situacaoDaLista, ...paramsDoPainel } = params;
+    // eslint-disable-next-line no-unused-vars
+    const { vencimentoDe, vencimentoAte, ...paramsDosGraficos } = paramsDoPainel;
 
     const categorias = useQuery({ queryKey: ['categorias', tipo], queryFn: () => financeiroApi.categorias({ tipo }) });
     const contas = useQuery({ queryKey: ['contas-financeiras'], queryFn: financeiroApi.contasFinanceiras });
@@ -112,7 +95,7 @@ export default function Lancamentos({ tipo, inicial }) {
         setExportando(true);
         try {
             const resposta = await financeiroApi.exportarCsv(params);
-            saveBlob(resposta.data, `${receber ? 'a-receber' : 'a-pagar'}.csv`);
+            saveResponse(resposta, `${receber ? 'Contas a receber' : 'Contas a pagar'}.csv`);
         } catch (erro) {
             toast.error(errorMessage(erro, 'Não foi possível exportar.'));
         } finally {
@@ -140,7 +123,6 @@ export default function Lancamentos({ tipo, inicial }) {
 
     const categoriaOptions = (categorias.data ?? []).map((categoria) => ({ value: categoria.id, label: categoria.nome }));
     const contaOptions = (contas.data ?? []).map((conta) => ({ value: conta.id, label: conta.nome }));
-    const totais = agrupar ? grupos.data?.total : lista.data?.totais;
     const erro = (agrupar ? grupos.error : lista.error) || null;
 
     const colunas = [
@@ -156,6 +138,11 @@ export default function Lancamentos({ tipo, inicial }) {
             ),
         },
         { key: 'emissao', header: 'Emissão', sortKey: 'dataEmissao', render: (l) => (l.dataEmissao ? formatDate(l.dataEmissao) : <Muted>—</Muted>) },
+        {
+            key: 'pagamento',
+            header: receber ? 'Recebido em' : 'Pago em',
+            render: (l) => (l.dataPagamento ? formatDate(l.dataPagamento) : <Muted>—</Muted>),
+        },
         {
             key: 'descricao',
             header: 'Descrição',
@@ -266,15 +253,7 @@ export default function Lancamentos({ tipo, inicial }) {
                 </div>
             </Row>
 
-            {totais && (
-                <Totais>
-                    <div className="item"><small>Lançamentos</small><strong>{totais.quantidade ?? lista.data?.meta?.total ?? 0}</strong></div>
-                    <div className="item"><small>Total</small><strong>{brl(totais.valor)}</strong></div>
-                    <div className="item"><small>{receber ? 'Recebido' : 'Pago'}</small><strong>{brl(totais.valorPago)}</strong></div>
-                    <div className="item"><small>Em aberto</small><strong>{brl(totais.valorRestante)}</strong></div>
-                    {totais.valorAtrasado !== undefined && <div className="item"><small>Vencido</small><strong style={{ color: totais.valorAtrasado > 0 ? colors.danger : undefined }}>{brl(totais.valorAtrasado)}</strong></div>}
-                </Totais>
-            )}
+            <PainelLancamentos tipo={tipo} params={paramsDoPainel} paramsGraficos={paramsDosGraficos} filtros={filtros} onFiltrar={alterarFiltros} />
 
             {erro ? (
                 <ErrorBlock message={errorMessage(erro)} onRetry={() => (agrupar ? grupos.refetch() : lista.refetch())} />

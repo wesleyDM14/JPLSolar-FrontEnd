@@ -1,11 +1,12 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 import BasicRoute from './components/BasicRoute';
 import AuthRoute from './components/AuthRoute';
 
 import MainLayout from './layouts/MainLayout';
 
+import Arquivos from './pages/Administracao/Arquivos';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Financial, { CadastrosPagina, Pagar, Receber } from './pages/Financial';
@@ -88,6 +89,8 @@ export const AppRoutes = () => (
         <Route path='/relatorios' element={<Protected><Reports /></Protected>} />
         <Route path='/tarefas' element={<Protected><Tasks /></Protected>} />
         <Route path='/notificacoes' element={<Protected><Notifications /></Protected>} />
+        <Route path='/administracao' element={<Navigate to='/administracao/arquivos' replace />} />
+        <Route path='/administracao/arquivos' element={<Protected><Arquivos /></Protected>} />
         <Route path='/perfil' element={<Protected><Profile /></Protected>} />
         <Route path='/not-authorized' element={<NotAuthorized />} />
     </Routes>

@@ -4,9 +4,10 @@ import { FaArrowDown, FaArrowUp, FaBalanceScale, FaPiggyBank, FaWater } from 're
 import { Area, Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { errorMessage } from '../../api/client';
 import { financeiroApi } from '../../api/resources';
-import { Card, DataTable, ErrorBlock, LoadingBlock, Page, PageHeader, SectionTitle, StatCard, StatGrid, tokens, tooltipTema } from '../../ui';
+import { Card, DataTable, ErrorBlock, LoadingBlock, Muted, Page, PageHeader, SectionTitle, StatCard, StatGrid, tokens, tooltipTema } from '../../ui';
 import { ExportButtons, PeriodoFiltro, periodoDoAno } from './comuns';
 import { brl, mesCurto, mesLabel } from './format';
+import MovimentosDoFluxo from './MovimentosDoFluxo';
 
 const { colors } = tokens;
 
@@ -15,6 +16,7 @@ const eixoMil = (valor) => (Math.abs(valor) >= 1000 ? `${Math.round(valor / 1000
 /** Fluxo de caixa mês a mês: previsto (por vencimento) x realizado (por pagamento) e saldo acumulado. */
 export default function FluxoCaixa() {
     const [periodo, setPeriodo] = useState(periodoDoAno);
+    const [mes, setMes] = useState('');
 
     const { data, isLoading, error, refetch } = useQuery({
         queryKey: ['financeiro', 'fluxo', periodo],
@@ -31,7 +33,7 @@ export default function FluxoCaixa() {
         <Page>
             <PageHeader icon={FaWater} tone="blue" title="Fluxo de caixa" subtitle="Entradas e saídas por mês: previsto (vencimentos) e realizado (pagamentos)." />
 
-            <PeriodoFiltro de={periodo.de} ate={periodo.ate} onChange={setPeriodo} extra={<ExportButtons tipo="fluxo-caixa" params={periodo} />} />
+            <PeriodoFiltro de={periodo.de} ate={periodo.ate} onChange={(novo) => { setPeriodo(novo); setMes(''); }} extra={<ExportButtons tipo="fluxo-caixa" params={periodo} />} />
 
             {error ? (
                 <ErrorBlock message={errorMessage(error)} onRetry={refetch} />
@@ -76,6 +78,7 @@ export default function FluxoCaixa() {
                     <DataTable
                         rows={[...meses, { mes: 'total', total: true }]}
                         rowKey={(linha) => linha.mes}
+                        onRowClick={(linha) => !linha.total && setMes(linha.mes === mes ? '' : linha.mes)}
                         emptyTitle="Sem movimentações no período"
                         columns={[
                             { key: 'mes', header: 'Mês', render: (l) => (l.total ? <strong>Total</strong> : mesLabel(l.mes)) },
@@ -94,6 +97,9 @@ export default function FluxoCaixa() {
                             { key: 'saldo', header: 'Saldo acumulado', render: (l) => (l.total ? '' : brl(l.saldoAcumulado)) },
                         ]}
                     />
+                    <Muted>Clique em um mês para ver quem pagou e quem recebeu nele.</Muted>
+
+                    <MovimentosDoFluxo periodo={periodo} mes={mes} onMes={setMes} />
                 </>
             )}
         </Page>

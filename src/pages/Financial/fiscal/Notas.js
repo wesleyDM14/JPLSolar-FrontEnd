@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bar, CartesianGrid, ComposedChart, Legend, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import styled from 'styled-components';
 import { errorMessage } from '../../../api/client';
-import { fiscalApi, openFileInTab, saveBlob } from '../../../api/resources';
+import { fiscalApi, openFileInTab, saveResponse } from '../../../api/resources';
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue';
 import {
     Badge,
@@ -50,6 +50,7 @@ import { STATUS_NOTA, TIPOS_NOTA, direcaoOptions, statusOptions, tipoOptions } f
 import NotaDialog from './NotaDialog';
 import { EmitirNotaDialog } from './EmitirNotaDialog';
 import InutilizarNumeracaoDialog from './InutilizarNumeracaoDialog';
+import BuscarNotasDialog from './BuscarNotasDialog';
 import { ImportarXmlDialog, NovaNotaDialog } from './NovaNotaDialogs';
 
 const { colors } = tokens;
@@ -106,7 +107,7 @@ export default function Notas() {
         try {
             const consulta = somenteSelecionadas ? { ids: selecionadas.join(',') } : params;
             const resposta = await fiscalApi.xmlEmLote(consulta);
-            saveBlob(resposta.data, `notas-${filtros.mes || filtros.ano || 'filtradas'}.zip`);
+            saveResponse(resposta, `Notas fiscais ${filtros.mes || filtros.ano || 'filtradas'}.zip`);
             const semXml = Number(resposta.headers['x-notas-sem-xml'] ?? 0);
             toast.success(`${resposta.headers['x-notas-incluidas'] ?? ''} XML(s) baixado(s)${semXml ? ` · ${semXml} nota(s) sem XML ficaram de fora` : ''}.`);
         } catch (erro) {
@@ -124,7 +125,7 @@ export default function Notas() {
 
     const baixarXml = async (nota) => {
         try {
-            saveBlob((await fiscalApi.xml(nota.id)).data, `nota-${nota.numero ?? nota.id.slice(0, 8)}.xml`);
+            saveResponse(await fiscalApi.xml(nota.id), `NFS-e ${nota.numero ?? nota.id.slice(0, 8)}.xml`);
         } catch (erro) {
             toast.error('Esta nota não possui XML.');
         }
@@ -223,6 +224,7 @@ export default function Notas() {
                         <Button variant="secondary" icon={<FaCog />} onClick={() => navigate('/financeiro/fiscal/configuracao')}>Configuração fiscal</Button>
                         <Button variant="secondary" icon={<FaListUl />} onClick={() => navigate('/financeiro/fiscal/atividades')}>Atividades</Button>
                         <Button variant="secondary" icon={<FaHashtag />} onClick={() => setDialogo('numeracao')}>Inutilizar numeração</Button>
+                        <Button variant="secondary" icon={<FaCalendarCheck />} onClick={() => setDialogo('buscar')}>Buscar notas da prefeitura</Button>
                         <Button variant="secondary" icon={<FaFileImport />} onClick={() => setDialogo('importar')}>Importar XML</Button>
                         <Button variant="secondary" icon={<FaPlus />} onClick={() => setDialogo('nova')}>Cadastrar nota</Button>
                         <Button icon={<FaBolt />} onClick={() => setDialogo('emitir')}>Emitir nota</Button>
@@ -320,6 +322,7 @@ export default function Notas() {
             {detalheId && <NotaDialog id={detalheId} onClose={() => setDetalheId(null)} />}
             <NovaNotaDialog open={dialogo === 'nova'} onClose={() => setDialogo(null)} />
             <ImportarXmlDialog open={dialogo === 'importar'} onClose={() => setDialogo(null)} />
+            <BuscarNotasDialog open={dialogo === 'buscar'} onClose={() => setDialogo(null)} />
             <EmitirNotaDialog open={dialogo === 'emitir'} onClose={() => setDialogo(null)} />
             <InutilizarNumeracaoDialog open={dialogo === 'numeracao'} onClose={() => setDialogo(null)} />
         </Page>

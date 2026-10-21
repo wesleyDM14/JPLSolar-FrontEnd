@@ -91,6 +91,7 @@ export default function LancamentoDialog({ id, onClose }) {
                             <KeyValue label={receber ? 'Recebido' : 'Pago'}>{brl(lancamento.valorPago)}</KeyValue>
                             <KeyValue label="Em aberto">{brl(lancamento.valorRestante)}</KeyValue>
                             <KeyValue label="Vencimento">{formatDate(lancamento.dataVencimento)}</KeyValue>
+                            <KeyValue label={receber ? 'Recebido em' : 'Pago em'}>{lancamento.dataPagamento ? formatDate(lancamento.dataPagamento) : null}</KeyValue>
                             <KeyValue label="Emissão">{formatDate(lancamento.dataEmissao)}</KeyValue>
                             <KeyValue label="Documento">{lancamento.numeroDocumento}</KeyValue>
                             <KeyValue label={receber ? 'Cliente' : 'Fornecedor'}>

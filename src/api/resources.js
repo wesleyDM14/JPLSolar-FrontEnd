@@ -42,7 +42,7 @@ export const contratosApi = {
     get: (id) => data(api.get(`/contratos/${id}`)),
     create: (payload) => data(api.post('/contratos', payload)),
     update: (id, payload) => data(api.put(`/contratos/${id}`, payload)),
-    updateStatus: (id, status) => data(api.patch(`/contratos/${id}/status`, { status })),
+    updateStatus: (id, status, cancelarLancamentos = false) => data(api.patch(`/contratos/${id}/status`, { status, cancelarLancamentos })),
     remove: (id) => api.delete(`/contratos/${id}`),
     pdf: (id) => api.get(`/contratos/${id}/pdf`, { responseType: 'blob' }),
     promissoriaPdf: (id) => api.get(`/contratos/${id}/promissoria/pdf`, { responseType: 'blob' }),
@@ -60,6 +60,26 @@ export const documentosApi = {
     },
     download: (id) => api.get(`/documentos/${id}/download`, { responseType: 'blob' }),
     remove: (id) => api.delete(`/documentos/${id}`),
+};
+
+/** Administração > Arquivos: o Drive da JPL dentro do sistema (somente administradores). */
+export const arquivosAdminApi = {
+    listar: (pasta) => data(api.get('/admin/arquivos', { params: clean({ pasta }) })),
+    // Espaço ocupado na pasta da JPL e o limite (1 TB).
+    uso: () => data(api.get('/admin/arquivos/uso')),
+    criarPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas', { pai: pai || undefined, nome })),
+    renomear: (id, nome) => data(api.patch(`/admin/arquivos/${id}`, { nome })),
+    excluir: (id) => api.delete(`/admin/arquivos/${id}`),
+    // Endereço de uso curto: o navegador baixa direto, com a própria barra de progresso.
+    link: (id) => data(api.get(`/admin/arquivos/${id}/link`)),
+    // Sem limite de tempo: backups grandes demoram. O progresso vem do navegador (bytes enviados).
+    enviar: (pasta, arquivo, onProgress) => {
+        const form = new FormData();
+        form.append('arquivos', arquivo);
+        return data(api.post('/admin/arquivos/enviar', form, { params: clean({ pasta }), timeout: 0, onUploadProgress: onProgress }));
+    },
+    /** Endereço completo do link de download devolvido por `link`. */
+    enderecoDoLink: (caminho) => `${process.env.REACT_APP_BASE_URL}${caminho}`,
 };
 
 export const notificacoesApi = {
@@ -94,6 +114,7 @@ export const financeiroApi = {
     // Painel
     resumo: () => data(api.get('/financeiro/resumo')),
     fluxoCaixa: (params) => data(api.get('/financeiro/fluxo-caixa', { params: clean(params) })),
+    fluxoCaixaMovimentos: (params) => data(api.get('/financeiro/fluxo-caixa/movimentos', { params: clean(params) })),
 
     // Lançamentos (a receber / a pagar)
     lancamentos: (params) => data(api.get('/financeiro/lancamentos', { params: clean(params) })),
@@ -131,6 +152,7 @@ export const financeiroApi = {
     boletoBancoComando: (nossoNumero, payload) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/comando`, payload)),
     boletoBancoPdf: (nossoNumero) => api.get(`/financeiro/boletos/banco/${nossoNumero}/pdf`, { responseType: 'blob' }),
     boletoBancoVincular: (nossoNumero, payload) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/vincular`, payload)),
+    boletoBancoOcultar: (nossoNumero, ocultar) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/ocultar`, { ocultar })),
     boletoBancoDesvincular: (nossoNumero) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/desvincular`)),
     boletoBancoCriarLancamento: (nossoNumero, payload = {}) => data(api.post(`/financeiro/boletos/banco/${nossoNumero}/criar-lancamento`, payload)),
 
@@ -138,13 +160,16 @@ export const financeiroApi = {
     visaoCliente: (id) => data(api.get(`/financeiro/clientes/${id}/visao`)),
 
     // Parcelas de contrato
+    calculoQuitacao: (contratoId, params) => data(api.get(`/financeiro/contratos/${contratoId}/quitacao/calculo`, { params: clean(params) })),
+    gerarBoletoQuitacao: (contratoId, payload) => data(api.post(`/financeiro/contratos/${contratoId}/quitacao/boleto`, payload)),
+    quitarContrato: (contratoId, payload) => data(api.post(`/financeiro/contratos/${contratoId}/quitar`, payload)),
     gerarParcelas: (contratoId, payload = {}) => data(api.post(`/financeiro/contratos/${contratoId}/gerar-parcelas`, payload)),
 
     // Análises e relatórios
     dre: (params) => data(api.get('/financeiro/analise/dre', { params: clean(params) })),
     indicadores: (params) => data(api.get('/financeiro/analise/indicadores', { params: clean(params) })),
     aging: () => data(api.get('/financeiro/analise/aging')),
-    clientesRisco: () => data(api.get('/financeiro/analise/clientes-risco')),
+    clientesRisco: (todos = false) => data(api.get('/financeiro/analise/clientes-risco', { params: todos ? { todos: 'true' } : {} })),
     relatorio: (tipo, params) => data(api.get(`/financeiro/relatorios/${tipo}`, { params: clean(params) })),
     relatorioArquivo: (tipo, params, formato) => api.get(`/financeiro/relatorios/${tipo}`, { params: clean({ ...params, formato }), responseType: 'blob' }),
     pacoteContabil: (mes) => api.get('/financeiro/relatorios/pacote-contabil', { params: { mes }, responseType: 'blob' }),
@@ -171,6 +196,11 @@ export const financeiroApi = {
 };
 
 /** Baixa um blob (PDF/arquivo) no navegador. */
+/** Salva a resposta com o nome do servidor (Content-Disposition); sem ele, usa o nome de reserva. */
+export function saveResponse(resposta, reserva) {
+    saveBlob(resposta.data, nomeDoCabecalho(resposta.headers?.['content-disposition']) ?? reserva);
+}
+
 export function saveBlob(blob, filename) {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -320,9 +350,11 @@ export const fiscalApi = {
     enviarCertificado: (payload) => data(api.post('/fiscal/nfse/certificado', payload)),
     removerCertificado: () => data(api.delete('/fiscal/nfse/certificado')),
     testarNfse: (ambiente) => data(api.post('/fiscal/nfse/testar', { ambiente })),
+    buscarNotas: (payload) => data(api.post('/fiscal/nfse/buscar', payload)),
     emitirNfse: (payload) => data(api.post('/fiscal/notas/emitir', payload)),
     consultarNfse: (id) => data(api.post(`/fiscal/notas/${id}/consultar`)),
     cancelarNfse: (id, codigo) => data(api.post(`/fiscal/notas/${id}/cancelar`, { codigo })),
+    reenviarNfse: (id, payload) => data(api.post(`/fiscal/notas/${id}/reenviar`, payload)),
     substituirNfse: (id, payload) => data(api.post(`/fiscal/notas/${id}/substituir`, payload)),
     inutilizarNfse: (id, motivo) => data(api.post(`/fiscal/notas/${id}/inutilizar`, { motivo })),
     inutilizarNumeracao: (payload) => data(api.post('/fiscal/nfse/inutilizar-numeracao', payload)),

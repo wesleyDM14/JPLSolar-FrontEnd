@@ -62,10 +62,11 @@ const ORDENACOES = {
 /** Score dos clientes (0 a 1000, quanto maior melhor) e o valor que está em risco em cada carteira. */
 export default function ClientesRisco() {
     const [classe, setClasse] = useState('');
+    const [todos, setTodos] = useState(false);
     const [clienteId, setClienteId] = useState(null);
     const [sort, setSort] = useState({ field: 'score', direction: 'asc' });
 
-    const { data, isLoading, error, refetch } = useQuery({ queryKey: ['financeiro', 'risco'], queryFn: financeiroApi.clientesRisco });
+    const { data, isLoading, error, refetch } = useQuery({ queryKey: ['financeiro', 'risco', todos], queryFn: () => financeiroApi.clientesRisco(todos), placeholderData: (anterior) => anterior });
 
     const lista = useMemo(() => {
         const base = (data?.clientes ?? []).filter((c) => !classe || c.classe === classe);
@@ -120,6 +121,11 @@ export default function ClientesRisco() {
                             O valor em risco aplica a probabilidade estimada de calote ao saldo em aberto.
                         </Muted>
                     </p>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 0 12px', cursor: 'pointer' }}>
+                        <input type="checkbox" checked={todos} onChange={(evento) => setTodos(evento.target.checked)} />
+                        Incluir quem quitou tudo em dia (sem nada em aberto)
+                    </label>
 
                     <DataTable
                         rows={lista}

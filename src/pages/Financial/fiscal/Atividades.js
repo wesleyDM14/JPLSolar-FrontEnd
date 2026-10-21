@@ -215,7 +215,7 @@ function AtividadeDialog({ registro, inicial, cnaes, onClose }) {
                             <TextField name="descricao" label="Atividade" required hint="Nome que aparece na lista de emissão." />
                             <Grid $cols={2}>
                                 <TextField name="itemListaServico" label="Item da lista de serviços (LC 116)" required hint="Ex.: 07.02" />
-                                <TextField name="codigoTributacao" label="Código de tributação do município" />
+                                <TextField name="codigoTributacao" label="Código de tributação do município" hint="No Tributus da JPL é o CNAE da atividade (ex.: 7112000)." />
                                 <TextField name="aliquotaIss" label="Alíquota de ISS (%)" type="number" step="0.01" min="0" />
                                 <SelectField name="issRetido" label="ISS retido pelo tomador" placeholder={null} options={SIM_NAO} />
                                 <SelectField name="ativo" label="Ativa" placeholder={null} options={SIM_NAO} />

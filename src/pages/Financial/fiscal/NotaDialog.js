@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaBan, FaEdit, FaEraser, FaFilePdf, FaFileCode, FaLink, FaSyncAlt, FaTrash } from 'react-icons/fa';
+import { FaBan, FaEdit, FaEraser, FaFilePdf, FaFileCode, FaLink, FaRedo, FaSyncAlt, FaTrash } from 'react-icons/fa';
 import { errorMessage } from '../../../api/client';
-import { clientesApi, contratosApi, fiscalApi, openFileInTab, saveBlob, usinasApi } from '../../../api/resources';
+import { clientesApi, contratosApi, fiscalApi, openFileInTab, saveResponse, usinasApi } from '../../../api/resources';
 import { Badge, Button, Combobox, ConfirmDialog, Dialog, ErrorBlock, FilterSelect, Grid, KeyValue, LoadingBlock, Muted, Row, SectionTitle, Textarea, tokens } from '../../../ui';
 import { formatCurrency, formatDate, formatDocumento } from '../../../utils/masks';
+import ReenviarNotaDialog from './ReenviarNotaDialog';
 import SubstituirNotaDialog from './SubstituirNotaDialog';
 import { STATUS_NOTA, TIPOS_NOTA, statusOptions } from './formato';
 
@@ -17,6 +18,7 @@ export default function NotaDialog({ id, onClose }) {
     const [excluir, setExcluir] = useState(false);
     const [cancelar, setCancelar] = useState(false);
     const [substituir, setSubstituir] = useState(false);
+    const [reenviando, setReenviando] = useState(false);
     const [inutilizar, setInutilizar] = useState(false);
     const [motivoInutilizacao, setMotivoInutilizacao] = useState('');
     const [codigoCancelamento, setCodigoCancelamento] = useState('1');
@@ -100,7 +102,7 @@ export default function NotaDialog({ id, onClose }) {
     const baixarXml = async () => {
         try {
             const resposta = await fiscalApi.xml(id);
-            saveBlob(resposta.data, `nota-${nota.numero ?? id.slice(0, 8)}.xml`);
+            saveResponse(resposta, `NFS-e ${nota.numero ?? id.slice(0, 8)}.xml`);
         } catch (erro) {
             // Erros de download chegam como blob: lê a mensagem para exibir algo útil.
             let mensagem = errorMessage(erro, 'Não foi possível baixar o XML.');
@@ -140,6 +142,9 @@ export default function NotaDialog({ id, onClose }) {
                                     <Button variant="danger" icon={<FaBan />} onClick={() => setCancelar(true)} style={{ marginRight: 'auto' }}>Cancelar nota</Button>
                                     <Button variant="secondary" icon={<FaEdit />} onClick={() => setSubstituir(true)}>Corrigir (substituir)</Button>
                                 </>
+                            )}
+                            {emitidaPeloSistema && nota.status === 'REJEITADA' && (
+                                <Button icon={<FaRedo />} onClick={() => setReenviando(true)}>Corrigir e reenviar</Button>
                             )}
                             {emitidaPeloSistema && ['PENDENTE', 'REJEITADA'].includes(nota.status) && (
                                 <Button variant="secondary" icon={<FaEraser />} onClick={() => setInutilizar(true)}>Inutilizar número</Button>
@@ -306,6 +311,16 @@ export default function NotaDialog({ id, onClose }) {
                     <Muted>A prefeitura aceita o cancelamento automaticamente até o dia 5 do mês seguinte; depois disso é preciso pedir pelo portal.</Muted>
                 </p>
             </Dialog>
+
+            {reenviando && nota && (
+                <ReenviarNotaDialog
+                    nota={nota}
+                    onClose={() => {
+                        setReenviando(false);
+                        queryClient.invalidateQueries({ queryKey: ['fiscal'] });
+                    }}
+                />
+            )}
 
             {substituir && nota && (
                 <SubstituirNotaDialog

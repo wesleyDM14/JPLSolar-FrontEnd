@@ -6,7 +6,7 @@ import { FaCheckCircle, FaExclamationTriangle, FaFileCode } from 'react-icons/fa
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { errorMessage, fieldErrors } from '../../../api/client';
-import { contratosApi, fiscalApi, saveBlob } from '../../../api/resources';
+import { contratosApi, fiscalApi, saveResponse } from '../../../api/resources';
 import ParteField from '../../../components/ParteField';
 import { Badge, Button, DateField, Dialog, FilterSelect, Grid, KeyValue, LoadingBlock, Muted, SelectField, TextField, TextareaField, tokens } from '../../../ui';
 import CamposServico from './CamposServico';
@@ -23,6 +23,22 @@ const schema = Yup.object({
     aliquotaIss: Yup.number().transform((v, o) => (o === '' ? undefined : v)).min(0).max(100),
 });
 
+
+/** Itens da lista de serviços (LC 116) que a prefeitura trata como obra: pedem o código da obra (CNO). */
+const ITENS_DE_OBRA = ['07.02', '07.04', '07.05', '07.06', '07.07', '07.08'];
+
+/** Código da obra e ART: só aparecem quando o item do serviço é de obra (nos demais a prefeitura recusa). */
+function CamposObra() {
+    const { values } = useFormikContext();
+    if (!ITENS_DE_OBRA.includes(String(values.itemListaServico ?? '').trim())) return null;
+
+    return (
+        <Grid $cols={2}>
+            <TextField name="codigoObra" label="Código da obra (CNO)" hint="Obrigatório para este item (serviço de obra)." />
+            <TextField name="art" label="ART (opcional)" />
+        </Grid>
+    );
+}
 
 function ResumoIss() {
     const { values } = useFormikContext();
@@ -172,7 +188,7 @@ export function EmitirNotaDialog({ open, onClose, preset }) {
                                 icon={<FaFileCode />}
                                 onClick={async () => {
                                     try {
-                                        saveBlob((await fiscalApi.xml(nota.id)).data, `nfse-${resultado.numero}.xml`);
+                                        saveResponse(await fiscalApi.xml(nota.id), `NFS-e ${resultado.numero}.xml`);
                                     } catch (erro) {
                                         toast.error(errorMessage(erro, 'Não foi possível baixar o XML.'));
                                     }
@@ -236,6 +252,8 @@ export function EmitirNotaDialog({ open, onClose, preset }) {
                 competencia: competenciaInicial,
                 contratoId: preset?.contratoId ?? '',
                 informacoesComplementares: '',
+                codigoObra: '',
+                art: '',
             }}
             validationSchema={schema}
             onSubmit={async (values, { setErrors }) => {
@@ -256,6 +274,8 @@ export function EmitirNotaDialog({ open, onClose, preset }) {
                         usinaId: preset?.usinaId,
                         lancamentoId: values.lancamentoId || undefined,
                         informacoesComplementares: values.informacoesComplementares || undefined,
+                        codigoObra: ITENS_DE_OBRA.includes(String(values.itemListaServico ?? '').trim()) ? values.codigoObra || undefined : undefined,
+                        art: ITENS_DE_OBRA.includes(String(values.itemListaServico ?? '').trim()) ? values.art || undefined : undefined,
                     });
                 } catch (erro) {
                     const campos = fieldErrors(erro);
@@ -289,6 +309,7 @@ export function EmitirNotaDialog({ open, onClose, preset }) {
                                 <CamposServico />
                             </Grid>
                             <ResumoIss />
+                            <CamposObra />
                             <TextareaField name="discriminacao" label="Discriminação do serviço" rows={4} required hint="Aparece na nota. Quebras de linha são mantidas." />
                             <TextareaField name="informacoesComplementares" label="Informações complementares" rows={2} />
                         </div>

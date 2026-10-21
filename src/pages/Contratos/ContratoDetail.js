@@ -10,6 +10,8 @@ import { EmitirNotaDialog } from '../Financial/fiscal/EmitirNotaDialog';
 import NotaDialog from '../Financial/fiscal/NotaDialog';
 import { STATUS_NOTA } from '../Financial/fiscal/formato';
 import GerarParcelasDialog from './GerarParcelasDialog';
+import InativarContratoDialog from './InativarContratoDialog';
+import QuitarContratoDialog from './QuitarContratoDialog';
 import ParcelasDoContrato from './ParcelasDoContrato';
 import { errorMessage } from '../../api/client';
 import DocumentosPanel from '../../components/DocumentosPanel';
@@ -93,6 +95,8 @@ export default function ContratoDetailPage() {
 
     // Cria no financeiro as parcelas a receber do contrato (uma por vencimento), com boletos se pedido.
     const [parcelasDialog, setParcelasDialog] = useState(false);
+    const [inativando, setInativando] = useState(false);
+    const [quitando, setQuitando] = useState(false);
     const [imprimindo, setImprimindo] = useState(false);
 
     const remove = useMutation({
@@ -216,6 +220,9 @@ export default function ContratoDetailPage() {
                                 Imprimir boletos ({boletosParaImprimir.length})
                             </Button>
                         )}
+                        {contrato.status === 'ATIVO' && parcelasResumo.data && parcelasResumo.data.resumo.abertas > 0 && (
+                            <Button variant="secondary" icon={<FaMoneyBillWave />} onClick={() => setQuitando(true)}>Quitar contrato</Button>
+                        )}
                         <Button variant="secondary" icon={<FaEdit />} onClick={() => navigate(`/contratos/${id}/editar`)}>Editar</Button>
                         <Button variant="danger" icon={<FaTrashAlt />} onClick={() => setConfirmDelete(true)}>Excluir</Button>
                     </>
@@ -267,7 +274,11 @@ export default function ContratoDetailPage() {
                                     value={contrato.status}
                                     placeholder="Selecione"
                                     disabled={changeStatus.isPending}
-                                    onChange={(event) => event.target.value && changeStatus.mutate(event.target.value)}
+                                    onChange={(event) => {
+                                        // Inativar passa por uma confirmação que mostra o que acontece com as parcelas.
+                                        if (event.target.value === 'CANCELADO') setInativando(true);
+                                        else if (event.target.value) changeStatus.mutate(event.target.value);
+                                    }}
                                 />
                             </div>
                         </Row>
@@ -433,6 +444,9 @@ export default function ContratoDetailPage() {
                     }}
                 />
             )}
+
+            {quitando && <QuitarContratoDialog contrato={contrato} onClose={() => setQuitando(false)} />}
+            {inativando && <InativarContratoDialog contrato={contrato} onClose={() => setInativando(false)} />}
 
             <ConfirmDialog
                 open={confirmDelete}

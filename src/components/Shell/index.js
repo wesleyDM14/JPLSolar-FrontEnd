@@ -4,11 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi, notificacoesApi } from '../../api/resources';
 import { Avatar } from '../../ui';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaUserCog, FaUsers } from 'react-icons/fa';
+import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaToolbox, FaUserCog, FaUsers } from 'react-icons/fa';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { TbReportAnalytics, TbSolarPanel2 } from 'react-icons/tb';
 import { logoutUser } from '../../services/authServices';
 import logo from '../../assets/logo.png';
+import { ADMINISTRACAO_MENU } from '../../pages/Administracao/menu';
 import { FINANCEIRO_MENU } from '../../pages/Financial/menu';
 import GlobalSearch from './GlobalSearch';
 import NotificationBell from './NotificationBell';
@@ -57,6 +58,7 @@ const SECTIONS = [
             { path: '/equipe', title: 'Equipe e acessos', icon: <FaUserCog /> },
             { path: '/tarefas', title: 'Tarefas', icon: <FaTasks /> },
             { path: '/notificacoes', title: 'Notificações', icon: <FaBell />, contador: true },
+            { path: '/administracao', title: 'Administração', icon: <FaToolbox />, submenu: ADMINISTRACAO_MENU },
         ],
     },
 ];

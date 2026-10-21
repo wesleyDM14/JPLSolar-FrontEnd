@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaCheckCircle, FaClock, FaExclamationTriangle, FaLink, FaPlus, FaPrint, FaSearch, FaSyncAlt, FaUnlink } from 'react-icons/fa';
+import { FaCheckCircle, FaClock, FaExclamationTriangle, FaLink, FaPlus, FaEyeSlash, FaPrint, FaSearch, FaSyncAlt, FaUndo, FaUnlink } from 'react-icons/fa';
 import styled from 'styled-components';
 import { errorMessage } from '../../../api/client';
 import { financeiroApi, imprimirBoletosDoBanco, sicrediApi } from '../../../api/resources';
@@ -47,6 +47,7 @@ const GRUPOS = [
 const VINCULOS = [
     { value: 'nao', label: 'Sem lançamento' },
     { value: 'sim', label: 'Com lançamento' },
+    { value: 'ocultos', label: 'Ocultos (escondidos da lista)' },
 ];
 
 const SITUACAO = {
@@ -392,7 +393,8 @@ export default function BoletosDoBanco() {
     const [vinculoAutomatico, setVinculoAutomatico] = useState(false);
 
     const termo = useDebouncedValue(busca);
-    const params = { grupo, vinculo: vinculo || undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE, sort: `${sort.field}:${sort.direction}` };
+    const ocultos = vinculo === 'ocultos';
+    const params = { grupo, vinculo: vinculo && !ocultos ? vinculo : undefined, ocultos: ocultos ? 'true' : undefined, search: termo.trim() || undefined, page, pageSize: PAGE_SIZE, sort: `${sort.field}:${sort.direction}` };
 
     const alternarOrdem = (campo) => {
         setPage(1);
@@ -449,6 +451,15 @@ export default function BoletosDoBanco() {
             await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
             toast.success('Boleto desvinculado.');
             setDesvinculando(null);
+        },
+        onError: (erro) => toast.error(errorMessage(erro)),
+    });
+
+    const ocultar = useMutation({
+        mutationFn: ({ nossoNumero, ocultar: esconder }) => financeiroApi.boletoBancoOcultar(nossoNumero, esconder),
+        onSuccess: async (_resposta, { ocultar: esconder }) => {
+            await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
+            toast.success(esconder ? 'Boleto oculto. Ele não aparece mais na lista nem gera avisos.' : 'Boleto voltou para a lista.');
         },
         onError: (erro) => toast.error(errorMessage(erro)),
     });
@@ -550,15 +561,20 @@ export default function BoletosDoBanco() {
         {
             key: 'acoes',
             header: '',
-            width: 150,
+            width: 190,
             nowrap: true,
             render: (l) => (
                 <Row $justify="flex-end" $wrap={false}>
                     <Button size="sm" variant="secondary" onClick={() => setGerenciando(l)}>Gerenciar</Button>
                     {l.lancamento ? (
                         <Button size="sm" variant="ghost" icon={<FaUnlink />} title="Desvincular do lançamento" aria-label="Desvincular do lançamento" onClick={() => setDesvinculando(l)} />
+                    ) : ocultos ? (
+                        <Button size="sm" variant="secondary" icon={<FaUndo />} title="Voltar para a lista" aria-label="Voltar para a lista" loading={ocultar.isPending} onClick={() => ocultar.mutate({ nossoNumero: l.nossoNumero, ocultar: false })} />
                     ) : (
-                        <Button size="sm" variant="secondary" icon={<FaLink />} title="Vincular a um lançamento" aria-label="Vincular a um lançamento" onClick={() => setVinculando(l)} />
+                        <>
+                            <Button size="sm" variant="secondary" icon={<FaLink />} title="Vincular a um lançamento" aria-label="Vincular a um lançamento" onClick={() => setVinculando(l)} />
+                            <Button size="sm" variant="ghost" icon={<FaEyeSlash />} title="Ocultar da lista (ex.: boleto de teste)" aria-label="Ocultar da lista" loading={ocultar.isPending} onClick={() => ocultar.mutate({ nossoNumero: l.nossoNumero, ocultar: true })} />
+                        </>
                     )}
                 </Row>
             ),

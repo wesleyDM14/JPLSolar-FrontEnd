@@ -19,7 +19,7 @@ import {
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
-import { financeiroApi, fiscalApi, openFileInTab, saveBlob } from '../../api/resources';
+import { financeiroApi, fiscalApi, openFileInTab, saveResponse } from '../../api/resources';
 import { Badge, Button, Card, DataTable, Dialog, FilterInput, Grid, IconChip, LoadingBlock, Muted, Page, PageHeader, Reveal, SectionTitle, tokens } from '../../ui';
 import { BarraDeFiltros, mesAtual, somarMesesChave } from './comuns';
 
@@ -148,13 +148,13 @@ export default function Contabilidade() {
             await openFileInTab(() => financeiroApi.relatorioArquivo(item.tipo, parametrosDe(item, mes), 'pdf'), `${item.tipo}.pdf`, 'Gerando relatório…');
         } else {
             const resposta = await financeiroApi.relatorioArquivo(item.tipo, parametrosDe(item, mes), 'csv');
-            saveBlob(resposta.data, `${item.tipo}-${mes}.csv`);
+            saveResponse(resposta, `${item.tipo}-${mes}.csv`);
         }
     });
 
     const baixarPacote = () => executar('pacote', async () => {
         const resposta = await financeiroApi.pacoteContabil(mes);
-        saveBlob(resposta.data, `pacote-contabil-${mes}.zip`);
+        saveResponse(resposta, `Pacote contábil ${mes}.zip`);
     });
 
     const enviar = useMutation({

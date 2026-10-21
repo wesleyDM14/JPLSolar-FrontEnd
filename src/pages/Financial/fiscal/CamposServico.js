@@ -34,7 +34,7 @@ export default function CamposServico() {
         setFieldValue('atividadeId', a.id);
         setFieldValue('itemListaServico', a.itemListaServico);
         if (!manterCnae || a.codigoCnae) setFieldValue('codigoCnae', a.codigoCnae ?? '');
-        setFieldValue('codigoTributacao', a.codigoTributacao ?? '');
+        setFieldValue('codigoTributacao', a.codigoTributacao ?? a.codigoCnae ?? '');
         setFieldValue('aliquotaIss', a.aliquotaIss ?? '');
         setFieldValue('issRetido', a.issRetido ? 'true' : 'false');
         if (a.discriminacaoModelo && 'discriminacao' in values && !String(values.discriminacao ?? '').trim()) {
@@ -89,6 +89,12 @@ export default function CamposServico() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [values.itemListaServico, atividades.length, cnaes.length]);
 
+    // Código de tributação vazio com CNAE escolhido: sugere o CNAE (no Tributus da JPL o código do município é o CNAE).
+    useEffect(() => {
+        if (values.codigoCnae && !String(values.codigoTributacao ?? '').trim()) setFieldValue('codigoTributacao', values.codigoCnae);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [values.codigoCnae]);
+
     // Mudou o item à mão para outro diferente da atividade escolhida: ela deixa de valer.
     useEffect(() => {
         const atual = atividades.find((a) => a.id === values.atividadeId);
@@ -134,8 +140,13 @@ export default function CamposServico() {
                 onChange={(codigo) => escolherCnae(codigo)}
             />
             <TextField name="itemListaServico" label="Item da lista de serviços" hint="Ex.: 07.02" required />
-            <TextField name="codigoTributacao" label="Código de tributação municipal" />
+            <TextField name="codigoTributacao" label="Código de tributação municipal" hint="Sugerido: o CNAE do serviço (ex.: 7112000). Confirme com o contador." />
             <TextField name="aliquotaIss" label="Alíquota de ISS (%)" type="number" step="0.01" min="0" />
+            {cnaeAtual?.itemListaSugerido && values.itemListaServico && cnaeAtual.itemListaSugerido !== values.itemListaServico && (
+                <div style={{ gridColumn: '1 / -1' }}>
+                    <Muted>Atenção: para o CNAE {cnaeAtual.codigoFormatado} o item mais comum é {cnaeAtual.itemListaSugerido}. A prefeitura recusa item e código que não combinam.</Muted>
+                </div>
+            )}
             <div style={{ gridColumn: '1 / -1' }}>
                 <Muted>
                     {atividadeAtual?.classificacaoTributaria

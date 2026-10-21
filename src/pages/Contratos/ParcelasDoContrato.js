@@ -35,7 +35,7 @@ export default function ParcelasDoContrato({ contratoId }) {
     if (isLoading) return <LoadingBlock />;
     if (error) return <ErrorBlock message={errorMessage(error)} onRetry={refetch} />;
 
-    const { resumo, parcelas } = data;
+    const { resumo, parcelas, avisos = [] } = data;
 
     if (parcelas.length === 0) {
         return <Muted>Este contrato ainda não tem parcelas geradas. Use “Gerar parcelas” no topo da página.</Muted>;
@@ -43,6 +43,15 @@ export default function ParcelasDoContrato({ contratoId }) {
 
     return (
         <>
+            {avisos.length > 0 && (
+                <div style={{ padding: '12px 14px', marginBottom: 14, borderRadius: 10, background: 'var(--c-warning-bg, #FFF3E0)', color: 'var(--c-text)', border: '1px solid var(--c-border)' }}>
+                    <strong>Vencimentos fora de sequência</strong>
+                    <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>
+                        {avisos.map((aviso) => <li key={aviso}>{aviso}</li>)}
+                    </ul>
+                </div>
+            )}
+
             <StatGrid>
                 <StatCard icon={FaMoneyBillWave} tom="blue" rotulo="Contratado" valor={resumo.contratado} formato={formatCurrency} detalhe={`${resumo.quantidade} parcela(s)`} />
                 <StatCard icon={FaCheckCircle} tom="green" rotulo="Recebido" valor={resumo.recebido} formato={formatCurrency} detalhe={`${resumo.quitadas} parcela(s) paga(s)`} />
@@ -67,7 +76,7 @@ export default function ParcelasDoContrato({ contratoId }) {
                         key: 'numero',
                         header: 'Parcela',
                         nowrap: true,
-                        render: (p) => <strong>{p.total ? `${p.numero}/${p.total}` : '—'}</strong>,
+                        render: (p) => <strong>{p.total ? `${p.numero}/${p.total}` : /^Quitação/.test(p.descricao) ? 'Quitação' : '—'}</strong>,
                     },
                     { key: 'vencimento', header: 'Vencimento', nowrap: true, render: (p) => formatDate(p.dataVencimento) },
                     { key: 'valor', header: 'Valor', nowrap: true, render: (p) => formatCurrency(p.valor) },

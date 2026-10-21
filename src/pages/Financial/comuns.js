@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import { FaFileCsv, FaFilePdf } from 'react-icons/fa';
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
-import { financeiroApi, openFileInTab, saveBlob } from '../../api/resources';
+import { financeiroApi, openFileInTab, saveResponse } from '../../api/resources';
 import { Button, FilterInput, FilterSelect, tokens } from '../../ui';
 import { anoAtual, mesAtual, somarMesesChave } from '../../utils/datas';
 
@@ -105,7 +105,7 @@ export function ExportButtons({ tipo, params }) {
                 await openFileInTab(() => financeiroApi.relatorioArquivo(tipo, params, 'pdf'), `${tipo}.pdf`, 'Gerando relatório…');
             } else {
                 const resposta = await financeiroApi.relatorioArquivo(tipo, params, 'csv');
-                saveBlob(resposta.data, `${tipo}.csv`);
+                saveResponse(resposta, `${tipo}.csv`);
             }
         } catch (erro) {
             toast.error(errorMessage(erro, 'Não foi possível gerar o relatório.'));
