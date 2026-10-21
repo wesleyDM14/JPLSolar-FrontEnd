@@ -68,6 +68,8 @@ export const arquivosAdminApi = {
     // Espaço ocupado na pasta da JPL e o limite (2 TB).
     uso: () => data(api.get('/admin/arquivos/uso')),
     criarPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas', { pai: pai || undefined, nome })),
+    // Devolve a pasta se já existe, ou cria (envio de pastas inteiras).
+    garantirPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas/garantir', { pai: pai || undefined, nome })),
     renomear: (id, nome) => data(api.patch(`/admin/arquivos/${id}`, { nome })),
     excluir: (id) => api.delete(`/admin/arquivos/${id}`),
     // Endereço de uso curto: o navegador baixa direto, com a própria barra de progresso.
@@ -77,6 +79,61 @@ export const arquivosAdminApi = {
         const form = new FormData();
         form.append('arquivos', arquivo);
         return data(api.post('/admin/arquivos/enviar', form, { params: clean({ pasta }), timeout: 0, onUploadProgress: onProgress }));
+    },
+    /**
+     * Arquivos grandes, sem limite por arquivo: o servidor abre uma sessão e o arquivo sobe em partes (32 MB). Cada parte
+     * que falha é repetida sozinha, retomando de onde o servidor parou; uma queda de rede não obriga a recomeçar do zero.
+     * `onProgresso(percentual)` recebe de 0 a 100.
+     */
+    enviarGrande: async (pasta, arquivo, onProgresso) => {
+        const pausa = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
+        const sessao = await data(
+            api.post('/admin/arquivos/enviar/sessao', {
+                pasta: pasta || undefined,
+                nome: arquivo.name,
+                tamanho: arquivo.size,
+                mimeType: arquivo.type || 'application/octet-stream',
+            }),
+        );
+        const url = `/admin/arquivos/enviar/sessao/${sessao.sessao}`;
+
+        let enviado = 0;
+        let falhas = 0;
+        while (enviado < arquivo.size) {
+            const inicio = enviado;
+            const fim = Math.min(inicio + sessao.tamanhoDaParte, arquivo.size);
+            try {
+                const resposta = await data(
+                    api.put(url, arquivo.slice(inicio, fim), {
+                        params: { inicio },
+                        headers: { 'Content-Type': 'application/octet-stream' },
+                        timeout: 0,
+                        onUploadProgress: (evento) => onProgresso?.(Math.min(99, Math.round(((inicio + evento.loaded) / arquivo.size) * 100))),
+                    }),
+                );
+                falhas = 0;
+                enviado = resposta.enviado;
+                if (resposta.concluido) {
+                    onProgresso?.(100);
+                    return resposta.concluido;
+                }
+            } catch (erro) {
+                const status = erro.response?.status;
+                const repetivel = !status || status >= 500 || status === 409;
+                falhas += 1;
+                if (!repetivel || falhas >= 6) throw erro;
+                await pausa(1000 * falhas);
+                // Pergunta ao servidor até onde ele realmente recebeu e continua dali.
+                try {
+                    const estado = await data(api.get(url));
+                    if (estado.concluido) return estado.concluido;
+                    enviado = estado.enviado;
+                } catch (erroEstado) {
+                    if (erroEstado.response?.status === 404) throw erro;
+                }
+            }
+        }
+        throw new Error('O envio terminou sem confirmação do servidor.');
     },
     /** Endereço completo do link de download devolvido por `link`. */
     enderecoDoLink: (caminho) => `${process.env.REACT_APP_BASE_URL}${caminho}`,
@@ -357,7 +414,6 @@ export const fiscalApi = {
     reenviarNfse: (id, payload) => data(api.post(`/fiscal/notas/${id}/reenviar`, payload)),
     substituirNfse: (id, payload) => data(api.post(`/fiscal/notas/${id}/substituir`, payload)),
     inutilizarNfse: (id, motivo) => data(api.post(`/fiscal/notas/${id}/inutilizar`, { motivo })),
-    inutilizarNumeracao: (payload) => data(api.post('/fiscal/nfse/inutilizar-numeracao', payload)),
     // Catálogo de atividades de serviço
     atividades: (params) => data(api.get('/fiscal/atividades', { params: clean(params) })),
     criarAtividade: (payload) => data(api.post('/fiscal/atividades', payload)),

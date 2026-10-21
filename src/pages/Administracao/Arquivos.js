@@ -41,8 +41,12 @@ import {
     Reveal,
     tokens,
 } from '../../ui';
+import { criarEstrutura, LIMITE_DE_ARQUIVOS, lerSelecionados, lerSoltos } from './lerArrastado';
 
 const { colors } = tokens;
+
+// Acima disto o arquivo sobe em partes retomáveis (sem limite de tamanho); abaixo, em uma requisição só.
+const LIMITE_ENVIO_SIMPLES = 64 * 1024 * 1024;
 
 // ── apresentação ─────────────────────────────────────────────────────────────
 
@@ -402,6 +406,7 @@ export default function Arquivos() {
     const [dialogo, setDialogo] = useState(null); // { tipo: 'pasta' | 'renomear' | 'excluir', item? }
     const [nome, setNome] = useState('');
     const seletor = useRef(null);
+    const seletorPasta = useRef(null);
     const contador = useRef(0);
 
     const consulta = useQuery({
@@ -437,21 +442,55 @@ export default function Arquivos() {
 
     // ── envio ────────────────────────────────────────────────────────────────
 
-    const enviar = useCallback(
-        async (arquivos) => {
-            const destino = pastaAtual;
-            const fila = Array.from(arquivos).map((arquivo) => ({ id: (contador.current += 1), arquivo, nome: arquivo.name, tamanho: arquivo.size, progresso: 0, estado: 'aguardando' }));
-            if (fila.length === 0) return;
-            setEnvios((atual) => [...atual, ...fila]);
+    // Envia arquivos soltos e/ou pastas inteiras: primeiro recria as pastas (e subpastas) dentro da pasta aberta,
+    // depois manda cada arquivo para a pasta certa. Pasta que já existe é reaproveitada.
+    const enviarPlano = useCallback(
+        async (plano) => {
+            if (plano.excedeu) {
+                toast.error(`Muitos arquivos de uma vez (máximo ${LIMITE_DE_ARQUIVOS}). Envie por partes.`);
+                return;
+            }
+            if (plano.arquivos.length === 0 && plano.pastas.length === 0) return;
 
+            const destino = pastaAtual;
             const mudar = (id, mudancas) => setEnvios((atual) => atual.map((e) => (e.id === id ? { ...e, ...mudancas } : e)));
 
+            const fila = plano.arquivos.map(({ arquivo, pastas }) => ({
+                id: (contador.current += 1),
+                arquivo,
+                pasta: pastas.join('/'),
+                nome: [...pastas, arquivo.name].join('/'),
+                tamanho: arquivo.size,
+                progresso: 0,
+                estado: 'aguardando',
+            }));
+            const estrutura = plano.pastas.length > 0 ? { id: (contador.current += 1), nome: `Criando ${plano.pastas.length} pasta(s)`, tamanho: null, progresso: 0, estado: 'enviando' } : null;
+            setEnvios((atual) => [...atual, ...(estrutura ? [estrutura] : []), ...fila]);
+
+            let ids = new Map([['', destino]]);
+            let falhas = new Map();
+            if (estrutura) {
+                ({ ids, falhas } = await criarEstrutura(plano.pastas, destino, (pai, nome) => arquivosAdminApi.garantirPasta(pai, nome)));
+                if (falhas.size > 0) mudar(estrutura.id, { estado: 'erro', erro: `Não foi possível criar ${falhas.size} pasta(s): ${errorMessage([...falhas.values()][0])}` });
+                else mudar(estrutura.id, { estado: 'ok', progresso: 100 });
+                atualizar();
+            }
+
             for (const envio of fila) {
+                if (falhas.has(envio.pasta)) {
+                    mudar(envio.id, { estado: 'erro', erro: 'A pasta deste arquivo não pôde ser criada.' });
+                    continue;
+                }
                 mudar(envio.id, { estado: 'enviando' });
                 try {
-                    await arquivosAdminApi.enviar(destino, envio.arquivo, (evento) => {
-                        if (evento.total) mudar(envio.id, { progresso: Math.min(100, Math.round((evento.loaded / evento.total) * 100)) });
-                    });
+                    const destinoDoArquivo = ids.get(envio.pasta);
+                    if (envio.arquivo.size > LIMITE_ENVIO_SIMPLES) {
+                        await arquivosAdminApi.enviarGrande(destinoDoArquivo, envio.arquivo, (percentual) => mudar(envio.id, { progresso: percentual }));
+                    } else {
+                        await arquivosAdminApi.enviar(destinoDoArquivo, envio.arquivo, (evento) => {
+                            if (evento.total) mudar(envio.id, { progresso: Math.min(100, Math.round((evento.loaded / evento.total) * 100)) });
+                        });
+                    }
                     mudar(envio.id, { estado: 'ok', progresso: 100 });
                 } catch (erro) {
                     mudar(envio.id, { estado: 'erro', erro: errorMessage(erro, 'Não foi possível enviar.') });
@@ -463,10 +502,15 @@ export default function Arquivos() {
         [pastaAtual],
     );
 
-    const aoSoltar = (evento) => {
+    const aoSoltar = async (evento) => {
         evento.preventDefault();
         setArrastando(false);
-        if (evento.dataTransfer?.files?.length) enviar(evento.dataTransfer.files);
+        // lerSoltos pega as entradas do arraste de forma síncrona (o navegador esvazia a lista logo depois).
+        try {
+            enviarPlano(await lerSoltos(evento.dataTransfer));
+        } catch (erro) {
+            toast.error('Não foi possível ler o que foi solto. Tente enviar pelo botão.');
+        }
     };
 
     // ── ações ────────────────────────────────────────────────────────────────
@@ -541,11 +585,14 @@ export default function Arquivos() {
                 icon={FaFolderOpen}
                 tone="orange"
                 title="Arquivos"
-                subtitle={noDrive ? 'O Drive da JPL dentro do sistema: guarde backups e documentos, crie pastas e baixe o que precisar.' : 'Arquivos do servidor (o Google Drive não está configurado neste ambiente).'}
+                subtitle={noDrive ? 'O Drive da JPL dentro do sistema: guarde backups e documentos, arraste pastas inteiras e baixe o que precisar.' : 'Arquivos do servidor (o Google Drive não está configurado neste ambiente).'}
                 actions={
                     <>
                         <Button variant="secondary" icon={<FaFolderPlus />} onClick={() => abrirDialogo('pasta')}>
                             Nova pasta
+                        </Button>
+                        <Button variant="secondary" icon={<FaFolder />} onClick={() => seletorPasta.current?.click()}>
+                            Enviar pasta
                         </Button>
                         <Button icon={<FaUpload />} onClick={() => seletor.current?.click()}>
                             Enviar arquivos
@@ -560,7 +607,19 @@ export default function Arquivos() {
                 multiple
                 hidden
                 onChange={(evento) => {
-                    enviar(evento.target.files);
+                    enviarPlano({ arquivos: Array.from(evento.target.files).map((arquivo) => ({ arquivo, pastas: [] })), pastas: [], excedeu: evento.target.files.length > LIMITE_DE_ARQUIVOS });
+                    evento.target.value = '';
+                }}
+            />
+            {/* Seletor de PASTA: o navegador devolve todos os arquivos de dentro, com o caminho de cada um. */}
+            <input
+                ref={seletorPasta}
+                type="file"
+                multiple
+                hidden
+                {...{ webkitdirectory: '', directory: '' }}
+                onChange={(evento) => {
+                    enviarPlano(lerSelecionados(evento.target.files));
                     evento.target.value = '';
                 }}
             />
@@ -624,7 +683,7 @@ export default function Arquivos() {
                             <Solta>
                                 <div>
                                     <FaCloudUploadAlt />
-                                    Solte para enviar para “{listagem?.pasta?.nome}”
+                                    Solte arquivos ou pastas para enviar para “{listagem?.pasta?.nome}”
                                 </div>
                             </Solta>
                         )}
@@ -633,7 +692,7 @@ export default function Arquivos() {
                             <EmptyState
                                 icon={FaFolderOpen}
                                 title={busca ? 'Nada encontrado' : 'Esta pasta está vazia'}
-                                description={busca ? 'Nenhum item tem esse nome nesta pasta.' : 'Arraste arquivos para cá ou use “Enviar arquivos”.'}
+                                description={busca ? 'Nenhum item tem esse nome nesta pasta.' : 'Arraste arquivos ou pastas inteiras para cá, ou use “Enviar arquivos” e “Enviar pasta”.'}
                             />
                         ) : (
                             <>
@@ -715,14 +774,19 @@ export default function Arquivos() {
             {envios.length > 0 && (
                 <PainelEnvios aria-live="polite">
                     <header>
-                        <span>{emEnvio ? 'Enviando arquivos...' : 'Envios concluídos'}</span>
+                        <span>
+                            {emEnvio ? `Enviando ${envios.filter((e) => e.estado === 'ok').length} de ${envios.length}...` : `Envios concluídos (${envios.filter((e) => e.estado === 'ok').length} de ${envios.length})`}
+                        </span>
                         {!emEnvio && (
                             <button type="button" onClick={() => setEnvios([])}>
                                 Limpar
                             </button>
                         )}
                     </header>
-                    {envios.map((envio) => (
+                    {envios
+                        .filter((e) => e.estado !== 'ok')
+                        .slice(0, 40)
+                        .map((envio) => (
                         <Envio key={envio.id} $erro={envio.estado === 'erro'}>
                             <div className="topo">
                                 {envio.estado === 'ok' && <FaCheckCircle color="var(--c-success)" />}
@@ -730,7 +794,7 @@ export default function Arquivos() {
                                 <span className="nome" title={envio.nome}>
                                     {envio.nome}
                                 </span>
-                                <span style={{ color: 'var(--c-muted)', fontSize: '0.78rem' }}>{formatarTamanho(envio.tamanho)}</span>
+                                {envio.tamanho !== null && <span style={{ color: 'var(--c-muted)', fontSize: '0.78rem' }}>{formatarTamanho(envio.tamanho)}</span>}
                             </div>
                             {envio.estado !== 'ok' && (
                                 <>
@@ -746,6 +810,11 @@ export default function Arquivos() {
                             )}
                         </Envio>
                     ))}
+                    {envios.filter((e) => e.estado !== 'ok').length > 40 && (
+                        <Envio>
+                            <div className="info">e mais {envios.filter((e) => e.estado !== 'ok').length - 40} na fila...</div>
+                        </Envio>
+                    )}
                 </PainelEnvios>
             )}
         </Page>

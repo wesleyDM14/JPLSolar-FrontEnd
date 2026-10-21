@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import {
     FaBolt,
@@ -10,11 +10,11 @@ import {
     FaFileImport,
     FaFileInvoiceDollar,
     FaFilePdf,
-    FaHashtag,
     FaListUl,
     FaPaperPlane,
     FaPlus,
     FaReceipt,
+    FaSyncAlt,
     FaTimesCircle,
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -42,14 +42,13 @@ import {
     tooltipTema,
 } from '../../../ui';
 import { formatCurrency, formatDate } from '../../../utils/masks';
-import { anoAtual, fimDoAno, fimDoMes, inicioDoAno, inicioDoMes, mesAtual } from '../../../utils/datas';
+import { anoAtual, fimDoAno, fimDoMes, hojeIso, inicioDoAno, inicioDoMes, mesAtual } from '../../../utils/datas';
 import { BarraDeFiltros } from '../comuns';
 import SeletorPeriodo from '../SeletorPeriodo';
 import { mesCurto } from '../format';
 import { STATUS_NOTA, TIPOS_NOTA, direcaoOptions, statusOptions, tipoOptions } from './formato';
 import NotaDialog from './NotaDialog';
 import { EmitirNotaDialog } from './EmitirNotaDialog';
-import InutilizarNumeracaoDialog from './InutilizarNumeracaoDialog';
 import BuscarNotasDialog from './BuscarNotasDialog';
 import { ImportarXmlDialog, NovaNotaDialog } from './NovaNotaDialogs';
 
@@ -81,7 +80,14 @@ export default function Notas() {
     const [baixandoLote, setBaixandoLote] = useState(false);
 
     const busca = useDebouncedValue(filtros.search);
-    const params = { ...filtros, search: busca };
+    const queryClient = useQueryClient();
+
+    // A numeração (nota e RPS) é conferida com a prefeitura pelo servidor: aqui só se mostra.
+    const config = useQuery({ queryKey: ['fiscal', 'configuracao'], queryFn: fiscalApi.configuracao });
+    const ambienteAtual = config.data?.ambiente;
+
+    // Só as notas do ambiente em uso (as de teste não se misturam às reais); notas sem ambiente aparecem sempre.
+    const params = { ...filtros, search: busca, ambiente: ambienteAtual };
 
     // O resumo é mensal: em visão anual mostra o mês corrente (ou dezembro de anos passados).
     const mesDoResumo = filtros.mes || (filtros.ano && Number(filtros.ano) !== anoAtual() ? `${filtros.ano}-12` : mesAtual());
@@ -91,6 +97,49 @@ export default function Notas() {
         queryFn: () => fiscalApi.notas({ ...params, page, pageSize: 15 }),
         placeholderData: (anterior) => anterior,
     });
+
+    // Ao escolher um mês ou ano, confere a prefeitura e traz as notas que ela tem e o sistema não (inclusive as emitidas no portal).
+    const sincronizados = useRef(new Set());
+    const [sincronia, setSincronia] = useState({ estado: 'ocioso', texto: '' });
+
+    const periodoDaTela = useCallback(() => {
+        const limite = (data) => (data > hojeIso() ? hojeIso() : data);
+        if (filtros.mes) return { de: `${filtros.mes}-01`, ate: limite(fimDoMes(`${filtros.mes}-01`)) };
+        if (filtros.ano) return { de: `${filtros.ano}-01-01`, ate: limite(`${filtros.ano}-12-31`) };
+        return null;
+    }, [filtros.mes, filtros.ano]);
+
+    const sincronizar = useCallback(
+        async (forcar = false) => {
+            const periodo = periodoDaTela();
+            if (!periodo || !ambienteAtual || periodo.de > hojeIso()) {
+                setSincronia({ estado: 'ocioso', texto: '' });
+                return;
+            }
+            const chave = `${ambienteAtual}:${periodo.de}:${periodo.ate}`;
+            if (!forcar && sincronizados.current.has(chave)) return;
+            sincronizados.current.add(chave);
+
+            setSincronia({ estado: 'buscando', texto: 'Conferindo as notas na prefeitura…' });
+            try {
+                const resposta = await fiscalApi.buscarNotas({ ...periodo, ambiente: ambienteAtual });
+                const novas = resposta.importadas + resposta.canceladasAtualizadas;
+                setSincronia({
+                    estado: 'ok',
+                    texto: resposta.importadas > 0 ? `${resposta.importadas} nota(s) trazida(s) da prefeitura.` : `Conferido com a prefeitura (${resposta.encontradas} nota(s) no período).`,
+                });
+                if (novas > 0) queryClient.invalidateQueries({ queryKey: ['fiscal'] });
+            } catch (erro) {
+                sincronizados.current.delete(chave);
+                setSincronia({ estado: 'erro', texto: errorMessage(erro, 'Não foi possível conferir com a prefeitura.') });
+            }
+        },
+        [ambienteAtual, periodoDaTela, queryClient],
+    );
+
+    useEffect(() => {
+        sincronizar(false);
+    }, [sincronizar]);
 
     const alterar = (campo) => (e) => {
         setFiltros((atual) => ({ ...atual, [campo]: e.target.value }));
@@ -218,12 +267,11 @@ export default function Notas() {
                 icon={FaFileInvoiceDollar}
                 tone="purple"
                 title="Notas fiscais"
-                subtitle="Notas emitidas e recebidas, ligadas a clientes, contratos e usinas."
+                subtitle={`Notas emitidas e recebidas, ligadas a clientes, contratos e usinas.${config.data?.proximoNumeroNfse > 1 ? ` Próxima NFS-e: nº ${config.data.proximoNumeroNfse}.` : ''}`}
                 actions={
                     <>
                         <Button variant="secondary" icon={<FaCog />} onClick={() => navigate('/financeiro/fiscal/configuracao')}>Configuração fiscal</Button>
                         <Button variant="secondary" icon={<FaListUl />} onClick={() => navigate('/financeiro/fiscal/atividades')}>Atividades</Button>
-                        <Button variant="secondary" icon={<FaHashtag />} onClick={() => setDialogo('numeracao')}>Inutilizar numeração</Button>
                         <Button variant="secondary" icon={<FaCalendarCheck />} onClick={() => setDialogo('buscar')}>Buscar notas da prefeitura</Button>
                         <Button variant="secondary" icon={<FaFileImport />} onClick={() => setDialogo('importar')}>Importar XML</Button>
                         <Button variant="secondary" icon={<FaPlus />} onClick={() => setDialogo('nova')}>Cadastrar nota</Button>
@@ -295,7 +343,15 @@ export default function Notas() {
             <Selecao as="div" style={{ background: colors.surface, color: colors.text, border: `1px solid ${colors.border}` }}>
                 <span style={{ flex: 1 }}>
                     {selecionadas.length > 0 ? `${selecionadas.length} nota(s) selecionada(s)` : `${lista.data?.meta?.total ?? 0} nota(s) no filtro · ${formatCurrency(lista.data?.totais?.valor ?? 0)}`}
+                    {sincronia.texto && (
+                        <span style={{ marginLeft: 12, fontWeight: 500, fontSize: '0.85rem', color: sincronia.estado === 'erro' ? colors.danger : colors.muted }}>{sincronia.texto}</span>
+                    )}
                 </span>
+                {(filtros.mes || filtros.ano) && (
+                    <Button size="sm" variant="secondary" icon={<FaSyncAlt />} loading={sincronia.estado === 'buscando'} onClick={() => sincronizar(true)}>
+                        Atualizar da prefeitura
+                    </Button>
+                )}
                 {selecionadas.length > 0 && (
                     <Button size="sm" variant="secondary" icon={<FaFileCode />} loading={baixandoLote} onClick={() => baixarLote(true)}>XML das selecionadas</Button>
                 )}
@@ -324,7 +380,6 @@ export default function Notas() {
             <ImportarXmlDialog open={dialogo === 'importar'} onClose={() => setDialogo(null)} />
             <BuscarNotasDialog open={dialogo === 'buscar'} onClose={() => setDialogo(null)} />
             <EmitirNotaDialog open={dialogo === 'emitir'} onClose={() => setDialogo(null)} />
-            <InutilizarNumeracaoDialog open={dialogo === 'numeracao'} onClose={() => setDialogo(null)} />
         </Page>
     );
 }

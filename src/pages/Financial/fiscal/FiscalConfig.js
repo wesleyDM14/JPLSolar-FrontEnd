@@ -68,8 +68,6 @@ export default function FiscalConfig() {
                         codigoTributacaoPadrao: data.codigoTributacaoPadrao ?? '',
                         codigoCnaePadrao: data.codigoCnaePadrao ?? '',
                         aliquotaIssPadrao: data.aliquotaIssPadrao ?? '',
-                        serieRps: data.serieRps ?? '1',
-                        proximoNumeroRps: data.proximoNumeroRps ?? 1,
                         incentivoFiscal: data.incentivoFiscal ? 'true' : 'false',
                         enviarIbsCbs: data.enviarIbsCbs === false ? 'false' : 'true',
                     }}
@@ -128,8 +126,6 @@ export default function FiscalConfig() {
                                             placeholder={null}
                                             options={[{ value: 'true', label: 'Sim (Reforma Tributária)' }, { value: 'false', label: 'Não (a prefeitura classifica)' }]}
                                         />
-                                        <TextField name="serieRps" label="Série do RPS" />
-                                        <TextField name="proximoNumeroRps" label="Próximo número do RPS" type="number" min="1" hint="Só altere se já emitiu RPS fora do sistema." />
                                     </Grid>
                                 </Card>
                             </Reveal>
