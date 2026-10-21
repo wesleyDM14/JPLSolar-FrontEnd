@@ -65,7 +65,7 @@ export const documentosApi = {
 /** Administração > Arquivos: o Drive da JPL dentro do sistema (somente administradores). */
 export const arquivosAdminApi = {
     listar: (pasta) => data(api.get('/admin/arquivos', { params: clean({ pasta }) })),
-    // Espaço ocupado na pasta da JPL e o limite (1 TB).
+    // Espaço ocupado na pasta da JPL e o limite (2 TB).
     uso: () => data(api.get('/admin/arquivos/uso')),
     criarPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas', { pai: pai || undefined, nome })),
     renomear: (id, nome) => data(api.patch(`/admin/arquivos/${id}`, { nome })),
