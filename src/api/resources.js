@@ -69,6 +69,8 @@ export const arquivosAdminApi = {
     uso: () => data(api.get('/admin/arquivos/uso')),
     criarPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas', { pai: pai || undefined, nome })),
     // Devolve a pasta se já existe, ou cria (envio de pastas inteiras).
+    // Já existe, na pasta, um arquivo com este nome e tamanho? Então não precisa enviar de novo.
+    verificarEnvio: (pasta, arquivo) => data(api.post('/admin/arquivos/enviar/verificar', { pasta: pasta || undefined, nome: arquivo.name, tamanho: arquivo.size })),
     garantirPasta: (pai, nome) => data(api.post('/admin/arquivos/pastas/garantir', { pai: pai || undefined, nome })),
     renomear: (id, nome) => data(api.patch(`/admin/arquivos/${id}`, { nome })),
     excluir: (id) => api.delete(`/admin/arquivos/${id}`),

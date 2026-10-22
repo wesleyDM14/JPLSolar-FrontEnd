@@ -478,6 +478,7 @@ export default function Arquivos() {
                 atualizar();
             }
 
+            let pulados = 0;
             for (const envio of fila) {
                 if (falhas.has(envio.pasta)) {
                     mudar(envio.id, { estado: 'erro', erro: 'A pasta deste arquivo não pôde ser criada.' });
@@ -486,6 +487,13 @@ export default function Arquivos() {
                 mudar(envio.id, { estado: 'enviando' });
                 try {
                     const destinoDoArquivo = ids.get(envio.pasta);
+                    // Reenvio de fila: o que já está na pasta (mesmo nome e tamanho) não sobe de novo.
+                    const jaEstava = await repetirSeCair(() => arquivosAdminApi.verificarEnvio(destinoDoArquivo, envio.arquivo)).then((r) => r.existe, () => false);
+                    if (jaEstava) {
+                        pulados += 1;
+                        mudar(envio.id, { estado: 'ok', progresso: 100 });
+                        continue;
+                    }
                     if (envio.arquivo.size > LIMITE_ENVIO_SIMPLES) {
                         await repetirSeCair(() => arquivosAdminApi.enviarGrande(destinoDoArquivo, envio.arquivo, (percentual) => mudar(envio.id, { progresso: percentual })));
                     } else {
@@ -500,6 +508,7 @@ export default function Arquivos() {
                     mudar(envio.id, { estado: 'erro', erro: errorMessage(erro, 'Não foi possível enviar.') });
                 }
             }
+            if (pulados > 0) toast(`${pulados} arquivo(s) já estavam na pasta e não foram enviados de novo.`);
             atualizar();
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
