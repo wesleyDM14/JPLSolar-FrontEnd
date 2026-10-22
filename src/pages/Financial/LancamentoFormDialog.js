@@ -51,6 +51,7 @@ function ParteLancamento({ tipo, lancamento, preset }) {
             parte={receber ? 'cliente' : 'fornecedor'}
             selecionadoInicial={inicial}
             hint={receber ? 'Digite o nome ou o CPF/CNPJ do cliente.' : 'Digite o nome do fornecedor.'}
+            permitirCadastro
         />
     );
 }

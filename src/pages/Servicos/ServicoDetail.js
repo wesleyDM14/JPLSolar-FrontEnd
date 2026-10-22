@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaBan, FaCalendarAlt, FaCheckCircle, FaEdit, FaFilePdf, FaHardHat, FaPlus, FaUndo } from 'react-icons/fa';
+import { FaBan, FaCalendarAlt, FaCheckCircle, FaClipboardCheck, FaEdit, FaFilePdf, FaHardHat, FaPlus, FaUndo } from 'react-icons/fa';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { errorMessage } from '../../api/client';
 import { equipesApi, servicosApi } from '../../api/resources';
@@ -24,6 +24,7 @@ import {
     Textarea,
 } from '../../ui';
 import { formatDate } from '../../utils/masks';
+import PreencherEtapaDialog from './PreencherEtapaDialog';
 import { paraInputDataHora, rotuloTipoEtapa, STATUS_ETAPA, STATUS_SERVICO, TIPOS_ETAPA } from './formato';
 
 const urlArquivo = (anexo) => `${process.env.REACT_APP_BASE_URL}${anexo.url}`;
@@ -143,7 +144,7 @@ function NovaEtapaDialog({ equipes, pessoas, onClose, onSalvar, carregando }) {
     );
 }
 
-function Etapa({ etapa, onEditar, onAcao }) {
+function Etapa({ etapa, onEditar, onAcao, onPreencher }) {
     const [verFotos, setVerFotos] = useState(false);
     const fotos = etapa.anexos.filter((a) => a.mimeType.startsWith('image/'));
     const arquivos = etapa.anexos.filter((a) => !a.mimeType.startsWith('image/'));
@@ -160,6 +161,7 @@ function Etapa({ etapa, onEditar, onAcao }) {
                     {etapa.descricao && <div><Muted>{etapa.descricao}</Muted></div>}
                 </div>
                 <Row>
+                    {!encerrada && <Button size="sm" icon={<FaClipboardCheck />} onClick={() => onPreencher(etapa)}>Preencher</Button>}
                     {!encerrada && <Button size="sm" variant="secondary" icon={<FaEdit />} onClick={() => onEditar(etapa)}>Atribuir / agendar</Button>}
                     {!encerrada && <Button size="sm" variant="ghost" icon={<FaBan />} onClick={() => onAcao(etapa, 'CANCELAR')}>Cancelar</Button>}
                     {encerrada && <Button size="sm" variant="secondary" icon={<FaUndo />} onClick={() => onAcao(etapa, 'REABRIR')}>Reabrir</Button>}
@@ -229,6 +231,7 @@ export default function ServicoDetail() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [editando, setEditando] = useState(null);
+    const [preenchendo, setPreenchendo] = useState(null);
     const [novaEtapa, setNovaEtapa] = useState(false);
     const [cancelar, setCancelar] = useState(false);
 
@@ -330,8 +333,18 @@ export default function ServicoDetail() {
             {s.observacoes && <Card><p style={{ margin: 0, whiteSpace: 'pre-line' }}>{s.observacoes}</p></Card>}
 
             {s.etapas.map((etapa) => (
-                <Etapa key={etapa.id} etapa={etapa} onEditar={setEditando} onAcao={acaoEtapa} />
+                <Etapa key={etapa.id} etapa={etapa} onEditar={setEditando} onAcao={acaoEtapa} onPreencher={(e) => setPreenchendo(e.id)} />
             ))}
+
+            {preenchendo && (
+                <PreencherEtapaDialog
+                    etapaId={preenchendo}
+                    onClose={() => setPreenchendo(null)}
+                    onAlterou={() => {
+                        queryClient.invalidateQueries({ queryKey: ['servicos'] });
+                    }}
+                />
+            )}
 
             {editando && (
                 <EtapaDialog

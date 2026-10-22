@@ -98,11 +98,27 @@ const Empty = styled.li`
     font-size: 0.9rem;
 `;
 
+const CadastrarOpcao = styled.li`
+    margin-top: 4px;
+    padding: 9px 10px;
+    border-top: 1px solid ${colors.border};
+    border-radius: 0 0 7px 7px;
+    cursor: pointer;
+    color: ${colors.primary};
+    font-weight: 700;
+    font-size: 0.9rem;
+
+    &:hover {
+        background: ${colors.neutralBg};
+    }
+`;
+
 /**
- * Seleção com busca (autocompletar). `fetcher(termo)` devolve [{ value, label, hint? }].
+ * Seleção com busca (autocompletar). `cadastrar` ({ rotulo, onClick(textoDigitado) }) acrescenta no fim da lista a opção de cadastrar
+ * um novo item sem sair da tela. `fetcher(termo)` devolve [{ value, label, hint? }].
  * `selected` é { value, label } do item escolhido (para exibir o nome sem nova consulta).
  */
-export default function Combobox({ label, placeholder = 'Buscar…', fetcher, selected, onChange, queryKey, minChars = 0, error, hint, required = false, disabled = false }) {
+export default function Combobox({ label, placeholder = 'Buscar…', fetcher, selected, onChange, queryKey, minChars = 0, error, hint, required = false, disabled = false, cadastrar }) {
     const id = useId();
     const rootRef = useRef(null);
     const [aberto, setAberto] = useState(false);
@@ -208,6 +224,22 @@ export default function Combobox({ label, placeholder = 'Buscar…', fetcher, se
                             {opcao.hint && <small>{opcao.hint}</small>}
                         </Option>
                     ))}
+                    {cadastrar && (
+                        <CadastrarOpcao
+                            role="option"
+                            aria-selected={false}
+                            onMouseDown={(evento) => {
+                                evento.preventDefault();
+                                const digitado = texto.trim();
+                                setAberto(false);
+                                setTexto('');
+                                cadastrar.onClick(digitado);
+                            }}
+                        >
+                            + {cadastrar.rotulo}
+                            {texto.trim() ? ` “${texto.trim()}”` : ''}
+                        </CadastrarOpcao>
+                    )}
                 </List>
             )}
         </Wrapper>

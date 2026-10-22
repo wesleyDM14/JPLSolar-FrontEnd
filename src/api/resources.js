@@ -388,6 +388,25 @@ export const servicosApi = {
     atualizarEtapa: (etapaId, payload) => data(api.put(`/servicos/etapas/${etapaId}`, payload)),
 };
 
+/**
+ * Execução de uma tarefa de campo (checklist, fotos e arquivos). São as mesmas rotas do aplicativo dos instaladores:
+ * o administrador pode preencher qualquer tarefa pelo computador.
+ */
+export const execucaoApi = {
+    etapa: (etapaId) => data(api.get(`/app/etapas/${etapaId}`)),
+    iniciar: (etapaId) => data(api.post(`/app/etapas/${etapaId}/iniciar`)),
+    salvarItem: (etapaId, itemId, valor) => data(api.put(`/app/etapas/${etapaId}/itens/${itemId}`, valor)),
+    anexar: (etapaId, arquivo, { itemId, categoria } = {}) => {
+        const form = new FormData();
+        form.append('arquivo', arquivo);
+        if (itemId) form.append('itemId', itemId);
+        if (categoria) form.append('categoria', categoria);
+        return data(api.post(`/app/etapas/${etapaId}/anexos`, form, { timeout: 120000 }));
+    },
+    removerAnexo: (anexoId) => data(api.delete(`/app/anexos/${anexoId}`)),
+    concluir: (etapaId, observacoes) => data(api.post(`/app/etapas/${etapaId}/concluir`, { observacoes: observacoes || null })),
+};
+
 export const fiscalApi = {
     configuracao: () => data(api.get('/fiscal/configuracao')),
     salvarConfiguracao: (payload) => data(api.put('/fiscal/configuracao', payload)),

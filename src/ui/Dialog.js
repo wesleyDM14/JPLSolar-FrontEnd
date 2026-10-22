@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import styled, { keyframes } from 'styled-components';
 import { Button } from './Button';
@@ -130,29 +130,52 @@ const Footer = styled.footer`
     background: ${colors.background};
 `;
 
+// Várias janelas podem estar abertas ao mesmo tempo (ex.: o cadastro rápido dentro do formulário de uma conta). A rolagem da
+// página só volta quando a ÚLTIMA fecha, em qualquer ordem, e só a janela de cima responde ao Esc. (Antes cada janela guardava o
+// "estado anterior" ao abrir: se fechassem fora de ordem, a página ficava sem barra de rolagem até recarregar.)
+const abertas = [];
+let overflowOriginal = '';
+
+function travarRolagem(id) {
+    if (abertas.length === 0) {
+        overflowOriginal = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+    }
+    abertas.push(id);
+}
+
+function liberarRolagem(id) {
+    const posicao = abertas.indexOf(id);
+    if (posicao >= 0) abertas.splice(posicao, 1);
+    if (abertas.length === 0) document.body.style.overflow = overflowOriginal;
+}
+
 /**
  * Modal padrão do sistema: cabeçalho com título e botão de fechar, corpo rolável e rodapé fixo.
  * No celular vira uma "gaveta" que sobe da base da tela. Fecha com Esc ou clicando fora.
  */
 export function Dialog({ open, title, subtitle, onClose, children, footer, width = 520, accent }) {
     const titleId = useId();
+    const idDaJanela = useId();
+    // onClose costuma ser uma função nova a cada renderização: guardada à parte para não refazer a trava da rolagem toda vez.
+    const onCloseAtual = useRef(onClose);
+    onCloseAtual.current = onClose;
 
     useEffect(() => {
         if (!open) return undefined;
 
         const onKey = (event) => {
-            if (event.key === 'Escape') onClose?.();
+            if (event.key === 'Escape' && abertas[abertas.length - 1] === idDaJanela) onCloseAtual.current?.();
         };
         // Evita a página rolar atrás do modal.
-        const anterior = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
+        travarRolagem(idDaJanela);
 
         document.addEventListener('keydown', onKey);
         return () => {
             document.removeEventListener('keydown', onKey);
-            document.body.style.overflow = anterior;
+            liberarRolagem(idDaJanela);
         };
-    }, [open, onClose]);
+    }, [open, idDaJanela]);
 
     if (!open) return null;
 
