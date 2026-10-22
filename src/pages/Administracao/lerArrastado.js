@@ -92,6 +92,24 @@ function finalizar(saida) {
  * Cria (ou reaproveita) cada pasta dentro de `destino` e devolve { 'A/B': idDaPasta }.
  * `garantir(paiId, nome)` devolve { id }. Se uma pasta falhar, as filhas dela são puladas e vão em `falhas`.
  */
+/** Queda de rede ou servidor reiniciando (deploy): vale tentar de novo. Erro de regra (400, 403, 409, 422…) não. */
+export const erroPassageiro = (erro) => !erro?.response || [502, 503, 504].includes(erro.response.status);
+
+/**
+ * Repete a operação quando a falha é passageira (o servidor leva alguns segundos para voltar depois de uma atualização).
+ * `esperas` são os intervalos entre as tentativas, em milissegundos.
+ */
+export async function repetirSeCair(operacao, esperas = [2500, 5000, 10000, 20000]) {
+    for (let tentativa = 0; ; tentativa += 1) {
+        try {
+            return await operacao();
+        } catch (erro) {
+            if (tentativa >= esperas.length || !erroPassageiro(erro)) throw erro;
+            await new Promise((resolver) => setTimeout(resolver, esperas[tentativa]));
+        }
+    }
+}
+
 export async function criarEstrutura(pastas, destino, garantir) {
     const ids = new Map([['', destino]]);
     const falhas = new Map();

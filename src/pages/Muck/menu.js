@@ -4,7 +4,7 @@ import { FaChartLine, FaClipboardList, FaHandHoldingUsd, FaIdCard, FaWrench } fr
 export const MUCK_MENU = [
     { path: '/muck', rotulo: 'Painel', icon: FaChartLine, exato: true },
     { path: '/muck/servicos', rotulo: 'Serviços', icon: FaClipboardList },
-    { path: '/muck/cobranca', rotulo: 'Quem pagou e quem deve', icon: FaHandHoldingUsd },
+    { path: '/muck/cobranca', rotulo: 'Cobrança', icon: FaHandHoldingUsd },
     { path: '/muck/manutencao', rotulo: 'Manutenção', icon: FaWrench },
     { path: '/muck/cadastros', rotulo: 'Veículo e motoristas', icon: FaIdCard },
 ];

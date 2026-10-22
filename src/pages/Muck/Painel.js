@@ -48,22 +48,22 @@ export default function Painel() {
                         <Card style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                             <span>
                                 <FaFileInvoiceDollar style={{ marginRight: 8 }} />
-                                <strong>{t.notasAEmitir}</strong> {t.notasAEmitir === 1 ? 'serviço marcado' : 'serviços marcados'} para nota fiscal ainda sem nota.
+                                <strong>{t.notasAEmitir}</strong> {t.notasAEmitir === 1 ? 'serviço marcado' : 'serviços marcados'} para nota fiscal que ainda não têm nota.
                             </span>
                             <Button size="sm" onClick={() => navigate('/muck/servicos?nota=A_EMITIR&de=&ate=')}>Revisar e emitir</Button>
                         </Card>
                     )}
 
                     <StatGrid>
-                        <StatCard rotulo="Horas trabalhadas" valor={horasTexto(t.horas)} detalhe={`${t.servicos} serviços`} tom="blue" />
+                        <StatCard rotulo="Horas trabalhadas" valor={horasTexto(t.horas)} detalhe={`${t.servicos} serviços${t.emAndamento ? ` · ${t.emAndamento} em andamento` : ''}`} tom="blue" />
                         <StatCard rotulo="Faturado" valor={brl(t.faturado)} tom="blue" />
                         <StatCard rotulo="Recebido" valor={brl(t.recebido)} tom="green" />
                         <StatCard rotulo="A receber" valor={brl(t.aReceber)} tom={t.aReceber > 0 ? 'orange' : 'green'} onClick={() => navigate('/muck/cobranca')} />
-                        <StatCard rotulo="Despesas do caminhão" valor={brl(t.despesas)} tom="red" onClick={() => navigate('/muck/manutencao')} />
+                        <StatCard rotulo="Gastos com o caminhão" valor={brl(t.despesas)} tom="red" onClick={() => navigate('/muck/manutencao')} />
                         <StatCard
                             rotulo="Resultado"
                             valor={brl(t.resultado)}
-                            detalhe={t.custoMotorista > 0 ? `${brl(t.resultadoComMotorista)} descontando o motorista` : 'faturado − despesas'}
+                            detalhe={t.custoMotorista > 0 ? `${brl(t.resultadoComMotorista)} descontando o motorista` : 'o que entrou menos o que gastou'}
                             tom={t.resultado >= 0 ? 'green' : 'red'}
                         />
                     </StatGrid>
@@ -71,7 +71,7 @@ export default function Painel() {
                     <Card>
                         <CardTitle>Mês a mês</CardTitle>
                         {meses.length === 0 ? (
-                            <p><Muted>Nenhum serviço ou despesa no período.</Muted></p>
+                            <p><Muted>Nada lançado neste período.</Muted></p>
                         ) : (
                             <div style={{ width: '100%', height: 300 }}>
                                 <ResponsiveContainer>
@@ -92,9 +92,9 @@ export default function Painel() {
 
                     <Grid $cols={2}>
                         <Card>
-                            <CardTitle>Revisões e vencimentos do veículo</CardTitle>
+                            <CardTitle>Revisões do caminhão</CardTitle>
                             {p.revisoes.length === 0 ? (
-                                <p><Muted>Nenhuma revisão perto de vencer. Informe a próxima data ou o horímetro ao registrar uma manutenção.</Muted></p>
+                                <p><Muted>Nenhuma revisão chegando. Ao registrar uma manutenção, diga quando será a próxima.</Muted></p>
                             ) : (
                                 p.revisoes.map((r) => (
                                     <div key={r.manutencaoId} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '8px 0', borderBottom: `1px solid ${colors.border}` }}>
@@ -113,7 +113,7 @@ export default function Painel() {
                         <Card>
                             <CardTitle>Para onde vai o dinheiro</CardTitle>
                             {p.despesasPorTipo.length === 0 ? (
-                                <p><Muted>Nenhuma despesa lançada no período.</Muted></p>
+                                <p><Muted>Nenhum gasto neste período.</Muted></p>
                             ) : (
                                 p.despesasPorTipo.map((d) => (
                                     <div key={d.tipo} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `1px solid ${colors.border}` }}>

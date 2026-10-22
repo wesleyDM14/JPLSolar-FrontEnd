@@ -9,15 +9,16 @@ export const COBRANCA = {
     PARCIAL: { label: 'Pago em parte', tone: 'warning' },
     ABERTO: { label: 'Em aberto', tone: 'info' },
     ATRASADO: { label: 'Atrasado', tone: 'danger' },
+    EM_ANDAMENTO: { label: 'Em andamento', tone: 'warning' },
     CANCELADA: { label: 'Cancelado', tone: 'neutral' },
     CANCELADO: { label: 'Cancelado', tone: 'neutral' },
 };
 
 // Situação do cliente na cobrança do munck.
 export const SITUACAO_CLIENTE = {
-    QUITADO: { label: 'Pagou tudo', tone: 'success' },
-    DEVENDO: { label: 'Devendo (no prazo)', tone: 'info' },
-    ATRASADO: { label: 'Devendo (atrasado)', tone: 'danger' },
+    QUITADO: { label: 'Quitado', tone: 'success' },
+    DEVENDO: { label: 'A vencer', tone: 'info' },
+    ATRASADO: { label: 'Em atraso', tone: 'danger' },
 };
 
 export const NOTA = {
@@ -38,6 +39,7 @@ export const podeEmitirNota = (servico) =>
     servico.status === 'REGISTRADA' && servico.emiteNota && (!servico.nota || servico.nota.status === 'REJEITADA' || servico.nota.status === 'CANCELADA');
 
 export const SITUACOES_FILTRO = [
+    { value: 'EM_ANDAMENTO', label: 'Em andamento' },
     { value: 'EM_ABERTO', label: 'Em aberto' },
     { value: 'ATRASADO', label: 'Atrasados' },
     { value: 'PAGO', label: 'Pagos' },

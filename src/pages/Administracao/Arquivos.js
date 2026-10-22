@@ -41,7 +41,7 @@ import {
     Reveal,
     tokens,
 } from '../../ui';
-import { criarEstrutura, LIMITE_DE_ARQUIVOS, lerSelecionados, lerSoltos } from './lerArrastado';
+import { criarEstrutura, LIMITE_DE_ARQUIVOS, lerSelecionados, lerSoltos, repetirSeCair } from './lerArrastado';
 
 const { colors } = tokens;
 
@@ -445,20 +445,22 @@ export default function Arquivos() {
     // Envia arquivos soltos e/ou pastas inteiras: primeiro recria as pastas (e subpastas) dentro da pasta aberta,
     // depois manda cada arquivo para a pasta certa. Pasta que já existe é reaproveitada.
     const enviarPlano = useCallback(
-        async (plano) => {
+        async (plano, destinoForcado) => {
             if (plano.excedeu) {
                 toast.error(`Muitos arquivos de uma vez (máximo ${LIMITE_DE_ARQUIVOS}). Envie por partes.`);
                 return;
             }
             if (plano.arquivos.length === 0 && plano.pastas.length === 0) return;
 
-            const destino = pastaAtual;
+            const destino = destinoForcado ?? pastaAtual;
             const mudar = (id, mudancas) => setEnvios((atual) => atual.map((e) => (e.id === id ? { ...e, ...mudancas } : e)));
 
             const fila = plano.arquivos.map(({ arquivo, pastas }) => ({
                 id: (contador.current += 1),
                 arquivo,
                 pasta: pastas.join('/'),
+                pastasDoCaminho: pastas,
+                destino,
                 nome: [...pastas, arquivo.name].join('/'),
                 tamanho: arquivo.size,
                 progresso: 0,
@@ -470,7 +472,7 @@ export default function Arquivos() {
             let ids = new Map([['', destino]]);
             let falhas = new Map();
             if (estrutura) {
-                ({ ids, falhas } = await criarEstrutura(plano.pastas, destino, (pai, nome) => arquivosAdminApi.garantirPasta(pai, nome)));
+                ({ ids, falhas } = await criarEstrutura(plano.pastas, destino, (pai, nome) => repetirSeCair(() => arquivosAdminApi.garantirPasta(pai, nome))));
                 if (falhas.size > 0) mudar(estrutura.id, { estado: 'erro', erro: `Não foi possível criar ${falhas.size} pasta(s): ${errorMessage([...falhas.values()][0])}` });
                 else mudar(estrutura.id, { estado: 'ok', progresso: 100 });
                 atualizar();
@@ -485,11 +487,13 @@ export default function Arquivos() {
                 try {
                     const destinoDoArquivo = ids.get(envio.pasta);
                     if (envio.arquivo.size > LIMITE_ENVIO_SIMPLES) {
-                        await arquivosAdminApi.enviarGrande(destinoDoArquivo, envio.arquivo, (percentual) => mudar(envio.id, { progresso: percentual }));
+                        await repetirSeCair(() => arquivosAdminApi.enviarGrande(destinoDoArquivo, envio.arquivo, (percentual) => mudar(envio.id, { progresso: percentual })));
                     } else {
-                        await arquivosAdminApi.enviar(destinoDoArquivo, envio.arquivo, (evento) => {
-                            if (evento.total) mudar(envio.id, { progresso: Math.min(100, Math.round((evento.loaded / evento.total) * 100)) });
-                        });
+                        await repetirSeCair(() =>
+                            arquivosAdminApi.enviar(destinoDoArquivo, envio.arquivo, (evento) => {
+                                if (evento.total) mudar(envio.id, { progresso: Math.min(100, Math.round((evento.loaded / evento.total) * 100)) });
+                            }),
+                        );
                     }
                     mudar(envio.id, { estado: 'ok', progresso: 100 });
                 } catch (erro) {
@@ -501,6 +505,21 @@ export default function Arquivos() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [pastaAtual],
     );
+
+    // Refaz os envios que falharam (queda de rede, servidor reiniciando): recria as pastas que faltam e manda os arquivos de novo.
+    const tentarDeNovo = async () => {
+        const falhados = envios.filter((e) => e.estado === 'erro' && e.arquivo);
+        if (falhados.length === 0) return;
+        setEnvios((atual) => atual.filter((e) => e.estado !== 'erro'));
+
+        const porDestino = new Map();
+        for (const e of falhados) porDestino.set(e.destino, [...(porDestino.get(e.destino) ?? []), e]);
+
+        for (const [destino, lista] of porDestino) {
+            const pastas = [...new Set(lista.flatMap((e) => e.pastasDoCaminho.map((_, i) => e.pastasDoCaminho.slice(0, i + 1).join('/'))))].sort();
+            await enviarPlano({ arquivos: lista.map((e) => ({ arquivo: e.arquivo, pastas: e.pastasDoCaminho })), pastas, excedeu: false }, destino);
+        }
+    };
 
     const aoSoltar = async (evento) => {
         evento.preventDefault();
@@ -777,6 +796,11 @@ export default function Arquivos() {
                         <span>
                             {emEnvio ? `Enviando ${envios.filter((e) => e.estado === 'ok').length} de ${envios.length}...` : `Envios concluídos (${envios.filter((e) => e.estado === 'ok').length} de ${envios.length})`}
                         </span>
+                        {!emEnvio && envios.some((e) => e.estado === 'erro' && e.arquivo) && (
+                            <button type="button" onClick={tentarDeNovo}>
+                                Tentar de novo ({envios.filter((e) => e.estado === 'erro' && e.arquivo).length})
+                            </button>
+                        )}
                         {!emEnvio && (
                             <button type="button" onClick={() => setEnvios([])}>
                                 Limpar

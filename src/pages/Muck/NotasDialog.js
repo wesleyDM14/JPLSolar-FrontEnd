@@ -98,7 +98,7 @@ export default function NotasDialog({ open, ids, onClose, onDone }) {
             width={760}
             onClose={bloqueado ? undefined : onClose}
             title={passo === 'revisao' ? 'Revisar notas antes de emitir' : passo === 'confirmacao' ? 'Confirmar a emissão' : 'Resultado da emissão'}
-            subtitle={passo === 'revisao' ? 'Confira o espelho de cada nota. Nada foi enviado à prefeitura.' : undefined}
+            subtitle={passo === 'revisao' ? 'Dê uma olhada no espelho de cada nota. Ainda não enviei nada à prefeitura.' : undefined}
             footer={rodape}
         >
             {revisao.isLoading && <LoadingBlock label="Conferindo os serviços…" />}
@@ -127,7 +127,7 @@ export default function NotasDialog({ open, ids, onClose, onDone }) {
                         </Cartao>
                     ))}
                     {comProblema.length > 0 && prontos.length > 0 && (
-                        <Muted>Os serviços com pendência ficam de fora desta emissão; corrija-os e emita depois.</Muted>
+                        <Muted>Os serviços com problema ficam de fora desta vez. Corrija e emita depois.</Muted>
                     )}
                 </div>
             )}
@@ -140,7 +140,7 @@ export default function NotasDialog({ open, ids, onClose, onDone }) {
                         </strong>
                         <span>
                             {producao
-                                ? 'Ambiente de PRODUÇÃO: as notas serão emitidas de verdade na prefeitura e passam a valer fiscalmente. Depois só podem ser canceladas.'
+                                ? 'Ambiente de PRODUÇÃO: as notas vão valer de verdade na prefeitura. Depois de emitidas, só dá para cancelar.'
                                 : 'Ambiente de homologação (teste): as notas não têm valor fiscal.'}
                         </span>
                     </div>
@@ -154,7 +154,7 @@ export default function NotasDialog({ open, ids, onClose, onDone }) {
                     </div>
                     <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontWeight: 600 }}>
                         <input type="checkbox" checked={conferi} onChange={(e) => setConferi(e.target.checked)} style={{ marginTop: 4 }} />
-                        Conferi os espelhos, os clientes e os valores e quero emitir {dados.quantidadeProntos === 1 ? 'esta nota' : 'estas notas'}.
+                        Conferi os espelhos, os clientes e os valores. Pode emitir {dados.quantidadeProntos === 1 ? 'esta nota' : 'estas notas'}.
                     </label>
                 </div>
             )}

@@ -82,24 +82,24 @@ function VeiculoDialog({ open, veiculo, motoristas, atividades, onClose }) {
                             <TextField name="ano" label="Ano" type="number" min="1950" />
                         </Grid>
                         <Grid $cols={3}>
-                            <TextField name="valorHora" label="Preço da hora (R$)" type="number" step="0.01" min="0" required hint="Cada serviço guarda o valor da época." />
-                            <TextField name="prazoPagamentoDias" label="Prazo de pagamento (dias)" type="number" min="0" max="365" required hint="Vencimento padrão após o serviço." />
-                            <TextField name="horimetroInicial" label="Horímetro inicial (h)" type="number" step="0.1" min="0" />
+                            <TextField name="valorHora" label="Preço da hora (R$)" type="number" step="0.01" min="0" required hint="Mudar o preço não altera os serviços já lançados." />
+                            <TextField name="prazoPagamentoDias" label="Prazo de pagamento (dias)" type="number" min="0" max="365" required hint="Quantos dias o cliente tem para pagar." />
+                            <TextField name="horimetroInicial" label="Horas do motor hoje" type="number" step="0.1" min="0" hint="Opcional. O número que o relógio de horas do caminhão (horímetro) marca agora; serve para avisar a hora da revisão." />
                         </Grid>
                         <Grid $cols={2}>
                             <SelectField name="motoristaPadraoId" label="Motorista fixo" options={motoristas.filter((m) => m.ativo).map((m) => ({ value: m.id, label: m.nome }))} placeholder="Nenhum" />
                             <SelectField
                                 name="atividadeId"
-                                label="Atividade da nota fiscal"
+                                label="Tipo de serviço na nota fiscal"
                                 options={atividades.map((a) => ({ value: a.id, label: `${a.itemListaServico} · ${a.descricao}` }))}
                                 placeholder="Usar a atividade padrão"
-                                hint="Item da lista de serviços, CNAE e alíquota usados na NFS-e."
+                                hint="O tipo de serviço que sai na nota. Se não escolher, vale o padrão."
                             />
                         </Grid>
                         <TextareaField name="observacoes" label="Observações" rows={2} />
                         <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 600 }}>
                             <input type="checkbox" checked={values.ativo} onChange={(e) => setFieldValue('ativo', e.target.checked)} />
-                            Veículo ativo (aparece nos novos serviços)
+                            Ainda em uso (aparece ao lançar serviços)
                         </label>
                     </Form>
                     <Row $justify="flex-end" style={{ marginTop: 20 }}>
@@ -168,7 +168,7 @@ function MotoristaDialog({ open, motorista, onClose }) {
                         </Grid>
                         <Grid $cols={2}>
                             <TextField name="cnh" label="CNH" />
-                            <TextField name="custoHora" label="Custo por hora (R$)" type="number" step="0.01" min="0" hint="Opcional: só para calcular o resultado." />
+                            <TextField name="custoHora" label="Custo por hora (R$)" type="number" step="0.01" min="0" hint="Opcional. Quanto ele custa por hora, para ver o lucro de verdade." />
                         </Grid>
                         <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 600 }}>
                             <input type="checkbox" checked={values.ativo} onChange={(e) => setFieldValue('ativo', e.target.checked)} />
@@ -215,7 +215,7 @@ export default function Cadastros() {
                     <Button size="sm" icon={<FaPlus />} onClick={() => setNovoVeiculo(true)}>Novo veículo</Button>
                 </Row>
                 {(veiculos.data ?? []).length === 0 && !veiculos.isLoading && (
-                    <p><Muted>Cadastre o caminhão munck com o preço da hora para começar a registrar serviços.</Muted></p>
+                    <p><Muted>Cadastre o caminhão com o preço da hora e já dá para lançar serviços.</Muted></p>
                 )}
                 <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                     {(veiculos.data ?? []).map((v) => (
@@ -225,9 +225,9 @@ export default function Cadastros() {
                                 <Badge $tone={v.ativo ? 'success' : 'neutral'}>{v.ativo ? 'Ativo' : 'Inativo'}</Badge>
                             </Row>
                             <span style={{ fontSize: '1.4rem', fontWeight: 800 }}>{brl(v.valorHora)} <Muted style={{ fontSize: '0.9rem', fontWeight: 400 }}>por hora</Muted></span>
-                            <Muted>Pagamento em {v.prazoPagamentoDias} dias · Motorista: {v.motoristaPadrao?.nome ?? 'não definido'}</Muted>
-                            <Muted>Nota: {v.atividade ? `${v.atividade.itemListaServico} · ${v.atividade.descricao}` : 'atividade padrão'}</Muted>
-                            {v.horimetroEstimado !== null && v.horimetroEstimado !== undefined && <Muted>Horímetro estimado: {v.horimetroEstimado.toLocaleString('pt-BR')} h</Muted>}
+                            <Muted>Cliente paga em {v.prazoPagamentoDias} dias · Motorista: {v.motoristaPadrao?.nome ?? 'ninguém definido'}</Muted>
+                            <Muted>Na nota fiscal: {v.atividade ? `${v.atividade.itemListaServico} · ${v.atividade.descricao}` : 'tipo de serviço padrão'}</Muted>
+                            {v.horimetroEstimado !== null && v.horimetroEstimado !== undefined && <Muted>Relógio de horas do motor (estimado): {v.horimetroEstimado.toLocaleString('pt-BR')} h</Muted>}
                             <div><Button size="sm" variant="secondary" icon={<FaPen />} onClick={() => setVeiculo(v)}>Editar</Button></div>
                         </div>
                     ))}

@@ -18,7 +18,11 @@ const schema = Yup.object({
     data: Yup.string().required('Informe a data'),
     destino: Yup.string().trim().required('Informe o local de destino'),
     descricao: Yup.string().trim().required('Descreva o serviço'),
-    horas: Yup.number().typeError('Informe as horas').moreThan(0, 'As horas devem ser maiores que zero').required('Informe as horas trabalhadas'),
+    // Pode ficar em branco se só o início foi anotado (serviço em andamento).
+    horas: Yup.mixed().test('horas', 'Informe as horas ou o início e o fim', function (valor) {
+        const { horaInicio, horaFim } = this.parent;
+        return (horaInicio && !horaFim) || Number(valor) > 0;
+    }),
     valorHora: Yup.number().typeError('Informe o valor').min(0).nullable(),
     desconto: Yup.number().typeError('Informe o desconto').min(0).nullable(),
 });
@@ -44,6 +48,13 @@ function Calculo({ veiculos }) {
     }, [values.horaInicio, values.horaFim]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const veiculo = veiculos.find((v) => v.id === values.veiculoId);
+    if (values.horaInicio && !values.horaFim && !(Number(values.horas) > 0)) {
+        return (
+            <div style={{ padding: 12, borderRadius: 10, background: colors.warningBg, color: colors.warning }}>
+                <strong>Serviço em andamento.</strong> O valor só é calculado quando você informar o horário de término.
+            </div>
+        );
+    }
     const valorHora = values.valorHora === '' ? Number(veiculo?.valorHora ?? 0) : Number(values.valorHora);
     const total = Math.max(0, Math.round(Number(values.horas || 0) * valorHora * 100) / 100 - Number(values.desconto || 0));
 
@@ -69,7 +80,7 @@ function valoresIniciais(servico, veiculos) {
         descricao: servico?.descricao ?? '',
         horaInicio: servico?.horaInicio ?? '',
         horaFim: servico?.horaFim ?? '',
-        horas: servico?.horas ?? '',
+        horas: servico?.horas || '',
         valorHora: servico ? servico.valorHora : '',
         desconto: servico?.desconto || '',
         dataVencimento: servico ? dataInput(servico.dataVencimento) : '',
@@ -90,7 +101,7 @@ export default function ServicoDialog({ open, servico, onClose, onSaved }) {
         onSuccess: async (resultado) => {
             await queryClient.invalidateQueries({ queryKey: ['muck'] });
             await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
-            toast.success(editando ? 'Serviço atualizado.' : 'Serviço registrado e lançado em contas a receber.');
+            toast.success(resultado.status === 'EM_ANDAMENTO' ? 'Serviço iniciado. Quando terminar, é só encerrar na lista.' : editando ? 'Serviço atualizado.' : 'Serviço lançado. Já está em contas a receber.');
             onSaved?.(resultado);
             onClose();
         },
@@ -113,7 +124,7 @@ export default function ServicoDialog({ open, servico, onClose, onSaved }) {
             descricao: values.descricao.trim(),
             horaInicio: values.horaInicio || undefined,
             horaFim: values.horaFim || undefined,
-            horas: Number(values.horas),
+            horas: Number(values.horas) > 0 ? Number(values.horas) : undefined,
             valorHora: values.valorHora === '' ? undefined : Number(values.valorHora),
             desconto: values.desconto === '' ? 0 : Number(values.desconto),
             dataVencimento: values.dataVencimento || undefined,
@@ -145,7 +156,7 @@ export default function ServicoDialog({ open, servico, onClose, onSaved }) {
                                 name="clienteId"
                                 parte="cliente"
                                 selecionadoInicial={servico?.cliente}
-                                hint="Digite o nome ou o CPF/CNPJ do cliente. Para emitir nota, o cliente precisa ter CPF/CNPJ."
+                                hint="Digite o nome ou o CPF/CNPJ. Para emitir nota, o cliente precisa ter CPF/CNPJ cadastrado."
                                 permitirCadastro
                                 required
                             />
@@ -156,9 +167,9 @@ export default function ServicoDialog({ open, servico, onClose, onSaved }) {
                             <TextareaField name="descricao" label="Descrição do serviço" required rows={3} placeholder="O que foi feito (içamento de módulos, transporte de estrutura…)" />
 
                             <Grid $cols={3}>
-                                <TextField name="horaInicio" label="Início" type="time" hint="Opcional" />
-                                <TextField name="horaFim" label="Fim" type="time" hint="Opcional" />
-                                <TextField name="horas" label="Horas trabalhadas" type="number" step="0.25" min="0" required hint="Preenchidas pelos horários, se informados" />
+                                <TextField name="horaInicio" label="Início" type="time" hint="Pode lançar só o início e encerrar depois" />
+                                <TextField name="horaFim" label="Fim" type="time" hint="Deixe vazio se o serviço ainda está rolando" />
+                                <TextField name="horas" label="Horas trabalhadas" type="number" step="0.25" min="0" hint="Se preencher início e fim, eu calculo" />
                             </Grid>
                             <Grid $cols={3}>
                                 <TextField
@@ -168,10 +179,10 @@ export default function ServicoDialog({ open, servico, onClose, onSaved }) {
                                     step="0.01"
                                     min="0"
                                     placeholder={veiculo ? String(veiculo.valorHora) : ''}
-                                    hint={veiculo ? `Em branco usa o do veículo (${brl(veiculo.valorHora)})` : undefined}
+                                    hint={veiculo ? `Vazio usa o do caminhão (${brl(veiculo.valorHora)})` : undefined}
                                 />
                                 <TextField name="desconto" label="Desconto (R$)" type="number" step="0.01" min="0" />
-                                <DateField name="dataVencimento" label="Vencimento" hint={veiculo ? `Em branco: ${veiculo.prazoPagamentoDias} dias após o serviço` : undefined} />
+                                <DateField name="dataVencimento" label="Vencimento" hint={veiculo ? `Vazio: ${veiculo.prazoPagamentoDias} dias depois do serviço` : undefined} />
                             </Grid>
 
                             <Calculo veiculos={listaVeiculos} />
@@ -200,7 +211,7 @@ function NotaCheckbox() {
                 Este serviço terá nota fiscal (NFS-e)
             </label>
             <Muted style={{ display: 'block', marginTop: 4, fontSize: '0.85rem' }}>
-                Nada é emitido ao salvar. Depois você confere o espelho de cada nota e confirma a emissão em Serviços.
+                Salvar não emite nada. Depois você confere o espelho de cada nota e confirma a emissão na lista de serviços.
             </Muted>
         </div>
     );

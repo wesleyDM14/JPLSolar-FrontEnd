@@ -1,4 +1,4 @@
-import { criarEstrutura, lerSelecionados, lerSoltos } from './lerArrastado';
+import { criarEstrutura, lerSelecionados, lerSoltos, repetirSeCair } from './lerArrastado';
 
 // Entradas falsas no formato do navegador (FileSystemEntry).
 const arquivo = (name) => ({ isFile: true, isDirectory: false, name, file: (ok) => ok({ name, size: 3 }) });
@@ -66,5 +66,26 @@ describe('pastas arrastadas', () => {
         expect(ids.get('A/B')).toBe('id-B');
         expect(ids.get('')).toBe('DESTINO');
         expect([...falhas.keys()]).toEqual(['A/quebra', 'A/quebra/filha']);
+    });
+});
+
+describe('repetirSeCair', () => {
+    const rede = () => Object.assign(new Error('Network Error'), {});
+    const status = (n) => Object.assign(new Error('x'), { response: { status: n } });
+
+    it('tenta de novo quando o servidor está voltando (sem resposta ou 502/503/504)', async () => {
+        const operacao = jest.fn().mockRejectedValueOnce(rede()).mockRejectedValueOnce(status(503)).mockResolvedValue('ok');
+        await expect(repetirSeCair(operacao, [0, 0, 0])).resolves.toBe('ok');
+        expect(operacao).toHaveBeenCalledTimes(3);
+    });
+
+    it('não insiste em erro de regra (ex.: 409) e desiste depois das tentativas', async () => {
+        const regra = jest.fn().mockRejectedValue(status(409));
+        await expect(repetirSeCair(regra, [0, 0])).rejects.toThrow();
+        expect(regra).toHaveBeenCalledTimes(1);
+
+        const fora = jest.fn().mockRejectedValue(status(503));
+        await expect(repetirSeCair(fora, [0, 0])).rejects.toThrow();
+        expect(fora).toHaveBeenCalledTimes(3);
     });
 });

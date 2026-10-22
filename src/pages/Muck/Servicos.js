@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaCheck, FaFileInvoiceDollar, FaFilePdf, FaPen, FaPlus, FaTimes, FaTruckMoving } from 'react-icons/fa';
+import { FaCheck, FaFlagCheckered, FaFileInvoiceDollar, FaFilePdf, FaPen, FaPlus, FaTimes, FaTruckMoving } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import { errorMessage } from '../../api/client';
 import { muckApi, openFileInTab } from '../../api/resources';
@@ -12,6 +12,7 @@ import { formatDate } from '../../utils/masks';
 import BaixaDialog from '../Financial/BaixaDialog';
 import SeletorPeriodo from '../Financial/SeletorPeriodo';
 import NotasDialog from './NotasDialog';
+import EncerrarDialog from './EncerrarDialog';
 import ServicoDialog from './ServicoDialog';
 import { brl, COBRANCA, horasTexto, notaInfo, NOTAS_FILTRO, podeEmitirNota, SITUACOES_FILTRO } from './format';
 
@@ -36,6 +37,7 @@ export default function Servicos() {
     const [editando, setEditando] = useState(null);
     const [novo, setNovo] = useState(false);
     const [baixando, setBaixando] = useState(null);
+    const [encerrando, setEncerrando] = useState(null);
     const [cancelando, setCancelando] = useState(null);
     const [selecao, setSelecao] = useState([]);
     const [revisando, setRevisando] = useState(false);
@@ -54,7 +56,7 @@ export default function Servicos() {
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: ['muck'] });
             await queryClient.invalidateQueries({ queryKey: ['financeiro'] });
-            toast.success('Serviço cancelado e conta a receber cancelada.');
+            toast.success('Serviço cancelado. A conta a receber dele também foi cancelada.');
             setCancelando(null);
         },
         onError: (erro) => {
@@ -98,12 +100,12 @@ export default function Servicos() {
             ),
         },
         { key: 'motorista', header: 'Motorista', render: (s) => s.motorista?.nome ?? '—' },
-        { key: 'horas', header: 'Horas', nowrap: true, render: (s) => horasTexto(s.horas) },
+        { key: 'horas', header: 'Horas', nowrap: true, render: (s) => (s.status === 'EM_ANDAMENTO' ? <Muted>desde {s.horaInicio}</Muted> : horasTexto(s.horas)) },
         {
             key: 'valor',
             header: 'Valor',
             nowrap: true,
-            render: (s) => (
+            render: (s) => s.status === 'EM_ANDAMENTO' ? <Muted>a calcular</Muted> : (
                 <div>
                     <strong>{brl(s.valorTotal)}</strong>
                     {s.pago > 0 && s.saldo > 0 && <div><Muted style={{ fontSize: '0.82rem' }}>falta {brl(s.saldo)}</Muted></div>}
@@ -119,7 +121,7 @@ export default function Servicos() {
                 return (
                     <div>
                         <Badge $tone={info.tone}>{info.label}</Badge>
-                        <div><Muted style={{ fontSize: '0.82rem' }}>{s.situacao === 'PAGO' && s.pagoEm ? `em ${formatDate(s.pagoEm)}` : `vence ${formatDate(s.dataVencimento)}`}</Muted></div>
+                        <div><Muted style={{ fontSize: '0.82rem' }}>{s.status === 'EM_ANDAMENTO' ? 'falta informar o término' : s.situacao === 'PAGO' && s.pagoEm ? `em ${formatDate(s.pagoEm)}` : `vence ${formatDate(s.dataVencimento)}`}</Muted></div>
                     </div>
                 );
             },
@@ -140,10 +142,13 @@ export default function Servicos() {
             render: (s) =>
                 s.status === 'CANCELADA' ? null : (
                     <div style={{ display: 'flex', gap: 4 }} onClick={(e) => e.stopPropagation()}>
+                        {s.status === 'EM_ANDAMENTO' && (
+                            <Button size="sm" variant="secondary" icon={<FaFlagCheckered />} onClick={() => setEncerrando(s)}>Encerrar</Button>
+                        )}
                         {s.saldo > 0 && (
                             <Button size="sm" variant="ghost" title="Registrar pagamento" aria-label="Registrar pagamento" onClick={() => setBaixando(s)}><FaCheck /></Button>
                         )}
-                        {s.emiteNota && (
+                        {s.emiteNota && s.status === 'REGISTRADA' && (
                             <Button
                                 size="sm"
                                 variant="ghost"
@@ -165,7 +170,7 @@ export default function Servicos() {
         <Page>
             <PageHeader
                 title="Serviços do munck"
-                subtitle="Cada serviço registrado já entra em contas a receber."
+                subtitle="Cada serviço que você lança já vai sozinho para contas a receber."
                 icon={FaTruckMoving}
                 actions={
                     <>
@@ -218,15 +223,17 @@ export default function Servicos() {
                         rows={linhas}
                         loading={lista.isLoading}
                         emptyTitle="Nenhum serviço neste período"
-                        emptyDescription="Registre o primeiro serviço do munck em “Novo serviço”."
+                        emptyDescription="Clique em “Novo serviço” para lançar o primeiro."
                         onRowClick={(s) => s.status !== 'CANCELADA' && setEditando(s)}
                     />
                     {lista.data?.meta && <PaginationBar meta={lista.data.meta} onPageChange={setPage} label="serviços" />}
                 </>
             )}
-            {selecao.length > 20 && <Muted style={{ color: colors.warning }}>As notas são emitidas em lotes de até 20 por vez.</Muted>}
+            {selecao.length > 20 && <Muted style={{ color: colors.warning }}>Dá para emitir até 20 notas por vez; o resto fica para a próxima.</Muted>}
 
             <ServicoDialog open={novo || Boolean(editando)} servico={editando} onClose={() => { setNovo(false); setEditando(null); }} />
+
+            <EncerrarDialog open={Boolean(encerrando)} servico={encerrando} onClose={() => setEncerrando(null)} />
 
             <BaixaDialog
                 open={Boolean(baixando)}
@@ -238,7 +245,7 @@ export default function Servicos() {
             <ConfirmDialog
                 open={Boolean(cancelando)}
                 title="Cancelar este serviço?"
-                message={cancelando ? `O serviço de ${cancelando.cliente.nome} (${brl(cancelando.valorTotal)}) e a conta a receber dele serão cancelados.` : ''}
+                message={cancelando ? `Vou cancelar o serviço de ${cancelando.cliente.nome} (${brl(cancelando.valorTotal)}) e a conta a receber dele.` : ''}
                 confirmLabel="Cancelar serviço"
                 danger
                 loading={cancelar.isPending}

@@ -10,12 +10,12 @@ import SeletorPeriodo from '../Financial/SeletorPeriodo';
 import { brl, horasTexto, SITUACAO_CLIENTE } from './format';
 
 const FILTROS = [
-    { value: 'DEVEM', label: 'Quem está devendo' },
-    { value: 'ATRASADO', label: 'Só atrasados' },
-    { value: 'QUITADO', label: 'Quem pagou tudo' },
+    { value: 'DEVEM', label: 'Com saldo em aberto' },
+    { value: 'ATRASADO', label: 'Só em atraso' },
+    { value: 'QUITADO', label: 'Quitados' },
 ];
 
-/** Quem pagou e quem está devendo pelos serviços do munck, cliente a cliente. */
+/** Cobrança dos serviços do munck, cliente a cliente: o que já foi pago e o que está em aberto. */
 export default function Cobranca() {
     const navigate = useNavigate();
     const hoje = hojeIso();
@@ -60,16 +60,16 @@ export default function Cobranca() {
             },
         },
         { key: 'total', header: 'Total dos serviços', nowrap: true, render: (c) => brl(c.total) },
-        { key: 'pago', header: 'Já pagou', nowrap: true, render: (c) => <strong style={{ color: 'var(--c-success)' }}>{brl(c.pago)}</strong> },
-        { key: 'emAberto', header: 'Está devendo', nowrap: true, render: (c) => (c.emAberto > 0 ? <strong>{brl(c.emAberto)}</strong> : '—') },
-        { key: 'atrasado', header: 'Desse, atrasado', nowrap: true, render: (c) => (c.atrasado > 0 ? <strong style={{ color: 'var(--c-danger)' }}>{brl(c.atrasado)}</strong> : '—') },
+        { key: 'pago', header: 'Pago', nowrap: true, render: (c) => <strong style={{ color: 'var(--c-success)' }}>{brl(c.pago)}</strong> },
+        { key: 'emAberto', header: 'Em aberto', nowrap: true, render: (c) => (c.emAberto > 0 ? <strong>{brl(c.emAberto)}</strong> : '—') },
+        { key: 'atrasado', header: 'Em atraso', nowrap: true, render: (c) => (c.atrasado > 0 ? <strong style={{ color: 'var(--c-danger)' }}>{brl(c.atrasado)}</strong> : '—') },
         {
             key: 'acoes',
             header: '',
             nowrap: true,
             render: (c) => (
                 <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); verServicos(c, c.emAberto > 0 ? 'EM_ABERTO' : ''); }}>
-                    {c.emAberto > 0 ? 'Ver o que deve' : 'Ver serviços'}
+                    {c.emAberto > 0 ? 'Ver pendências' : 'Ver serviços'}
                 </Button>
             ),
         },
@@ -77,7 +77,7 @@ export default function Cobranca() {
 
     return (
         <Page>
-            <PageHeader title="Quem pagou e quem deve" subtitle="Situação de cada cliente nos serviços do munck. O pagamento é registrado em contas a receber." icon={FaHandHoldingUsd} />
+            <PageHeader title="Cobrança do munck" subtitle="Situação de cada cliente: o que já foi pago, o que está em aberto e o que está em atraso. A baixa é feita em contas a receber." icon={FaHandHoldingUsd} />
 
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16 }}>
                 <SeletorPeriodo de={periodo.de} ate={periodo.ate} onChange={setPeriodo} modos={['mes', 'ano', 'tudo']} />
@@ -93,8 +93,8 @@ export default function Cobranca() {
                         <StatGrid style={{ marginBottom: 16 }}>
                             <StatCard rotulo="Faturado" valor={brl(dados.totais.faturado)} tom="blue" />
                             <StatCard rotulo="Já recebido" valor={brl(dados.totais.recebido)} detalhe={`${dados.totais.quitados} cliente(s) quitado(s)`} tom="green" />
-                            <StatCard rotulo="A receber" valor={brl(dados.totais.emAberto)} detalhe={`${dados.totais.devedores} cliente(s) devendo`} tom={dados.totais.emAberto > 0 ? 'orange' : 'green'} />
-                            <StatCard rotulo="Atrasado" valor={brl(dados.totais.atrasado)} tom={dados.totais.atrasado > 0 ? 'red' : 'green'} />
+                            <StatCard rotulo="A receber" valor={brl(dados.totais.emAberto)} detalhe={`${dados.totais.devedores} cliente(s) com saldo`} tom={dados.totais.emAberto > 0 ? 'orange' : 'green'} />
+                            <StatCard rotulo="Em atraso" valor={brl(dados.totais.atrasado)} tom={dados.totais.atrasado > 0 ? 'red' : 'green'} />
                         </StatGrid>
                     )}
                     <DataTable
@@ -103,7 +103,7 @@ export default function Cobranca() {
                         rowKey={(c) => c.clienteId}
                         loading={consulta.isLoading}
                         emptyTitle="Nenhum cliente nesta lista"
-                        emptyDescription="Registre serviços do munck para acompanhar quem pagou e quem deve."
+                        emptyDescription="Registre serviços do munck para acompanhar a cobrança."
                         onRowClick={(c) => verServicos(c, '')}
                     />
                 </>

@@ -90,22 +90,22 @@ function ManutencaoDialog({ open, manutencao, veiculos, tipos, onClose }) {
                             <ParteField name="fornecedorId" parte="fornecedor" label="Fornecedor / oficina" selecionadoInicial={manutencao?.fornecedor} permitirCadastro />
                         </Grid>
                         <div style={{ border: '1px solid var(--c-border)', borderRadius: 10, padding: 12, margin: '4px 0 12px' }}>
-                            <strong>Contas a pagar</strong>
+                            <strong>Pagamento</strong>
                             <Grid $cols={2}>
                                 <DateField
                                     name="dataVencimento"
                                     label="Vencimento"
-                                    hint={Number(values.valor) > 0 ? 'Preencha para lançar em contas a pagar. Sem vencimento, fica só no histórico.' : 'Sem valor, não gera conta a pagar.'}
+                                    hint={Number(values.valor) > 0 ? 'Coloque a data de vencimento para já aparecer em contas a pagar. Sem data, fica só no histórico.' : 'Sem valor, não cria conta a pagar.'}
                                 />
                                 <span />
                             </Grid>
                         </div>
                         <div style={{ border: '1px solid var(--c-border)', borderRadius: 10, padding: 12 }}>
-                            <strong>Controle da próxima revisão</strong>
+                            <strong>Lembrete da próxima revisão</strong>
                             <Grid $cols={3}>
-                                <TextField name="horimetro" label="Horímetro agora (h)" type="number" step="0.1" min="0" />
-                                <DateField name="proximaData" label="Próxima em (data)" />
-                                <TextField name="proximoHorimetro" label="Próxima no horímetro (h)" type="number" step="0.1" min="0" />
+                                <TextField name="horimetro" label="Horas do motor agora" type="number" step="0.1" min="0" />
+                                <DateField name="proximaData" label="Próxima revisão em" />
+                                <TextField name="proximoHorimetro" label="Ou quando o motor marcar" type="number" step="0.1" min="0" />
                             </Grid>
                         </div>
                     </Form>
@@ -168,10 +168,10 @@ export default function Manutencao() {
         { key: 'valor', header: 'Valor', nowrap: true, render: (m) => (m.valor > 0 ? <strong>{brl(m.valor)}</strong> : '—') },
         {
             key: 'pagar',
-            header: 'Contas a pagar',
+            header: 'Pagamento',
             nowrap: true,
             render: (m) => {
-                if (!m.situacao) return <Muted>só histórico</Muted>;
+                if (!m.situacao) return <Muted>sem cobrança</Muted>;
                 const info = COBRANCA[m.situacao] ?? COBRANCA.ABERTO;
                 return <Badge $tone={m.situacao === 'PAGO' ? 'success' : info.tone}>{m.situacao === 'PAGO' ? 'Pago' : info.label}</Badge>;
             },
@@ -199,24 +199,24 @@ export default function Manutencao() {
         <Page>
             <PageHeader
                 title="Manutenção do caminhão"
-                subtitle="Histórico de manutenção e despesas. O que tem valor e vencimento entra em contas a pagar."
+                subtitle="Tudo que foi gasto no caminhão. Quando tem valor e vencimento, já vai para contas a pagar."
                 icon={FaWrench}
                 actions={<Button icon={<FaPlus />} onClick={() => setNovo(true)} disabled={!veiculos.data?.length}>Nova manutenção</Button>}
             />
 
             {!veiculos.isLoading && !veiculos.data?.length && (
-                <Card><Muted>Cadastre o veículo em “Veículo e motoristas” antes de registrar manutenções.</Muted></Card>
+                <Card><Muted>Antes de registrar manutenção, cadastre o caminhão em “Veículo e motoristas”.</Muted></Card>
             )}
 
             <StatGrid style={{ margin: '16px 0' }}>
-                <StatCard rotulo="Gasto (na lista)" valor={brl(total)} tom="red" />
-                <StatCard rotulo="Horímetro estimado" valor={horimetro === null || horimetro === undefined ? '—' : `${horimetro.toLocaleString('pt-BR')} h`} detalhe="última leitura + horas trabalhadas" tom="blue" />
-                <StatCard rotulo="Revisões a olhar" valor={String(revisoes.length)} tom={revisoes.some((r) => r.situacao === 'VENCIDA') ? 'red' : revisoes.length ? 'orange' : 'green'} />
+                <StatCard rotulo="Gasto (o que está na tela)" valor={brl(total)} tom="red" />
+                <StatCard rotulo="Horímetro estimado" valor={horimetro === null || horimetro === undefined ? '—' : `${horimetro.toLocaleString('pt-BR')} h`} detalhe="última anotação + horas trabalhadas desde então" tom="blue" />
+                <StatCard rotulo="Revisões para ficar de olho" valor={String(revisoes.length)} tom={revisoes.some((r) => r.situacao === 'VENCIDA') ? 'red' : revisoes.length ? 'orange' : 'green'} />
             </StatGrid>
 
             {revisoes.length > 0 && (
                 <Card style={{ marginBottom: 16 }}>
-                    <CardTitle>Revisões a olhar</CardTitle>
+                    <CardTitle>Revisões para ficar de olho</CardTitle>
                     {revisoes.map((r) => (
                         <div key={r.manutencaoId} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, padding: '6px 0' }}>
                             <span><strong>{r.tipo}</strong> <Muted>· {r.motivo}</Muted></span>
@@ -234,7 +234,7 @@ export default function Manutencao() {
             {lista.isError ? (
                 <ErrorBlock message={errorMessage(lista.error)} onRetry={lista.refetch} />
             ) : (
-                <DataTable columns={colunas} rows={linhas} loading={lista.isLoading} emptyTitle="Nenhuma manutenção registrada" emptyDescription="Registre trocas de óleo, pneus, revisões, seguro, IPVA e outras despesas do caminhão." onRowClick={setEditando} />
+                <DataTable columns={colunas} rows={linhas} loading={lista.isLoading} emptyTitle="Nenhuma manutenção registrada" emptyDescription="Anote aqui troca de óleo, pneus, revisões, seguro, IPVA e qualquer outro gasto do caminhão." onRowClick={setEditando} />
             )}
 
             <ManutencaoDialog
