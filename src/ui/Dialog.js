@@ -151,11 +151,10 @@ function liberarRolagem(id) {
 }
 
 /**
- * Modal padrão do sistema: cabeçalho com título e botão de fechar, corpo rolável e rodapé fixo.
- * No celular vira uma "gaveta" que sobe da base da tela. Fecha com Esc ou clicando fora.
+ * Faz uma janela se comportar como modal: trava a rolagem da página enquanto estiver aberta e responde ao Esc só quando é a
+ * de cima. Usado pelo Dialog e por outras janelas (como o visualizador de imagens).
  */
-export function Dialog({ open, title, subtitle, onClose, children, footer, width = 520, accent }) {
-    const titleId = useId();
+export function useJanelaModal(open, onClose) {
     const idDaJanela = useId();
     // onClose costuma ser uma função nova a cada renderização: guardada à parte para não refazer a trava da rolagem toda vez.
     const onCloseAtual = useRef(onClose);
@@ -176,6 +175,15 @@ export function Dialog({ open, title, subtitle, onClose, children, footer, width
             liberarRolagem(idDaJanela);
         };
     }, [open, idDaJanela]);
+}
+
+/**
+ * Modal padrão do sistema: cabeçalho com título e botão de fechar, corpo rolável e rodapé fixo.
+ * No celular vira uma "gaveta" que sobe da base da tela. Fecha com Esc ou clicando fora.
+ */
+export function Dialog({ open, title, subtitle, onClose, children, footer, width = 520, accent }) {
+    const titleId = useId();
+    useJanelaModal(open, onClose);
 
     if (!open) return null;
 

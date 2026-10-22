@@ -5,7 +5,9 @@ import { FaCheckCircle, FaCloudUploadAlt, FaFileAlt, FaPlay, FaRegCircle, FaTras
 import styled from 'styled-components';
 import { errorMessage } from '../../api/client';
 import { execucaoApi } from '../../api/resources';
+import VisualizadorDeImagens from '../../components/VisualizadorDeImagens';
 import { Badge, Button, Dialog, ErrorBlock, Field, Input, LoadingBlock, Muted, Textarea, tokens } from '../../ui';
+import { acaoDoAnexo, urlDoAnexo } from '../../utils/anexos';
 import { STATUS_ETAPA } from './formato';
 
 const { colors } = tokens;
@@ -13,7 +15,6 @@ const { colors } = tokens;
 const TAMANHO_MAXIMO = 15 * 1024 * 1024;
 const ACEITA_ARQUIVOS = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.txt,.csv,image/*';
 
-const urlArquivo = (anexo) => `${process.env.REACT_APP_BASE_URL}${anexo.url}`;
 const formatarTamanho = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`);
 
 const Bloco = styled.section`
@@ -177,14 +178,24 @@ function AreaDeEnvio({ aceita, rotulo, enviar }) {
 }
 
 function ListaDeAnexos({ anexos, onRemover, podeRemover }) {
+    const [visualizando, setVisualizando] = useState(null);
     if (anexos.length === 0) return null;
+    const fotos = anexos.filter((a) => acaoDoAnexo(a) === 'visualizar');
+
     return (
         <Miniaturas>
             {anexos.map((a) => (
                 <Anexo key={a.id}>
-                    <a href={urlArquivo(a)} target="_blank" rel="noreferrer" title={a.nomeArquivo}>
-                        {a.mimeType.startsWith('image/') ? <img src={urlArquivo(a)} alt={a.nomeArquivo} loading="lazy" /> : <div className="arquivo"><FaFileAlt /></div>}
-                    </a>
+                    {acaoDoAnexo(a) === 'visualizar' ? (
+                        // Foto: miniatura leve; clicar abre grande no visualizador (sem baixar).
+                        <button type="button" title={`Abrir ${a.nomeArquivo}`} onClick={() => setVisualizando(fotos.indexOf(a))} style={{ padding: 0, border: 0, background: 'transparent', cursor: 'zoom-in' }}>
+                            <img src={urlDoAnexo(a, 'mini')} alt={a.nomeArquivo} loading="lazy" />
+                        </button>
+                    ) : (
+                        <a href={acaoDoAnexo(a) === 'abrir' ? urlDoAnexo(a) : urlDoAnexo(a, 'baixar')} target={acaoDoAnexo(a) === 'abrir' ? '_blank' : undefined} rel="noreferrer" title={a.nomeArquivo}>
+                            <div className="arquivo"><FaFileAlt /></div>
+                        </a>
+                    )}
                     <span className="nome" title={a.nomeArquivo}>{a.nomeArquivo}</span>
                     <span>{formatarTamanho(a.tamanho)}</span>
                     {podeRemover && (
@@ -194,6 +205,7 @@ function ListaDeAnexos({ anexos, onRemover, podeRemover }) {
                     )}
                 </Anexo>
             ))}
+            {visualizando !== null && <VisualizadorDeImagens imagens={fotos} indiceInicial={visualizando} onFechar={() => setVisualizando(null)} />}
         </Miniaturas>
     );
 }

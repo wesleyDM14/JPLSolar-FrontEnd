@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Form, Formik } from 'formik';
 import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
-import { FaCalendarAlt, FaCheckCircle, FaClipboardList, FaExclamationCircle, FaPlus, FaRegClock, FaTrash } from 'react-icons/fa';
+import { FaCalendarAlt, FaCheckCircle, FaClipboardList, FaExclamationCircle, FaPlus, FaRegCircle, FaRegClock, FaTrash, FaUndo } from 'react-icons/fa';
 import styled, { css } from 'styled-components';
 import * as Yup from 'yup';
 import { errorMessage } from '../../api/client';
@@ -107,17 +107,44 @@ const Cartao = styled.article`
     user-select: none;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     transition: box-shadow 0.15s, transform 0.15s, opacity 0.15s;
-    opacity: ${({ $arrastando }) => ($arrastando ? 0.35 : 1)};
+    opacity: ${({ $arrastando, $concluida }) => ($arrastando ? 0.35 : $concluida ? 0.7 : 1)};
 
     &:hover {
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         transform: translateY(-1px);
     }
 
+    .topo {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
     .titulo {
+        flex: 1;
         font-weight: 700;
         line-height: 1.35;
         word-break: break-word;
+        text-decoration: ${({ $concluida }) => ($concluida ? 'line-through' : 'none')};
+        color: ${({ $concluida }) => ($concluida ? colors.muted : colors.text)};
+    }
+
+    .concluir {
+        flex: none;
+        margin-top: 1px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: ${({ $concluida }) => ($concluida ? colors.success : colors.muted)};
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        transition: color 0.15s, transform 0.1s;
+
+        &:hover {
+            color: ${colors.success};
+            transform: scale(1.12);
+        }
     }
 
     .descricao {
@@ -164,7 +191,9 @@ const NovaColuna = styled(Adicionar)`
 const umDia = 86400000;
 
 /** Prazo: tom e texto conforme a proximidade (vencida, hoje, em breve, tranquila). */
-function infoPrazo(dataFinal) {
+function infoPrazo(dataFinal, concluidaEm) {
+    // Tarefa concluída não está atrasada nem "em breve": mostra quando foi feita.
+    if (concluidaEm) return { tom: 'success', texto: `Concluída ${new Date(concluidaEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`, icone: <FaCheckCircle /> };
     if (!dataFinal) return null;
 
     const inicioHoje = Date.parse(`${hojeIso()}T00:00:00.000Z`);
@@ -180,13 +209,15 @@ function infoPrazo(dataFinal) {
 
 const schema = Yup.object({ name: Yup.string().trim().required('Dê um nome para a tarefa.') });
 
-function CartaoDeTarefa({ tarefa, onAbrir, sobreposicao = false }) {
+function CartaoDeTarefa({ tarefa, onAbrir, onConcluir, sobreposicao = false }) {
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: `t:${tarefa.id}`, disabled: sobreposicao });
     const { setNodeRef: setDropRef } = useDroppable({ id: `t:${tarefa.id}`, disabled: sobreposicao });
-    const prazo = infoPrazo(tarefa.dataFinal);
+    const concluida = Boolean(tarefa.concluidaEm);
+    const prazo = infoPrazo(tarefa.dataFinal, tarefa.concluidaEm);
 
     return (
         <Cartao
+            $concluida={concluida}
             ref={(no) => {
                 setNodeRef(no);
                 setDropRef(no);
@@ -196,7 +227,25 @@ function CartaoDeTarefa({ tarefa, onAbrir, sobreposicao = false }) {
             {...attributes}
             {...listeners}
         >
-            <div className="titulo">{tarefa.name}</div>
+            <div className="topo">
+                {onConcluir && (
+                    <button
+                        type="button"
+                        className="concluir"
+                        title={concluida ? 'Reabrir tarefa' : 'Marcar como concluída'}
+                        aria-label={concluida ? `Reabrir ${tarefa.name}` : `Concluir ${tarefa.name}`}
+                        // Não pode iniciar o arrastar nem abrir o cartão: é só o botão.
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onConcluir(tarefa);
+                        }}
+                    >
+                        {concluida ? <FaCheckCircle /> : <FaRegCircle />}
+                    </button>
+                )}
+                <div className="titulo">{tarefa.name}</div>
+            </div>
             {tarefa.description && <div className="descricao">{tarefa.description}</div>}
             {prazo && (
                 <div className="rodape">
@@ -207,21 +256,23 @@ function CartaoDeTarefa({ tarefa, onAbrir, sobreposicao = false }) {
     );
 }
 
-function Coluna({ coluna, cor, onNovaTarefa, onAbrirTarefa, onExcluir }) {
+function Coluna({ coluna, cor, onNovaTarefa, onAbrirTarefa, onExcluir, onConcluir, ocultarConcluidas }) {
+    const visiveis = ocultarConcluidas ? coluna.tasks.filter((t) => !t.concluidaEm) : coluna.tasks;
+    const abertas = coluna.tasks.filter((t) => !t.concluidaEm).length;
     const { setNodeRef, isOver } = useDroppable({ id: `c:${coluna.id}` });
 
     return (
         <ColunaBox ref={setNodeRef} $cor={cor} $sobre={isOver}>
             <ColunaTopo>
                 <h2>{coluna.title}</h2>
-                <Badge>{coluna.tasks.length}</Badge>
+                <Badge title={`${abertas} em aberto, ${coluna.tasks.length - abertas} concluída(s)`}>{abertas}</Badge>
                 <BotaoIcone type="button" title="Excluir coluna" aria-label={`Excluir coluna ${coluna.title}`} $perigo onClick={() => onExcluir(coluna)}>
                     <FaTrash />
                 </BotaoIcone>
             </ColunaTopo>
 
-            {coluna.tasks.map((tarefa) => (
-                <CartaoDeTarefa key={tarefa.id} tarefa={tarefa} onAbrir={onAbrirTarefa} />
+            {visiveis.map((tarefa) => (
+                <CartaoDeTarefa key={tarefa.id} tarefa={tarefa} onAbrir={onAbrirTarefa} onConcluir={onConcluir} />
             ))}
 
             <Adicionar type="button" onClick={() => onNovaTarefa(coluna)}>
@@ -239,6 +290,7 @@ export default function Tasks() {
     const [excluirColuna, setExcluirColuna] = useState(null);
     const [excluirTarefa, setExcluirTarefa] = useState(null);
     const [arrastada, setArrastada] = useState(null);
+    const [ocultarConcluidas, setOcultarConcluidas] = useState(false);
 
     // Só começa a arrastar depois de mover alguns pixels: assim o clique abre a tarefa.
     const sensores = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -278,6 +330,26 @@ export default function Tasks() {
         onError: (erro) => { setExcluirTarefa(null); toast.error(errorMessage(erro)); },
     });
 
+    // Concluir ou reabrir direto no cartão: reflete na hora e confirma com o servidor.
+    const concluir = useMutation({
+        mutationFn: ({ id, concluida }) => tarefasApi.updateTask(id, { concluida }),
+        onMutate: async ({ id, concluida }) => {
+            await queryClient.cancelQueries({ queryKey: ['tarefas', 'colunas'] });
+            const anterior = queryClient.getQueryData(['tarefas', 'colunas']);
+            queryClient.setQueryData(['tarefas', 'colunas'], (atual = []) =>
+                atual.map((c) => ({ ...c, tasks: c.tasks.map((t) => (t.id === id ? { ...t, concluidaEm: concluida ? new Date().toISOString() : null } : t)) })),
+            );
+            return { anterior };
+        },
+        onError: (erro, _v, contexto) => {
+            if (contexto?.anterior) queryClient.setQueryData(['tarefas', 'colunas'], contexto.anterior);
+            toast.error(errorMessage(erro));
+        },
+        onSuccess: (_r, { concluida }) => toast.success(concluida ? 'Tarefa concluída.' : 'Tarefa reaberta.'),
+        onSettled: refresh,
+    });
+    const alternarConclusao = (tarefa) => concluir.mutate({ id: tarefa.id, concluida: !tarefa.concluidaEm });
+
     const mover = useMutation({
         mutationFn: ({ id, columnId, position }) => tarefasApi.updateTask(id, { columnId, position }),
         // Reflete o movimento na hora; se o servidor recusar, recarrega o estado real.
@@ -306,11 +378,13 @@ export default function Tasks() {
 
     const resumo = useMemo(() => {
         const todas = colunas.flatMap((c) => c.tasks);
+        const abertas = todas.filter((t) => !t.concluidaEm);
         const dias = (t) => (t.dataFinal ? infoPrazo(t.dataFinal) : null);
         return {
-            total: todas.length,
-            atrasadas: todas.filter((t) => dias(t)?.tom === 'danger').length,
-            proximas: todas.filter((t) => dias(t)?.tom === 'warning').length,
+            total: abertas.length,
+            concluidas: todas.length - abertas.length,
+            atrasadas: abertas.filter((t) => dias(t)?.tom === 'danger').length,
+            proximas: abertas.filter((t) => dias(t)?.tom === 'warning').length,
         };
     }, [colunas]);
 
@@ -352,14 +426,21 @@ export default function Tasks() {
                 tone="teal"
                 title="Tarefas"
                 subtitle="Arraste os cartões entre as colunas."
-                actions={<Button icon={<FaPlus />} onClick={() => setNovaColuna(true)}>Nova coluna</Button>}
+                actions={
+                    <>
+                        <Button variant="secondary" icon={ocultarConcluidas ? <FaRegCircle /> : <FaCheckCircle />} onClick={() => setOcultarConcluidas((v) => !v)}>
+                            {ocultarConcluidas ? 'Mostrar concluídas' : 'Ocultar concluídas'}
+                        </Button>
+                        <Button icon={<FaPlus />} onClick={() => setNovaColuna(true)}>Nova coluna</Button>
+                    </>
+                }
             />
 
             <StatGrid>
-                <StatCard icon={FaClipboardList} tom="blue" rotulo="Tarefas" valor={resumo.total} detalhe={`em ${colunas.length} coluna(s)`} delay={0} />
+                <StatCard icon={FaClipboardList} tom="blue" rotulo="Em aberto" valor={resumo.total} detalhe={`em ${colunas.length} coluna(s)`} delay={0} />
                 <StatCard icon={FaExclamationCircle} tom="red" rotulo="Atrasadas" valor={resumo.atrasadas} detalhe="passaram do prazo" delay={60} />
                 <StatCard icon={FaRegClock} tom="orange" rotulo="Vencem em breve" valor={resumo.proximas} detalhe="hoje ou nos próximos 3 dias" delay={120} />
-                <StatCard icon={FaCheckCircle} tom="green" rotulo="Colunas" valor={colunas.length} detalhe="etapas do seu fluxo" delay={180} />
+                <StatCard icon={FaCheckCircle} tom="green" rotulo="Concluídas" valor={resumo.concluidas} detalhe="marcadas como feitas" delay={180} />
             </StatGrid>
 
             {colunas.length === 0 ? (
@@ -386,6 +467,8 @@ export default function Tasks() {
                                     onNovaTarefa={(c) => setEditando({ colunaId: c.id })}
                                     onAbrirTarefa={(t) => setEditando({ tarefa: t, colunaId: t.columnId ?? coluna.id })}
                                     onExcluir={setExcluirColuna}
+                                    onConcluir={alternarConclusao}
+                                    ocultarConcluidas={ocultarConcluidas}
                                 />
                             </Reveal>
                         ))}
@@ -435,6 +518,19 @@ export default function Tasks() {
                                         </Button>
                                     )}
                                     <Button variant="secondary" onClick={() => setEditando(null)}>Cancelar</Button>
+                                    {tarefaEmEdicao && (
+                                        <Button
+                                            variant="secondary"
+                                            icon={tarefaEmEdicao.concluidaEm ? <FaUndo /> : <FaCheckCircle />}
+                                            loading={concluir.isPending}
+                                            onClick={async () => {
+                                                await concluir.mutateAsync({ id: tarefaEmEdicao.id, concluida: !tarefaEmEdicao.concluidaEm });
+                                                setEditando(null);
+                                            }}
+                                        >
+                                            {tarefaEmEdicao.concluidaEm ? 'Reabrir' : 'Concluir tarefa'}
+                                        </Button>
+                                    )}
                                     <Button type="submit" form="tarefa-form" loading={isSubmitting}>Salvar</Button>
                                 </>
                             }

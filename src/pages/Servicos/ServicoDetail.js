@@ -5,6 +5,7 @@ import { FaBan, FaCalendarAlt, FaCheckCircle, FaClipboardCheck, FaEdit, FaFilePd
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { errorMessage } from '../../api/client';
 import { equipesApi, servicosApi } from '../../api/resources';
+import VisualizadorDeImagens from '../../components/VisualizadorDeImagens';
 import {
     Badge,
     Button,
@@ -23,11 +24,11 @@ import {
     Select,
     Textarea,
 } from '../../ui';
+import { acaoDoAnexo, urlDoAnexo } from '../../utils/anexos';
 import { formatDate } from '../../utils/masks';
 import PreencherEtapaDialog from './PreencherEtapaDialog';
 import { paraInputDataHora, rotuloTipoEtapa, STATUS_ETAPA, STATUS_SERVICO, TIPOS_ETAPA } from './formato';
 
-const urlArquivo = (anexo) => `${process.env.REACT_APP_BASE_URL}${anexo.url}`;
 const dataHora = (iso) => (iso ? new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null);
 
 function EtapaDialog({ etapa, equipes, pessoas, onClose, onSalvar, carregando }) {
@@ -146,8 +147,9 @@ function NovaEtapaDialog({ equipes, pessoas, onClose, onSalvar, carregando }) {
 
 function Etapa({ etapa, onEditar, onAcao, onPreencher }) {
     const [verFotos, setVerFotos] = useState(false);
-    const fotos = etapa.anexos.filter((a) => a.mimeType.startsWith('image/'));
-    const arquivos = etapa.anexos.filter((a) => !a.mimeType.startsWith('image/'));
+    const [visualizando, setVisualizando] = useState(null); // índice da foto aberta em tamanho grande
+    const fotos = etapa.anexos.filter((a) => acaoDoAnexo(a) === 'visualizar');
+    const arquivos = etapa.anexos.filter((a) => acaoDoAnexo(a) !== 'visualizar');
     const encerrada = ['CONCLUIDA', 'CANCELADA'].includes(etapa.status);
     const feitos = etapa.itens.filter((i) => i.completo).length;
 
@@ -197,21 +199,28 @@ function Etapa({ etapa, onEditar, onAcao, onPreencher }) {
                 <div style={{ marginTop: 12 }}>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                         {(verFotos ? fotos : fotos.slice(0, 6)).map((f) => (
-                            <a key={f.id} href={urlArquivo(f)} target="_blank" rel="noreferrer" title={f.nomeArquivo}>
+                            <button
+                                key={f.id}
+                                type="button"
+                                title={`Abrir ${f.nomeArquivo}`}
+                                onClick={() => setVisualizando(fotos.indexOf(f))}
+                                style={{ padding: 0, border: 0, background: 'transparent', cursor: 'zoom-in' }}
+                            >
                                 <img
-                                    src={urlArquivo(f)}
+                                    src={urlDoAnexo(f, 'mini')}
                                     alt={f.nomeArquivo}
                                     loading="lazy"
-                                    style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--c-border)' }}
+                                    style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--c-border)', display: 'block' }}
                                 />
-                            </a>
+                            </button>
                         ))}
                         {fotos.length > 6 && !verFotos && <Button size="sm" variant="ghost" onClick={() => setVerFotos(true)}>+{fotos.length - 6} fotos</Button>}
                     </div>
                     {arquivos.length > 0 && (
                         <div style={{ marginTop: 8, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                             {arquivos.map((a) => (
-                                <a key={a.id} href={urlArquivo(a)} target="_blank" rel="noreferrer">
+                                // PDF abre em outra aba; Word, Excel, ZIP e demais são baixados.
+                                <a key={a.id} href={acaoDoAnexo(a) === 'abrir' ? urlDoAnexo(a) : urlDoAnexo(a, 'baixar')} target={acaoDoAnexo(a) === 'abrir' ? '_blank' : undefined} rel="noreferrer">
                                     <FaFilePdf style={{ verticalAlign: '-2px' }} /> {a.nomeArquivo}
                                 </a>
                             ))}
@@ -221,6 +230,8 @@ function Etapa({ etapa, onEditar, onAcao, onPreencher }) {
             )}
 
             {etapa.observacoes && <p style={{ margin: '10px 0 0', whiteSpace: 'pre-line' }}><Muted>Observações:</Muted> {etapa.observacoes}</p>}
+
+            {visualizando !== null && <VisualizadorDeImagens imagens={fotos} indiceInicial={visualizando} onFechar={() => setVisualizando(null)} />}
         </Card>
     );
 }
