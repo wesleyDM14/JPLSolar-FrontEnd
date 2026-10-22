@@ -4,11 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi, notificacoesApi } from '../../api/resources';
 import { Avatar } from '../../ui';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaToolbox, FaUserCog, FaUsers } from 'react-icons/fa';
+import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaToolbox, FaTruckMoving, FaUserCog, FaUsers } from 'react-icons/fa';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { TbReportAnalytics, TbSolarPanel2 } from 'react-icons/tb';
 import { logoutUser } from '../../services/authServices';
 import logo from '../../assets/logo.png';
+import { MUCK_MENU } from '../../pages/Muck/menu';
 import { ADMINISTRACAO_MENU } from '../../pages/Administracao/menu';
 import { FINANCEIRO_MENU } from '../../pages/Financial/menu';
 import GlobalSearch from './GlobalSearch';
@@ -48,6 +49,7 @@ const SECTIONS = [
             { path: '/contratos', title: 'Contratos', icon: <FaFileAlt /> },
             { path: '/usinas', title: 'Usinas', icon: <TbSolarPanel2 /> },
             { path: '/financeiro', title: 'Financeiro', icon: <FaMoneyBill />, submenu: FINANCEIRO_MENU },
+            { path: '/muck', title: 'Caminhão munck', icon: <FaTruckMoving />, submenu: MUCK_MENU },
         ],
     },
     {

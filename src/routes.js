@@ -7,6 +7,11 @@ import AuthRoute from './components/AuthRoute';
 import MainLayout from './layouts/MainLayout';
 
 import Arquivos from './pages/Administracao/Arquivos';
+import MuckPainel from './pages/Muck/Painel';
+import MuckServicos from './pages/Muck/Servicos';
+import MuckCobranca from './pages/Muck/Cobranca';
+import MuckManutencao from './pages/Muck/Manutencao';
+import MuckCadastros from './pages/Muck/Cadastros';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Financial, { CadastrosPagina, Pagar, Receber } from './pages/Financial';
@@ -72,6 +77,11 @@ export const AppRoutes = () => (
         <Route path='/servicos/:id' element={<Protected><ServicoDetail /></Protected>} />
         <Route path='/equipe' element={<Protected><Equipe /></Protected>} />
 
+        <Route path='/muck' element={<Protected><MuckPainel /></Protected>} />
+        <Route path='/muck/servicos' element={<Protected><MuckServicos /></Protected>} />
+        <Route path='/muck/cobranca' element={<Protected><MuckCobranca /></Protected>} />
+        <Route path='/muck/manutencao' element={<Protected><MuckManutencao /></Protected>} />
+        <Route path='/muck/cadastros' element={<Protected><MuckCadastros /></Protected>} />
         <Route path='/financeiro' element={<Protected><Financial /></Protected>} />
         <Route path='/financeiro/receber' element={<Protected><Receber /></Protected>} />
         <Route path='/financeiro/boletos' element={<Protected><Boletos /></Protected>} />

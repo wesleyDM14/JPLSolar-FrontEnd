@@ -505,3 +505,34 @@ async function imprimirLote(url, corpo) {
 
     return falhas;
 }
+
+/** Caminhão munck: serviços por hora, cobrança, manutenção e emissão de NFS-e com revisão. */
+export const muckApi = {
+    painel: (params) => data(api.get('/muck/painel', { params: clean(params) })),
+    cobranca: (params) => data(api.get('/muck/cobranca', { params: clean(params) })),
+    tiposManutencao: () => data(api.get('/muck/tipos-manutencao')),
+
+    veiculos: () => data(api.get('/muck/veiculos')),
+    criarVeiculo: (payload) => data(api.post('/muck/veiculos', payload)),
+    atualizarVeiculo: (id, payload) => data(api.put(`/muck/veiculos/${id}`, payload)),
+
+    motoristas: () => data(api.get('/muck/motoristas')),
+    criarMotorista: (payload) => data(api.post('/muck/motoristas', payload)),
+    atualizarMotorista: (id, payload) => data(api.put(`/muck/motoristas/${id}`, payload)),
+
+    operacoes: (params) => data(api.get('/muck/operacoes', { params: clean(params) })),
+    operacao: (id) => data(api.get(`/muck/operacoes/${id}`)),
+    criarOperacao: (payload) => data(api.post('/muck/operacoes', payload)),
+    atualizarOperacao: (id, payload) => data(api.put(`/muck/operacoes/${id}`, payload)),
+    cancelarOperacao: (id) => data(api.post(`/muck/operacoes/${id}/cancelar`)),
+    espelho: (id) => api.get(`/muck/operacoes/${id}/espelho`, { responseType: 'blob' }),
+
+    // Passo 1: confere os serviços (nada é emitido). Passo 2: emite, só com a confirmação e os mesmos número e total.
+    revisarNotas: (ids) => data(api.post('/muck/notas/revisao', { ids })),
+    emitirNotas: (payload) => data(api.post('/muck/notas/emitir', payload, { timeout: 10 * 60 * 1000 })),
+
+    manutencoes: (params) => data(api.get('/muck/manutencoes', { params: clean(params) })),
+    criarManutencao: (payload) => data(api.post('/muck/manutencoes', payload)),
+    atualizarManutencao: (id, payload) => data(api.put(`/muck/manutencoes/${id}`, payload)),
+    excluirManutencao: (id) => api.delete(`/muck/manutencoes/${id}`),
+};
