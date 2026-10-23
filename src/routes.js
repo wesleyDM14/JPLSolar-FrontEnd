@@ -8,6 +8,7 @@ import MainLayout from './layouts/MainLayout';
 
 import Arquivos from './pages/Administracao/Arquivos';
 import MuckPainel from './pages/Muck/Painel';
+import UsinasDesempenho from './pages/Usinas/Desempenho';
 import MuckServicos from './pages/Muck/Servicos';
 import MuckCobranca from './pages/Muck/Cobranca';
 import MuckManutencao from './pages/Muck/Manutencao';
@@ -63,6 +64,7 @@ export const AppRoutes = () => (
         <Route path='/clientes/:id/editar' element={<Protected><ClienteFormPage /></Protected>} />
 
         <Route path='/usinas' element={<Protected><Usinas /></Protected>} />
+        <Route path='/usinas/desempenho' element={<Protected><UsinasDesempenho /></Protected>} />
         <Route path='/usinas/nova' element={<Protected><UsinaFormPage /></Protected>} />
         <Route path='/usinas/:id' element={<Protected><UsinaDetail /></Protected>} />
         <Route path='/usinas/:id/editar' element={<Protected><UsinaFormPage /></Protected>} />

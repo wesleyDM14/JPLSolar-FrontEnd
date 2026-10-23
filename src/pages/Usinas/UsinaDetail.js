@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { usinasApi } from '../../api/resources';
 import { errorMessage } from '../../api/client';
+import InversoresCard from './InversoresCard';
 import { Button, Card, CardTitle, ConfirmDialog, ErrorBlock, Grid, IconChip, KeyValue, LoadingBlock, Page, PageHeader, Reveal, StatCard, StatGrid, Tabs, tokens } from '../../ui';
 import { inversorLabel } from '../../utils/enums';
 import { formatDate } from '../../utils/masks';
@@ -159,6 +160,7 @@ export default function UsinaDetailPage() {
                                     {usina.ativa
                                         ? (status.hint ?? 'Operando normalmente.')
                                         : 'Não é consultada pelo monitoramento.'}
+                                    {usina.ativa && usina.diagnostico ? ` ${usina.diagnostico}` : ''}
                                     {usina.ativa && !status.ok && usina.ultimoErro ? ` Último erro de leitura: ${usina.ultimoErro}` : ''}
                                 </div>
                             </div>
@@ -175,6 +177,8 @@ export default function UsinaDetailPage() {
                         <StatCard icon={FaCalendarAlt} tom="teal" rotulo="No mês" valor={usina.eMonth != null ? Number(usina.eMonth) : '—'} formato={(n) => `${Math.round(n).toLocaleString('pt-BR')} kWh`} detalhe={`estimado ${usina.estimatedGeneration} kWh/mês`} delay={120} />
                         <StatCard icon={FaLeaf} tom="green" rotulo="Acumulado" valor={usina.eTotal != null ? Number(usina.eTotal) : '—'} formato={(n) => `${(n / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MWh`} detalhe="desde a instalação" delay={180} />
                     </StatGrid>
+
+                    <InversoresCard inversores={usina.inversores} />
 
                     <Card>
                         <CardTitle>Instalação</CardTitle>

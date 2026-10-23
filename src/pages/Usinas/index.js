@@ -98,7 +98,7 @@ export default function UsinasPage() {
                 if (!u.ativa) return <Badge $tone="neutral">Inativa</Badge>;
                 const status = usinaStatus(u.statusMonitoramento);
                 return (
-                    <span title={status.hint}>
+                    <span title={u.diagnostico ?? status.hint}>
                         <Badge $tone={status.tone}>
                             <Dot $tone={{ success: 'green', info: 'blue', warning: 'orange', danger: 'red', neutral: 'gray' }[status.tone]} $pulse={status.tone === 'danger'} />
                             {status.label}
@@ -139,7 +139,7 @@ export default function UsinasPage() {
                 tone="orange"
                 title="Usinas"
                 subtitle="Usinas cadastradas e monitoradas."
-                actions={<Button icon={<FaPlus />} onClick={() => navigate('/usinas/nova')}>Nova usina</Button>}
+                actions={<><Button variant="secondary" onClick={() => navigate('/usinas/desempenho')}>Desempenho</Button><Button icon={<FaPlus />} onClick={() => navigate('/usinas/nova')}>Nova usina</Button></>}
             />
 
             <StatGrid>

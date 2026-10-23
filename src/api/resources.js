@@ -34,6 +34,7 @@ export const usinasApi = {
     monitoramento: (id) => data(api.get(`/usinas/${id}/monitoramento`)),
     erros: (id, params) => data(api.get(`/usinas/${id}/erros`, { params })),
     geracao: (id, params) => data(api.get(`/usinas/${id}/geracao`, { params })),
+    desempenho: (dias) => data(api.get('/usinas/desempenho', { params: { dias } })),
     relatorio: (id, ano) => api.post(`/usinas/${id}/relatorio`, { ano }, { responseType: 'blob' }),
 };
 
