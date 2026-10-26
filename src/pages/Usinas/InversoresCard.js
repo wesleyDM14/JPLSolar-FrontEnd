@@ -62,9 +62,9 @@ export default function InversoresCard({ usinaId, inversores }) {
                                             <Badge $tone="neutral">{i.ignorado ? 'Ignorado por você' : 'Inativo (sem dados recentes)'}</Badge>
                                         )}
                                     </td>
-                                    <td style={{ padding: '8px' }}>{i.ativo ? `${num(i.potenciaW, 0)} W` : '—'}</td>
-                                    <td style={{ padding: '8px' }}>{i.ativo ? `${num(i.energiaHojeKwh)} kWh` : '—'}</td>
-                                    <td style={{ padding: '8px' }}>{num(i.energiaTotalKwh, 0)} kWh</td>
+                                    <td style={{ padding: '8px' }}>{i.ativo && i.potenciaW !== null && i.potenciaW !== undefined ? `${num(i.potenciaW, 0)} W` : '—'}</td>
+                                    <td style={{ padding: '8px' }}>{i.ativo && i.energiaHojeKwh !== null && i.energiaHojeKwh !== undefined ? `${num(i.energiaHojeKwh)} kWh` : '—'}</td>
+                                    <td style={{ padding: '8px' }}>{i.energiaTotalKwh !== null && i.energiaTotalKwh !== undefined ? `${num(i.energiaTotalKwh, 0)} kWh` : '—'}</td>
                                     <td style={{ padding: '8px' }}>{i.ultimaComunicacao ? dataHoraBr(i.ultimaComunicacao) : '—'}</td>
                                     <td style={{ padding: '8px', textAlign: 'right' }}>
                                         {!semDados && (i.ignorado || i.ativo) && (
