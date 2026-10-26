@@ -158,9 +158,8 @@ export default function UsinaDetailPage() {
                                 </div>
                                 <div className="detalhe">
                                     {usina.ativa
-                                        ? (status.hint ?? 'Operando normalmente.')
+                                        ? (usina.diagnostico ?? status.hint ?? 'Operando normalmente.')
                                         : 'Não é consultada pelo monitoramento.'}
-                                    {usina.ativa && usina.diagnostico ? ` ${usina.diagnostico}` : ''}
                                     {usina.ativa && !status.ok && usina.ultimoErro ? ` Último erro de leitura: ${usina.ultimoErro}` : ''}
                                 </div>
                             </div>
@@ -178,7 +177,7 @@ export default function UsinaDetailPage() {
                         <StatCard icon={FaLeaf} tom="green" rotulo="Acumulado" valor={usina.eTotal != null ? Number(usina.eTotal) : '—'} formato={(n) => `${(n / 1000).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MWh`} detalhe="desde a instalação" delay={180} />
                     </StatGrid>
 
-                    <InversoresCard inversores={usina.inversores} />
+                    <InversoresCard usinaId={usina.id} inversores={usina.inversores} />
 
                     <Card>
                         <CardTitle>Instalação</CardTitle>
