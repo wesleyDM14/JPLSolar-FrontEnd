@@ -184,7 +184,8 @@ export const financeiroApi = {
     lancamento: (id) => data(api.get(`/financeiro/lancamentos/${id}`)),
     createLancamento: (payload) => data(api.post('/financeiro/lancamentos', payload)),
     updateLancamento: (id, payload) => data(api.put(`/financeiro/lancamentos/${id}`, payload)),
-    removeLancamento: (id) => api.delete(`/financeiro/lancamentos/${id}`),
+    // forcar: confirma a exclusão de lançamento com baixas (elas são apagadas junto).
+    removeLancamento: (id, forcar = false) => data(api.delete(`/financeiro/lancamentos/${id}`, { params: forcar ? { forcar: true } : undefined })),
     cancelarLancamento: (id) => data(api.post(`/financeiro/lancamentos/${id}/cancelar`)),
     reabrirLancamento: (id) => data(api.post(`/financeiro/lancamentos/${id}/reabrir`)),
 

@@ -32,7 +32,7 @@ export default function LancamentoDialog({ id, onClose }) {
         mutationFn: async (tipo) => {
             if (tipo === 'cancelar') return financeiroApi.cancelarLancamento(id);
             if (tipo === 'reabrir') return financeiroApi.reabrirLancamento(id);
-            if (tipo === 'excluir') return financeiroApi.removeLancamento(id);
+            if (tipo === 'excluir') return financeiroApi.removeLancamento(id, true);
             if (tipo?.estornar) return financeiroApi.estornar(tipo.estornar.id);
             return null;
         },
@@ -58,6 +58,8 @@ export default function LancamentoDialog({ id, onClose }) {
     const situacao = lancamento ? situacaoInfo(lancamento.situacao, lancamento.tipo) : null;
     const emAberto = lancamento && ['ABERTO', 'PARCIAL'].includes(lancamento.status);
     const cancelado = lancamento?.status === 'CANCELADO';
+    // Boleto ainda valendo no banco impede a exclusão (seria possível pagá-lo sem aparecer aqui).
+    const boletoAtivo = Boolean(lancamento?.boleto) && !/^(BAIXADO|LIQUIDADO|REJEITADO)/i.test(lancamento.boleto.situacao ?? '');
     const ativos = (lancamento?.pagamentos ?? []).filter((pagamento) => !pagamento.estornadoEm);
 
     return (
@@ -143,9 +145,10 @@ export default function LancamentoDialog({ id, onClose }) {
                                 <Button size="sm" variant="secondary" onClick={() => setConfirmacao('cancelar')}>Cancelar lançamento</Button>
                             )}
                             {cancelado && <Button size="sm" variant="secondary" onClick={() => acao.mutate('reabrir')}>Reabrir</Button>}
-                            {lancamento.pagamentos.length === 0 && !lancamento.boleto && (
+                            {!boletoAtivo && (
                                 <Button size="sm" variant="danger" onClick={() => setConfirmacao('excluir')}>Excluir</Button>
                             )}
+                            {boletoAtivo && <Muted>Para excluir, baixe ou cancele antes o boleto emitido no banco.</Muted>}
                         </Row>
                     </>
                 )}
@@ -160,7 +163,9 @@ export default function LancamentoDialog({ id, onClose }) {
                 title={confirmacao === 'excluir' ? 'Excluir lançamento' : confirmacao === 'cancelar' ? 'Cancelar lançamento' : 'Estornar pagamento'}
                 message={
                     confirmacao === 'excluir'
-                        ? 'Excluir este lançamento? Esta ação não pode ser desfeita.'
+                        ? ativos.length > 0
+                            ? `Excluir este lançamento? ${ativos.length === 1 ? 'A baixa' : `As ${ativos.length} baixas`} de ${brl(ativos.reduce((soma, p) => soma + Number(p.valor), 0))} ${ativos.length === 1 ? 'será apagada' : 'serão apagadas'} junto e o saldo das contas muda. Esta ação não pode ser desfeita.`
+                            : 'Excluir este lançamento? Esta ação não pode ser desfeita.'
                         : confirmacao === 'cancelar'
                             ? 'Cancelar este lançamento? Ele sai dos totais e pode ser reaberto depois.'
                             : `Estornar o pagamento de ${confirmacao?.estornar ? brl(confirmacao.estornar.valor) : ''}? O valor volta a ficar em aberto.`
