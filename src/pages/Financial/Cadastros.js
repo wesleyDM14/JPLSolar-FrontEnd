@@ -135,6 +135,7 @@ const GRUPOS_DRE = [
     { value: 'RECEITAS_FINANCEIRAS', label: 'Receitas financeiras' },
     { value: 'DESPESAS_FINANCEIRAS', label: 'Despesas financeiras' },
     { value: 'IMPOSTOS_LUCRO', label: 'Impostos sobre o lucro (IRPJ/CSLL)' },
+    { value: 'FORA_DO_RESULTADO', label: 'Fora do resultado (empréstimos e investimentos)' },
 ];
 
 const paraBooleano = (valor) => valor === true || valor === 'true';

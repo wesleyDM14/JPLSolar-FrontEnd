@@ -196,6 +196,13 @@ export default function Dre() {
                     </table>
                 </Tabela>
             )}
+            {data?.foraDoResultado && data.foraDoResultado.total !== 0 && (
+                <p style={{ marginTop: 12 }}>
+                    <Muted>
+                        Fora do resultado (empréstimos, consórcios e investimentos): {brl(data.foraDoResultado.total)} no período. Esse valor não entra no lucro, mas conta no fluxo de caixa.
+                    </Muted>
+                </p>
+            )}
             <p style={{ marginTop: 12 }}>
                 <Muted>
                     Regime de competência considera o vencimento dos lançamentos; regime de caixa considera apenas o que foi efetivamente pago ou recebido.
