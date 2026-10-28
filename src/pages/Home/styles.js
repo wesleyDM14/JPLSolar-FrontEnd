@@ -90,6 +90,7 @@ export const FeatureList = styled.ul`
 `;
 
 export const FormPanel = styled.section`
+    position: relative;
     display: grid;
     place-items: center;
     padding: 32px 20px;

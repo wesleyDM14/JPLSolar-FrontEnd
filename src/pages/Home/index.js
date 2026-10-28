@@ -73,7 +73,7 @@ const Home = () => {
                         </Form>
                     </Formik>
                 </Card>
-                <Direitos />
+                <Direitos rodape />
             </FormPanel>
         </Screen>
     );
