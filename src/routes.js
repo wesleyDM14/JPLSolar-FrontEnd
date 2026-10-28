@@ -26,6 +26,8 @@ import Atividades from './pages/Financial/fiscal/Atividades';
 import Notas from './pages/Financial/fiscal/Notas';
 import FluxoCaixa from './pages/Financial/FluxoCaixa';
 import Indicadores from './pages/Financial/Indicadores';
+import Auditoria from './pages/Auditoria';
+import Chat from './pages/Chat';
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
 import Reports from './pages/Reports';
@@ -100,6 +102,8 @@ export const AppRoutes = () => (
         <Route path='/financeiro/cadastros' element={<Protected><CadastrosPagina /></Protected>} />
         <Route path='/relatorios' element={<Protected><Reports /></Protected>} />
         <Route path='/tarefas' element={<Protected><Tasks /></Protected>} />
+        <Route path='/auditoria' element={<Protected><Auditoria /></Protected>} />
+        <Route path='/chat' element={<Protected><Chat /></Protected>} />
         <Route path='/notificacoes' element={<Protected><Notifications /></Protected>} />
         <Route path='/administracao' element={<Navigate to='/administracao/arquivos' replace />} />
         <Route path='/administracao/arquivos' element={<Protected><Arquivos /></Protected>} />

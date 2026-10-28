@@ -541,3 +541,21 @@ export const muckApi = {
     atualizarManutencao: (id, payload) => data(api.put(`/muck/manutencoes/${id}`, payload)),
     excluirManutencao: (id) => api.delete(`/muck/manutencoes/${id}`),
 };
+
+export const auditoriaApi = {
+    listar: (params) => data(api.get('/auditoria', { params: clean(params) })),
+    filtros: () => data(api.get('/auditoria/filtros')),
+    exportar: (params) => api.get('/auditoria/exportar', { params: clean(params), responseType: 'blob' }),
+};
+
+export const chatApi = {
+    usuarios: () => data(api.get('/chat/usuarios')),
+    conversas: () => data(api.get('/chat/conversas')),
+    abrirDireta: (userId) => data(api.post('/chat/conversas', { tipo: 'DIRETA', userId })),
+    criarGrupo: (titulo, userIds) => data(api.post('/chat/conversas', { tipo: 'GRUPO', titulo, userIds })),
+    mensagens: (id, params) => data(api.get(`/chat/conversas/${id}/mensagens`, { params: clean(params) })),
+    enviar: (id, texto) => data(api.post(`/chat/conversas/${id}/mensagens`, { texto })),
+    marcarLida: (id) => api.post(`/chat/conversas/${id}/lida`),
+    apagar: (mensagemId) => api.delete(`/chat/mensagens/${mensagemId}`),
+    naoLidas: () => data(api.get('/chat/nao-lidas')),
+};

@@ -6,6 +6,7 @@ import { FaEye, FaEyeSlash, FaFileContract, FaSolarPanel, FaUsers } from 'react-
 import * as Yup from 'yup';
 import logo from '../../assets/logo.png';
 import { loginUser } from '../../services/authServices';
+import Direitos from '../../components/Direitos';
 import { Button, TextField } from '../../ui';
 import { BrandPanel, Card, FeatureList, FormPanel, PasswordToggle, Screen } from './styles';
 
@@ -72,6 +73,7 @@ const Home = () => {
                         </Form>
                     </Formik>
                 </Card>
+                <Direitos />
             </FormPanel>
         </Screen>
     );

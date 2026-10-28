@@ -59,3 +59,16 @@ export const mesPorExtenso = (iso) => {
 
 /** Data e hora de um instante, no fuso de Brasília. */
 export const dataHoraBr = (valor) => (valor ? new Date(valor).toLocaleString('pt-BR', { timeZone: FUSO_HORARIO }) : '');
+
+/** "há 5 min", "há 3 h", "há 2 dias" a partir de uma data ISO. */
+export function tempoDesde(valor, agora = Date.now()) {
+    if (!valor) return '';
+    const minutos = Math.max(0, Math.round((agora - new Date(valor).getTime()) / 60000));
+    if (Number.isNaN(minutos)) return '';
+    if (minutos < 1) return 'agora';
+    if (minutos < 60) return `há ${minutos} min`;
+    const horas = Math.round(minutos / 60);
+    if (horas < 24) return `há ${horas} h`;
+    const dias = Math.round(horas / 24);
+    return `há ${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+}

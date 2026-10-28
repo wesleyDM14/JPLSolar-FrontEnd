@@ -12,6 +12,7 @@ const CATEGORIAS = [
     { id: 'pagamentos', rotulo: 'Pagamentos recebidos' },
     { id: 'boletos', rotulo: 'Boletos emitidos' },
     { id: 'usinas', rotulo: 'Usinas em alerta ou offline' },
+    { id: 'chat', rotulo: 'Mensagens do chat' },
     { id: 'sistema', rotulo: 'Avisos do sistema' },
 ];
 

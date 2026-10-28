@@ -3,8 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { authApi, notificacoesApi } from '../../api/resources';
 import { Avatar } from '../../ui';
+import ChatFlutuante from '../ChatFlutuante';
+import Direitos from '../Direitos';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBars, FaBell, FaFileAlt, FaHardHat, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaToolbox, FaTruckMoving, FaUserCog, FaUsers } from 'react-icons/fa';
+import { FaBars, FaBell, FaFileAlt, FaHardHat, FaHistory, FaMoneyBill, FaPowerOff, FaTasks, FaTimes, FaToolbox, FaTruckMoving, FaUserCog, FaUsers } from 'react-icons/fa';
 import { MdSpaceDashboard } from 'react-icons/md';
 import { TbReportAnalytics, TbSolarPanel2 } from 'react-icons/tb';
 import { logoutUser } from '../../services/authServices';
@@ -60,6 +62,7 @@ const SECTIONS = [
             { path: '/equipe', title: 'Equipe e acessos', icon: <FaUserCog /> },
             { path: '/tarefas', title: 'Tarefas', icon: <FaTasks /> },
             { path: '/notificacoes', title: 'Notificações', icon: <FaBell />, contador: true },
+            { path: '/auditoria', title: 'Auditoria', icon: <FaHistory /> },
             { path: '/administracao', title: 'Administração', icon: <FaToolbox />, submenu: ADMINISTRACAO_MENU },
         ],
     },
@@ -189,8 +192,11 @@ export default function Shell({ children }) {
                     </button>
                 </TopbarBar>
 
+                <ChatFlutuante />
+
                 <Content>
                     <PageTransition key={location.pathname}>{children}</PageTransition>
+                    <Direitos />
                 </Content>
             </Column>
         </Frame>
