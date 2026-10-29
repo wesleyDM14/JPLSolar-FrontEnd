@@ -29,6 +29,11 @@ export const REGIMES = [
     { value: 'LUCRO_REAL', label: 'Lucro real' },
 ];
 
+export const PROVEDORES_NFSE = [
+    { value: 'NACIONAL', label: 'Emissor Nacional (obrigatório para Simples Nacional desde 01/11/2026)' },
+    { value: 'MUNICIPAL', label: 'Webservice da prefeitura' },
+];
+
 export const AMBIENTES = [
     { value: 'HOMOLOGACAO', label: 'Homologação (testes)' },
     { value: 'PRODUCAO', label: 'Produção' },

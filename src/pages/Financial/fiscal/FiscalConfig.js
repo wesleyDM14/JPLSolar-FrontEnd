@@ -8,7 +8,7 @@ import { errorMessage, fieldErrors } from '../../../api/client';
 import { fiscalApi } from '../../../api/resources';
 import { Badge, Button, Card, ErrorBlock, Grid, LoadingBlock, Muted, Page, PageHeader, Reveal, Row, SectionTitle, SelectField, TextField } from '../../../ui';
 import NfseAcesso from './NfseAcesso';
-import { AMBIENTES, REGIMES } from './formato';
+import { AMBIENTES, PROVEDORES_NFSE, REGIMES } from './formato';
 
 const schema = Yup.object({
     cnpj: Yup.string().test('cnpj', 'O CNPJ deve ter 14 dígitos', (v) => !v || v.replace(/\D/g, '').length === 14),
@@ -70,6 +70,8 @@ export default function FiscalConfig() {
                         aliquotaIssPadrao: data.aliquotaIssPadrao ?? '',
                         incentivoFiscal: data.incentivoFiscal ? 'true' : 'false',
                         enviarIbsCbs: data.enviarIbsCbs === false ? 'false' : 'true',
+                        provedorNfse: data.provedorNfse ?? 'MUNICIPAL',
+                        serieDps: data.serieDps ?? '1',
                     }}
                     validationSchema={schema}
                     onSubmit={async (values, { setErrors }) => {
@@ -109,6 +111,8 @@ export default function FiscalConfig() {
                                 <Card>
                                     <SectionTitle icon={FaFileSignature} tom="purple">Parâmetros da NFS-e</SectionTitle>
                                     <Grid $cols={3}>
+                                        <SelectField name="provedorNfse" label="Como emitir a NFS-e" options={PROVEDORES_NFSE} placeholder={null} />
+                                        <TextField name="serieDps" label="Série da DPS (Emissor Nacional)" hint="Até 5 dígitos; a numeração é do sistema" maxLength={5} />
                                         <TextField name="codigoMunicipio" label="Código IBGE do município" hint="São Miguel/RN: 2412500" maxLength={7} />
                                         <TextField name="itemListaServicoPadrao" label="Item da lista de serviços (padrão)" hint="Ex.: 07.02" />
                                         <TextField name="codigoTributacaoPadrao" label="Código de tributação municipal" />
